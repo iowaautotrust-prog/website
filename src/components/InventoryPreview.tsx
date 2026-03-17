@@ -1,7 +1,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { vehicles } from "@/data/vehicles";
+import { getVehicles } from "@/data/vehicles";
 import { ArrowRight } from "lucide-react";
 
 const InventoryPreview = () => {
