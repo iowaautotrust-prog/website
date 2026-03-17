@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef } from "react";
 import { useInView } from "framer-motion";
-import { vehicles } from "@/data/vehicles";
+import { getVehicles } from "@/data/vehicles";
 import { Link } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Fuel, Users, Car, DollarSign } from "lucide-react";
 
