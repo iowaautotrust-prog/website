@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef } from "react";
 import { useInView } from "framer-motion";
-import { vehicles } from "@/data/vehicles";
+import { getVehicles } from "@/data/vehicles";
 import { Link } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Fuel, Users, Car, DollarSign } from "lucide-react";
 
@@ -78,7 +78,7 @@ const DiscoveryQuiz = () => {
   };
 
   const getRecommendations = () => {
-    return vehicles.filter((v) => {
+    return getVehicles().filter((v) => {
       if (answers.type && answers.type !== "any" && v.type !== answers.type) return false;
       if (answers.fuel && answers.fuel !== "any" && v.fuel !== answers.fuel) return false;
       if (answers.seats && answers.seats !== "any" && v.seats !== parseInt(answers.seats)) return false;

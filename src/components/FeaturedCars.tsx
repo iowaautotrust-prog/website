@@ -1,14 +1,14 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { vehicles } from "@/data/vehicles";
+import { getVehicles } from "@/data/vehicles";
 import { ArrowRight } from "lucide-react";
 
 const FeaturedCars = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
-  const featured = vehicles.slice(0, 4);
+  const featured = getVehicles().slice(0, 4);
 
   return (
     <section ref={ref} className="section-spacing section-padding">

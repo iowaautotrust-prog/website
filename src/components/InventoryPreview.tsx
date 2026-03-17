@@ -1,7 +1,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { vehicles } from "@/data/vehicles";
+import { getVehicles } from "@/data/vehicles";
 import { ArrowRight } from "lucide-react";
 
 const InventoryPreview = () => {
@@ -22,7 +22,7 @@ const InventoryPreview = () => {
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-        {vehicles.slice(0, 4).map((car, i) => (
+        {getVehicles().slice(0, 4).map((car, i) => (
           <motion.div
             key={car.id}
             initial={{ opacity: 0, y: 30 }}
