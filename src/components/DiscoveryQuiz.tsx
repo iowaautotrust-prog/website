@@ -78,7 +78,7 @@ const DiscoveryQuiz = () => {
   };
 
   const getRecommendations = () => {
-    return vehicles.filter((v) => {
+    return getVehicles().filter((v) => {
       if (answers.type && answers.type !== "any" && v.type !== answers.type) return false;
       if (answers.fuel && answers.fuel !== "any" && v.fuel !== answers.fuel) return false;
       if (answers.seats && answers.seats !== "any" && v.seats !== parseInt(answers.seats)) return false;
