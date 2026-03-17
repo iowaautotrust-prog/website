@@ -23,6 +23,7 @@ const AdminInventory = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<Partial<Vehicle>>(emptyForm());
   const [featuresText, setFeaturesText] = useState("");
+  const [imageLoading, setImageLoading] = useState(false);
   // Force re-render
   const [, forceUpdate] = useState(0);
 
@@ -49,11 +50,13 @@ const AdminInventory = () => {
     if (editingId) {
       updateVehicle(editingId, { ...form, features });
     } else {
+      const mainImage = form.image || car1;
+      const images = form.images && form.images.length > 0 ? form.images : [mainImage];
       const newVehicle: Vehicle = {
         ...(form as Vehicle),
         id: crypto.randomUUID(),
-        image: car1,
-        images: [car1, car1, car1],
+        image: mainImage,
+        images,
         features,
       };
       addVehicle(newVehicle);
@@ -71,6 +74,21 @@ const AdminInventory = () => {
   };
 
   const setField = (key: string, value: any) => setForm({ ...form, [key]: value });
+
+  const handleImageChange = (file?: File | null) => {
+    if (!file) return;
+    const reader = new FileReader();
+    setImageLoading(true);
+    reader.onload = () => {
+      const dataUrl = typeof reader.result === "string" ? reader.result : "";
+      if (dataUrl) {
+        setForm((prev) => ({ ...prev, image: dataUrl, images: [dataUrl] }));
+      }
+      setImageLoading(false);
+    };
+    reader.onerror = () => setImageLoading(false);
+    reader.readAsDataURL(file);
+  };
 
   return (
     <div className="bg-background min-h-screen">
@@ -170,6 +188,30 @@ const AdminInventory = () => {
                 <div className="col-span-2">
                   <label className="text-sm font-medium text-foreground mb-1 block">Features (comma-separated)</label>
                   <Input value={featuresText} onChange={(e) => setFeaturesText(e.target.value)} placeholder="Leather Interior, Panoramic Roof, ..." />
+                </div>
+                <div className="col-span-2">
+                  <label className="text-sm font-medium text-foreground mb-1 block">Vehicle Image</label>
+                  <div className="flex flex-col md:flex-row gap-4 md:items-center">
+                    <div className="w-44 aspect-[4/3] rounded-xl border border-border overflow-hidden bg-secondary flex items-center justify-center text-xs text-muted-foreground">
+                      {form.image ? (
+                        <img src={form.image} alt="Vehicle preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <span>No image selected</span>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={(e) => handleImageChange(e.target.files?.[0])}
+                        disabled={imageLoading}
+                      />
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Upload or capture an image for this vehicle. The first image is used across listings.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 

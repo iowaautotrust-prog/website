@@ -4,6 +4,7 @@ import { useApp } from "@/contexts/AppContext";
 import { getVehicles } from "@/data/vehicles";
 import { ArrowLeft, X } from "lucide-react";
 import Footer from "@/components/Footer";
+import { useMemo, useState } from "react";
 
 const specs = [
   { label: "Price", fn: (v: any) => `$${v.price.toLocaleString()}` },
@@ -20,6 +21,12 @@ const Compare = () => {
   const { compareList, toggleCompare, clearCompare } = useApp();
   const allVehicles = getVehicles();
   const cars = compareList.map((id) => allVehicles.find((v) => v.id === id)).filter(Boolean) as any[];
+  const [addId, setAddId] = useState("");
+  const availableVehicles = useMemo(
+    () => allVehicles.filter((v) => !compareList.includes(v.id)),
+    [allVehicles, compareList],
+  );
+  const canAddMore = compareList.length < 3;
 
   return (
     <div className="bg-background min-h-screen">
@@ -27,14 +34,43 @@ const Compare = () => {
         <Link to="/inventory" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8">
           <ArrowLeft className="w-4 h-4" /> Back to Inventory
         </Link>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <p className="text-overline mb-3">Compare</p>
             <h1 className="heading-section">Compare Vehicles</h1>
           </div>
-          {cars.length > 0 && (
-            <button onClick={clearCompare} className="text-sm text-destructive hover:underline">Clear All</button>
-          )}
+          <div className="flex flex-col items-start md:items-end gap-2">
+            {cars.length > 0 && (
+              <button onClick={clearCompare} className="text-sm text-destructive hover:underline">Clear All</button>
+            )}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <select
+                value={addId}
+                onChange={(e) => setAddId(e.target.value)}
+                className="flex h-10 w-full sm:w-64 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                disabled={!canAddMore || availableVehicles.length === 0}
+              >
+                <option value="">Add a vehicle to compare</option>
+                {availableVehicles.map((v) => (
+                  <option key={v.id} value={v.id}>{v.name}</option>
+                ))}
+              </select>
+              <button
+                onClick={() => {
+                  if (!addId) return;
+                  toggleCompare(addId);
+                  setAddId("");
+                }}
+                disabled={!addId || !canAddMore}
+                className="btn-hero text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Add
+              </button>
+            </div>
+            {!canAddMore && (
+              <p className="text-xs text-muted-foreground">You can compare up to 3 vehicles.</p>
+            )}
+          </div>
         </div>
       </div>
 
