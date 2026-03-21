@@ -1,7 +1,9 @@
-import { motion, AnimatePresence } from "framer-motion";
-import { useState, useRef } from "react";
-import { useInView } from "framer-motion";
-import { getVehicles } from "@/data/vehicles";
+import { motion, AnimatePresence, useInView } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { useApp } from "@/contexts/AppContext";
+import { DEMO_VEHICLES } from "@/lib/demoData";
+import type { Vehicle } from "@/lib/types";
 import { Link } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Fuel, Users, Car, DollarSign } from "lucide-react";
 
@@ -59,17 +61,53 @@ interface Answers {
   seats?: string;
 }
 
+const buildInventoryUrl = (answers: Answers) => {
+  const params = new URLSearchParams();
+  if (answers.type && answers.type !== "any") params.set("type", answers.type);
+  if (answers.fuel && answers.fuel !== "any") params.set("fuel", answers.fuel);
+  const url = `/inventory${params.toString() ? `?${params}` : ""}`;
+  return url;
+};
+
 const DiscoveryQuiz = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [showResults, setShowResults] = useState(false);
+  const [recommendations, setRecommendations] = useState<Vehicle[]>([]);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const { isDemoMode } = useApp();
+
+  useEffect(() => {
+    if (!showResults) return;
+    if (isDemoMode) {
+      let results = DEMO_VEHICLES.filter((v) => {
+        if (answers.type && answers.type !== "any" && v.type !== answers.type) return false;
+        if (answers.fuel && answers.fuel !== "any" && v.fuel !== answers.fuel) return false;
+        if (answers.seats && answers.seats !== "any") {
+          const s = parseInt(answers.seats);
+          if (answers.seats === "7") { if ((v.seats ?? 0) < 7) return false; }
+          else if (v.seats !== s) return false;
+        }
+        return true;
+      });
+      setRecommendations(results.slice(0, 2));
+      return;
+    }
+    let query = supabase.from("vehicles").select("*").eq("status", "available");
+    if (answers.type && answers.type !== "any") query = query.eq("type", answers.type);
+    if (answers.fuel && answers.fuel !== "any") query = query.eq("fuel", answers.fuel);
+    if (answers.seats && answers.seats !== "any") {
+      const seatsNum = parseInt(answers.seats);
+      if (answers.seats === "7") query = query.gte("seats", 7);
+      else query = query.eq("seats", seatsNum);
+    }
+    query.limit(2).then(({ data }) => setRecommendations((data as Vehicle[]) ?? []));
+  }, [showResults, isDemoMode]);
 
   const handleSelect = (key: string, value: string) => {
     const newAnswers = { ...answers, [key]: value };
     setAnswers(newAnswers);
-
     if (currentStep < steps.length - 1) {
       setTimeout(() => setCurrentStep(currentStep + 1), 300);
     } else {
@@ -77,23 +115,14 @@ const DiscoveryQuiz = () => {
     }
   };
 
-  const getRecommendations = () => {
-    return getVehicles().filter((v) => {
-      if (answers.type && answers.type !== "any" && v.type !== answers.type) return false;
-      if (answers.fuel && answers.fuel !== "any" && v.fuel !== answers.fuel) return false;
-      if (answers.seats && answers.seats !== "any" && v.seats !== parseInt(answers.seats)) return false;
-      return true;
-    }).slice(0, 2);
-  };
-
   const reset = () => {
     setCurrentStep(0);
     setAnswers({});
     setShowResults(false);
+    setRecommendations([]);
   };
 
   const step = steps[currentStep];
-  const recommendations = getRecommendations();
 
   return (
     <section id="quiz" ref={ref} className="section-spacing section-padding">
@@ -176,7 +205,11 @@ const DiscoveryQuiz = () => {
                       className="card-cinematic flex flex-col sm:flex-row overflow-hidden group"
                     >
                       <div className="sm:w-2/5 aspect-video sm:aspect-auto overflow-hidden">
-                        <img src={car.image} alt={car.name} className="card-image w-full h-full object-cover" />
+                        {car.image_url ? (
+                          <img src={car.image_url} alt={car.name} className="card-image w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-secondary min-h-[160px]" />
+                        )}
                       </div>
                       <div className="sm:w-3/5 p-6 flex flex-col justify-center">
                         <p className="text-overline mb-2">{car.year} · {car.fuel}</p>
@@ -197,8 +230,8 @@ const DiscoveryQuiz = () => {
                 <button onClick={reset} className="btn-hero-outline text-xs">
                   Start Over
                 </button>
-                <Link to="/inventory" className="btn-hero text-xs">
-                  View All Inventory
+                <Link to={buildInventoryUrl(answers)} className="btn-hero text-xs">
+                  View All Matches
                 </Link>
               </div>
             </motion.div>

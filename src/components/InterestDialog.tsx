@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
 import { Input } from "@/components/ui/input";
 import { X, Check } from "lucide-react";
-import { Vehicle } from "@/data/vehicles";
+import type { Vehicle } from "@/lib/types";
 
 interface Props {
   vehicle: Vehicle;
@@ -24,13 +24,15 @@ const InterestDialog = ({ vehicle, open, onClose }: Props) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     addLead({
-      userId: user?.id,
-      userName: name,
-      userEmail: email,
-      userPhone: phone,
-      vehicleId: vehicle.id,
-      vehicleName: vehicle.name,
+      user_id: user?.id ?? null,
+      name,
+      email,
+      phone,
+      vehicle_id: vehicle.id,
+      vehicle_name: vehicle.name,
       message,
+      lead_type: "inquiry",
+      status: "new",
     });
     setSubmitted(true);
     setTimeout(() => { setSubmitted(false); onClose(); }, 2000);

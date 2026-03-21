@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find d:/Iowaautotrust/auto-charm/src -name *.css -o -name index.css)",
+      "Bash(npm install:*)",
+      "Bash(npm list:*)",
+      "Bash(npm run:*)",
+      "Bash(npm update:*)",
+      "Bash(npm audit:*)"
+    ]
+  }
+}

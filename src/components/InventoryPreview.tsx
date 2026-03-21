@@ -1,12 +1,33 @@
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getVehicles } from "@/data/vehicles";
+import { supabase } from "@/lib/supabase";
+import { useApp } from "@/contexts/AppContext";
+import { DEMO_VEHICLES } from "@/lib/demoData";
+import type { Vehicle } from "@/lib/types";
 import { ArrowRight } from "lucide-react";
 
 const InventoryPreview = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const { isDemoMode } = useApp();
+
+  useEffect(() => {
+    if (isDemoMode) {
+      setVehicles(DEMO_VEHICLES.slice(4, 8));
+      return;
+    }
+    supabase
+      .from("vehicles")
+      .select("*")
+      .in("status", ["available", "pending"])
+      .order("created_at", { ascending: false })
+      .limit(4)
+      .then(({ data }) => setVehicles((data as Vehicle[]) ?? []));
+  }, [isDemoMode]);
+
+  if (vehicles.length === 0) return null;
 
   return (
     <section ref={ref} className="section-spacing section-padding bg-secondary">
@@ -22,7 +43,7 @@ const InventoryPreview = () => {
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-        {getVehicles().slice(0, 4).map((car, i) => (
+        {vehicles.map((car, i) => (
           <motion.div
             key={car.id}
             initial={{ opacity: 0, y: 30 }}
@@ -31,7 +52,11 @@ const InventoryPreview = () => {
           >
             <Link to={`/vehicle/${car.id}`} className="card-cinematic block group">
               <div className="aspect-[4/3] overflow-hidden">
-                <img src={car.image} alt={car.name} className="card-image w-full h-full object-cover" />
+                {car.image_url ? (
+                  <img src={car.image_url} alt={car.name} className="card-image w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-secondary/60 min-h-[200px]" />
+                )}
               </div>
               <div className="p-6">
                 <p className="text-xs text-muted-foreground mb-1">{car.year} · {car.mileage.toLocaleString()} mi</p>
