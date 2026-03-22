@@ -100,7 +100,7 @@ export default function Contact() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
             {/* Contact Info */}
             <motion.div
               initial={{ opacity: 0, x: -24 }}
@@ -134,7 +134,7 @@ export default function Contact() {
               ))}
 
               {/* Map embed placeholder */}
-              <div className="rounded-xl overflow-hidden border border-border h-56 mt-8">
+              <div className="rounded-xl overflow-hidden border border-border h-40 sm:h-56 mt-8">
                 <iframe
                   title="Iowa Auto Trust location"
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3000!2d-93.9277!3d41.857!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2s204+S+Main+St%2C+Woodward%2C+IA+50276!5e0!3m2!1sen!2sus!4v1"

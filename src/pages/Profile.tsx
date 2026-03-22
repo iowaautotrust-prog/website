@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,7 +15,10 @@ import {
   X,
   Check,
   Shield,
+  FileText,
+  Loader2,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { RecentlyViewedStrip } from "@/components/HeroSection";
@@ -26,7 +29,22 @@ const Profile = () => {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", location: "" });
-  const [tab, setTab] = useState<"saved" | "views" | "searches">("saved");
+  const [tab, setTab] = useState<"saved" | "views" | "searches" | "invoices">("saved");
+  const [invoices, setInvoices] = useState<{ id: string; invoice_number: string; total: number; paid: boolean; created_at: string }[]>([]);
+  const [invoicesLoading, setInvoicesLoading] = useState(false);
+
+  useEffect(() => {
+    if (tab !== "invoices" || !user) return;
+    setInvoicesLoading(true);
+    supabase
+      .from("shop_invoices")
+      .select("id, invoice_number, total, paid, created_at")
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        setInvoices(data ?? []);
+        setInvoicesLoading(false);
+      });
+  }, [tab, user]);
 
   if (!user) return <Navigate to="/login" />;
 
@@ -46,6 +64,7 @@ const Profile = () => {
     { key: "saved" as const, label: "Saved Cars", icon: Heart, count: favorites.length },
     { key: "views" as const, label: "Recently Viewed", icon: Clock, count: recentViews.length },
     { key: "searches" as const, label: "Searches", icon: Search, count: recentSearches.length },
+    { key: "invoices" as const, label: "Invoices", icon: FileText, count: null },
   ];
 
   return (
@@ -176,7 +195,7 @@ const Profile = () => {
                     : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <t.icon className="w-4 h-4" /> {t.label} ({t.count})
+                <t.icon className="w-4 h-4" /> {t.label} {t.count !== null ? `(${t.count})` : ""}
               </button>
             ))}
           </div>
@@ -293,6 +312,54 @@ const Profile = () => {
                     </div>
                   </Link>
                 ))
+              )}
+            </div>
+          )}
+
+          {/* Invoices */}
+          {tab === "invoices" && (
+            <div>
+              {invoicesLoading ? (
+                <div className="flex justify-center py-20">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
+              ) : invoices.length === 0 ? (
+                <p className="text-body text-center py-16">No invoices yet.</p>
+              ) : (
+                <div className="rounded-xl border border-border overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-secondary">
+                      <tr>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Invoice #</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground hidden md:table-cell">Date</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Total</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
+                        <th className="text-right p-4 font-medium text-muted-foreground">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {invoices.map((inv) => (
+                        <tr key={inv.id} className="border-t border-border hover:bg-secondary/50 transition-colors">
+                          <td className="p-4 font-medium">{inv.invoice_number}</td>
+                          <td className="p-4 text-muted-foreground hidden md:table-cell">
+                            {new Date(inv.created_at).toLocaleDateString()}
+                          </td>
+                          <td className="p-4 font-bold text-foreground">${inv.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className="p-4">
+                            <span className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold ${inv.paid ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"}`}>
+                              {inv.paid ? "Paid" : "Unpaid"}
+                            </span>
+                          </td>
+                          <td className="p-4 text-right">
+                            <Link to={`/shop/invoices/${inv.id}`} className="text-xs text-primary hover:underline font-medium">
+                              View
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           )}

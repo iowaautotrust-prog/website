@@ -51,7 +51,8 @@ interface AppContextType {
   bumpVehicleVersion: () => void;
   // Demo mode
   isDemoMode: boolean;
-  toggleDemoMode: () => void;
+  isDemoModeLoading: boolean;
+  toggleDemoMode: () => Promise<void>;
   // Recently viewed location — hero or profile only
   recentlyViewedInHero: boolean;
   toggleRecentlyViewedLocation: () => void;
@@ -79,10 +80,64 @@ export function AppProvider({ children }: { children: ReactNode }) {
     lsLoad("av_compare", [])
   );
   const [vehicleVersion, setVehicleVersion] = useState(0);
+  // Seed from localStorage immediately so there's no flash, then sync from Supabase
   const [isDemoMode, setIsDemoMode] = useState<boolean>(() => lsLoad("iat_demo", false));
-  const toggleDemoMode = useCallback(() => {
-    setIsDemoMode((v) => { lsSave("iat_demo", !v); return !v; });
+  const [isDemoModeLoading, setIsDemoModeLoading] = useState(false);
+
+  // Fetch demo_mode from Supabase on mount and subscribe to realtime changes
+  useEffect(() => {
+    // Initial fetch
+    supabase
+      .from("settings")
+      .select("value")
+      .eq("key", "demo_mode")
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          const val = data.value === "true";
+          setIsDemoMode(val);
+          lsSave("iat_demo", val);
+        }
+      });
+
+    // Realtime subscription so all tabs/users get the update instantly
+    const channel = supabase
+      .channel("settings-demo-mode")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "settings", filter: "key=eq.demo_mode" },
+        (payload) => {
+          const newVal = (payload.new as { value: string } | null)?.value;
+          if (newVal !== undefined) {
+            const val = newVal === "true";
+            setIsDemoMode(val);
+            lsSave("iat_demo", val);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
+
+  const toggleDemoMode = useCallback(async () => {
+    setIsDemoModeLoading(true);
+    const next = !isDemoMode;
+    try {
+      await supabase
+        .from("settings")
+        .update({ value: next ? "true" : "false", updated_at: new Date().toISOString() })
+        .eq("key", "demo_mode");
+      // Realtime subscription will update state for all clients;
+      // update locally immediately for instant feedback on the admin's own session
+      setIsDemoMode(next);
+      lsSave("iat_demo", next);
+    } finally {
+      setIsDemoModeLoading(false);
+    }
+  }, [isDemoMode]);
 
   const [recentlyViewedInHero, setRecentlyViewedInHero] = useState<boolean>(
     () => lsLoad("iat_rv_hero", true)
@@ -347,6 +402,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         vehicleVersion,
         bumpVehicleVersion,
         isDemoMode,
+        isDemoModeLoading,
         toggleDemoMode,
         recentlyViewedInHero,
         toggleRecentlyViewedLocation,

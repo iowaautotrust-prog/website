@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Mail, Lock, User } from "lucide-react";
+import { ArrowLeft, Mail, Lock, User, Check, X } from "lucide-react";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
@@ -16,30 +16,63 @@ const GoogleIcon = () => (
   </svg>
 );
 
+type PasswordStrength = "weak" | "fair" | "strong";
+
+function getPasswordStrength(pw: string): PasswordStrength {
+  const hasLength = pw.length >= 8;
+  const hasUpper = /[A-Z]/.test(pw);
+  const hasNumber = /[0-9]/.test(pw);
+  const passed = [hasLength, hasUpper, hasNumber].filter(Boolean).length;
+  if (passed === 3) return "strong";
+  if (passed === 2) return "fair";
+  return "weak";
+}
+
+const strengthConfig: Record<PasswordStrength, { label: string; color: string; bars: number }> = {
+  weak:   { label: "Weak",   color: "bg-red-500",    bars: 1 },
+  fair:   { label: "Fair",   color: "bg-yellow-400", bars: 2 },
+  strong: { label: "Strong", color: "bg-green-500",  bars: 3 },
+};
+
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [checkEmail, setCheckEmail] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
   const { signup, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+
+  const hasLength = password.length >= 8;
+  const hasUpper = /[A-Z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const strength = useMemo(() => getPasswordStrength(password), [password]);
+  const { label: strengthLabel, color: strengthColor, bars: strengthBars } = strengthConfig[strength];
+  const passwordsMatch = confirmPassword === "" || password === confirmPassword;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
     setError("");
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+
+    if (strength !== "strong") {
+      setError("Password does not meet the requirements. Please choose a stronger password.");
+      setPasswordTouched(true);
       return;
     }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setLoading(true);
     const result = await signup(name, email, password);
     setLoading(false);
     if (result.success) {
-      // Supabase sends a confirmation email — tell user to check inbox
       setCheckEmail(true);
     } else {
       setError(result.error || "Signup failed. Please try again.");
@@ -141,6 +174,7 @@ const Signup = () => {
               />
             </div>
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
@@ -156,6 +190,7 @@ const Signup = () => {
               />
             </div>
           </div>
+
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
@@ -164,13 +199,80 @@ const Signup = () => {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Min. 6 characters"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setPasswordTouched(true);
+                }}
+                placeholder="Min. 8 characters"
                 required
                 className="pl-10"
               />
             </div>
+
+            {/* Strength bar */}
+            {passwordTouched && password.length > 0 && (
+              <div className="space-y-2 pt-1">
+                <div className="flex gap-1 h-1.5">
+                  {[1, 2, 3].map((bar) => (
+                    <div
+                      key={bar}
+                      className={`flex-1 rounded-full transition-colors duration-200 ${
+                        bar <= strengthBars ? strengthColor : "bg-muted"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <p className={`text-xs font-medium ${
+                  strength === "weak" ? "text-red-500" :
+                  strength === "fair" ? "text-yellow-500" :
+                  "text-green-600"
+                }`}>
+                  {strengthLabel}
+                </p>
+
+                {/* Requirements checklist */}
+                <ul className="space-y-1">
+                  {[
+                    { met: hasLength, label: "8+ characters" },
+                    { met: hasUpper,  label: "One uppercase letter" },
+                    { met: hasNumber, label: "One number" },
+                  ].map(({ met, label }) => (
+                    <li key={label} className={`flex items-center gap-1.5 text-xs ${met ? "text-green-600" : "text-muted-foreground"}`}>
+                      {met
+                        ? <Check className="w-3 h-3 text-green-600" />
+                        : <X className="w-3 h-3 text-muted-foreground/50" />
+                      }
+                      {label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Re-enter your password"
+                required
+                className={`pl-10 ${
+                  confirmPassword.length > 0 && !passwordsMatch
+                    ? "border-red-500 focus-visible:ring-red-500"
+                    : ""
+                }`}
+              />
+            </div>
+            {confirmPassword.length > 0 && !passwordsMatch && (
+              <p className="text-xs text-red-500">Passwords do not match.</p>
+            )}
+          </div>
+
           <Button type="submit" disabled={loading} className="btn-hero w-full">
             {loading ? "Creating Account…" : "Create Account"}
           </Button>

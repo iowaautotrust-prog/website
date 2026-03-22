@@ -154,7 +154,7 @@ const Compare = () => {
           >
             {/* Vehicle Headers */}
             <div
-              className="grid gap-4 min-w-[600px]"
+              className="grid gap-4 min-w-[480px]"
               style={{
                 gridTemplateColumns: `160px repeat(${cars.length}, 1fr)`,
               }}
@@ -208,7 +208,7 @@ const Compare = () => {
             </div>
 
             {/* Specs Table */}
-            <div className="mt-8 rounded-xl border border-border overflow-hidden min-w-[600px]">
+            <div className="mt-8 rounded-xl border border-border overflow-hidden min-w-[480px]">
               {specRows.map((spec, i) => (
                 <div
                   key={spec.label}

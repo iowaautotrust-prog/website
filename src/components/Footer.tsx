@@ -108,9 +108,14 @@ const Footer = () => (
         <p className="text-xs text-background/40">
           © {new Date().getFullYear()} Iowa Auto Trust. All rights reserved.
         </p>
-        <p className="text-xs text-background/40">
-          204 S Main St, Woodward, IA 50276
-        </p>
+        <div className="flex items-center gap-4">
+          <Link to="/privacy" className="text-xs text-background/40 hover:text-background/70 transition-colors">
+            Privacy Policy
+          </Link>
+          <Link to="/terms" className="text-xs text-background/40 hover:text-background/70 transition-colors">
+            Terms of Service
+          </Link>
+        </div>
       </div>
     </div>
   </footer>

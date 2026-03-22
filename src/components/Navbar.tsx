@@ -2,8 +2,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
-import { User, LayoutDashboard, GitCompare, Phone, Menu, X } from "lucide-react";
+import { User, LayoutDashboard, GitCompare, Phone, Menu, X, Wrench } from "lucide-react";
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 const Navbar = () => {
   const { user } = useAuth();
@@ -11,6 +12,29 @@ const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [newLeads, setNewLeads] = useState(0);
+
+  // Fetch new leads count for admin/manager badge
+  useEffect(() => {
+    if (!user?.isAdmin && !user?.isManager) return;
+
+    const fetchCount = () => {
+      supabase
+        .from("leads")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "new")
+        .then(({ count }) => setNewLeads(count ?? 0));
+    };
+
+    fetchCount();
+
+    const channel = supabase
+      .channel("navbar-leads-badge")
+      .on("postgres_changes", { event: "*", schema: "public", table: "leads" }, fetchCount)
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user?.isAdmin, user?.isManager]);
 
   // Only show transparent navbar on the homepage hero
   const isHome = location.pathname === "/";
@@ -59,6 +83,10 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-7">
             <Link to="/" className={linkClass}>Home</Link>
             <Link to="/inventory" className={linkClass}>Inventory</Link>
+            <Link to="/service" className={`${linkClass} flex items-center gap-1`}>
+              <Wrench className="w-3.5 h-3.5" />
+              Service
+            </Link>
             <Link to="/contact" className={linkClass}>Contact</Link>
             {compareList.length > 0 && (
               <Link to="/compare" className={`${linkClass} flex items-center gap-1`}>
@@ -82,15 +110,20 @@ const Navbar = () => {
 
             {user ? (
               <>
-                {user.isAdmin && (
+                {(user.isAdmin || user.isManager) && (
                   <Link
-                    to="/admin"
-                    className={`hidden md:inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 ${
+                    to={user.isManager && !user.isAdmin ? "/shop" : "/admin"}
+                    className={`hidden md:inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 relative ${
                       transparent ? "text-white/90 hover:text-white" : "text-foreground/80 hover:text-foreground"
                     }`}
                   >
                     <LayoutDashboard className="w-3.5 h-3.5" />
-                    Admin
+                    {user.isManager && !user.isAdmin ? "Shop" : "Admin"}
+                    {newLeads > 0 && (
+                      <span className="absolute -top-1.5 -right-2.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1 leading-none">
+                        {newLeads > 99 ? "99+" : newLeads}
+                      </span>
+                    )}
                   </Link>
                 )}
                 <Link
@@ -146,7 +179,8 @@ const Navbar = () => {
                 { to: "/inventory", label: "Inventory" },
                 { to: "/contact", label: "Contact" },
                 ...(compareList.length > 0 ? [{ to: "/compare", label: `Compare (${compareList.length})` }] : []),
-                ...(user?.isAdmin ? [{ to: "/admin", label: "Admin Dashboard" }] : []),
+                { to: "/service", label: "Service" },
+                ...(user?.isAdmin ? [{ to: "/admin", label: newLeads > 0 ? `Admin Dashboard (${newLeads} new)` : "Admin Dashboard" }] : user?.isManager ? [{ to: "/shop", label: newLeads > 0 ? `Shop Dashboard (${newLeads} new)` : "Shop Dashboard" }] : []),
                 ...(user ? [{ to: "/profile", label: "My Profile" }] : [{ to: "/login", label: "Sign In" }]),
               ].map(({ to, label }) => (
                 <Link

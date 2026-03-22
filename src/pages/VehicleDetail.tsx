@@ -239,7 +239,7 @@ const VehicleDetail = () => {
       </div>
 
       <div className="section-padding pb-8">
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
+        <div className="flex flex-col md:flex-row gap-8 md:gap-12 lg:gap-16">
           {/* Gallery */}
           <motion.div className="lg:w-3/5" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
             <div
@@ -363,7 +363,7 @@ const VehicleDetail = () => {
               </div>
 
               {/* Specs */}
-              <div className="grid grid-cols-2 gap-3 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
                 {[
                   { icon: Gauge, label: "Mileage", value: `${car.mileage.toLocaleString()} mi` },
                   { icon: Fuel, label: "Fuel", value: car.fuel },
@@ -422,7 +422,7 @@ const VehicleDetail = () => {
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-background rounded-2xl p-8 w-full max-w-md max-h-[90vh] overflow-y-auto"
+            className="bg-background rounded-2xl p-6 sm:p-8 w-full max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {inquiryDone ? (

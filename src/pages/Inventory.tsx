@@ -341,7 +341,7 @@ const Inventory = () => {
                   animate={{ x: 0 }}
                   exit={{ x: "-100%" }}
                   transition={{ type: "spring", damping: 25 }}
-                  className="fixed left-0 top-0 bottom-0 w-80 bg-background z-50 p-6 overflow-y-auto lg:hidden"
+                  className="fixed left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-background z-50 p-6 overflow-y-auto lg:hidden"
                 >
                   {filtersContent}
                 </motion.div>

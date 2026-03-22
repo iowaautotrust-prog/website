@@ -17,7 +17,10 @@ import AuthCallback from "./pages/AuthCallback";
 import Profile from "./pages/Profile";
 import Compare from "./pages/Compare";
 import Contact from "./pages/Contact";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
+import CookieBanner from "@/components/CookieBanner";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -28,6 +31,22 @@ import AdminLeads from "./pages/admin/AdminLeads";
 import AdminTransactions from "./pages/admin/AdminTransactions";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminDiscounts from "./pages/admin/AdminDiscounts";
+
+// Shop pages
+import ShopDashboard from "./pages/shop/ShopDashboard";
+import ShopCustomers from "./pages/shop/ShopCustomers";
+import ShopCustomerDetail from "./pages/shop/ShopCustomerDetail";
+import ShopJobs from "./pages/shop/ShopJobs";
+import ShopJobDetail from "./pages/shop/ShopJobDetail";
+import ShopAppointments from "./pages/shop/ShopAppointments";
+import ShopInvoices from "./pages/shop/ShopInvoices";
+import ShopInvoicePrint from "./pages/shop/ShopInvoicePrint";
+import ShopInventory from "./pages/shop/ShopInventory";
+import ShopReports from "./pages/shop/ShopReports";
+
+// Service pages
+import ServiceBooking from "./pages/service/ServiceBooking";
+import JobTracker from "./pages/service/JobTracker";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -53,6 +72,8 @@ const App = () => (
               <Route path="/vehicle/:id" element={<VehicleDetail />} />
               <Route path="/compare" element={<Compare />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
 
               {/* Auth */}
               <Route path="/login" element={<Login />} />
@@ -71,9 +92,27 @@ const App = () => (
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/discounts" element={<AdminDiscounts />} />
 
+              {/* Shop */}
+              <Route path="/shop" element={<ShopDashboard />} />
+              <Route path="/shop/customers" element={<ShopCustomers />} />
+              <Route path="/shop/customers/:id" element={<ShopCustomerDetail />} />
+              <Route path="/shop/jobs" element={<ShopJobs />} />
+              <Route path="/shop/jobs/:id" element={<ShopJobDetail />} />
+              <Route path="/shop/appointments" element={<ShopAppointments />} />
+              <Route path="/shop/invoices" element={<ShopInvoices />} />
+              <Route path="/shop/invoices/:id/print" element={<ShopInvoicePrint />} />
+              <Route path="/shop/inventory" element={<ShopInventory />} />
+              <Route path="/shop/reports" element={<ShopReports />} />
+
+              {/* Service (public booking / tracker) */}
+              <Route path="/service" element={<ServiceBooking />} />
+              <Route path="/service/track" element={<JobTracker />} />
+              <Route path="/service/track/:jobNumber" element={<JobTracker />} />
+
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <CookieBanner />
           </BrowserRouter>
         </TooltipProvider>
       </AppProvider>

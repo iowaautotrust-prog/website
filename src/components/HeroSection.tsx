@@ -13,13 +13,13 @@ function FloatingOrbs() {
   return (
     <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
       <motion.div
-        className="absolute w-[600px] h-[600px] rounded-full opacity-20"
+        className="absolute w-[300px] md:w-[600px] h-[300px] md:h-[600px] rounded-full opacity-20"
         style={{ background: "radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)", top: "-10%", left: "-10%" }}
         animate={{ x: [0, 40, 0], y: [0, 30, 0] }}
         transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute w-[400px] h-[400px] rounded-full opacity-15"
+        className="absolute w-[200px] md:w-[400px] h-[200px] md:h-[400px] rounded-full opacity-15"
         style={{ background: "radial-gradient(circle, hsl(var(--primary)) 0%, transparent 70%)", bottom: "10%", right: "-5%" }}
         animate={{ x: [0, -30, 0], y: [0, -40, 0] }}
         transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 3 }}
@@ -328,7 +328,7 @@ const HeroSection = () => {
             <motion.h1
               initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tight leading-[0.9] text-primary-foreground max-w-5xl"
+              className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tight leading-[0.9] text-primary-foreground max-w-5xl"
             >
               Drive
               <br />

@@ -37,7 +37,7 @@ const COLORS = ["#2563eb", "#3b82f6", "#60a5fa", "#93c5fd", "#bfdbfe"];
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  const { isDemoMode, toggleDemoMode, recentlyViewedInHero, toggleRecentlyViewedLocation } = useApp();
+  const { isDemoMode, isDemoModeLoading, toggleDemoMode, recentlyViewedInHero, toggleRecentlyViewedLocation } = useApp();
   const [stats, setStats] = useState({
     vehicleCount: 0,
     leadCount: 0,
@@ -226,7 +226,7 @@ const AdminDashboard = () => {
 
         {/* Charts + Leads Trend — admin only */}
         {user?.isAdmin && <>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12">
           {/* Top Viewed Vehicles */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -239,7 +239,7 @@ const AdminDashboard = () => {
               <h3 className="font-semibold">Top Viewed Vehicles</h3>
             </div>
             {topViewed.length > 0 ? (
-              <ResponsiveContainer width="100%" height={220}>
+              <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={topViewed} layout="vertical">
                   <XAxis type="number" tick={{ fontSize: 11 }} />
                   <YAxis
@@ -271,7 +271,7 @@ const AdminDashboard = () => {
               <h3 className="font-semibold">Inventory Status</h3>
             </div>
             {statusBreakdown.some((s) => s.value > 0) ? (
-              <ResponsiveContainer width="100%" height={220}>
+              <ResponsiveContainer width="100%" height={180}>
                 <PieChart>
                   <Pie
                     data={statusBreakdown}
@@ -343,7 +343,7 @@ const AdminDashboard = () => {
             {recentLeads.length === 0 ? (
               <p className="p-6 text-muted-foreground text-sm">No leads yet.</p>
             ) : (
-              <table className="w-full text-sm">
+              <table className="w-full text-xs sm:text-sm">
                 <thead className="bg-secondary">
                   <tr>
                     <th className="text-left p-4 font-medium text-muted-foreground">Name</th>
@@ -387,14 +387,18 @@ const AdminDashboard = () => {
               <p className="font-semibold text-foreground text-sm">Demo Data Mode</p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {isDemoMode
-                  ? "Showing 30 demo vehicles across the site. Turn off to show your real inventory."
-                  : "Site is showing your real Supabase data. Enable to preview with 30 demo vehicles."}
+                  ? "Demo mode active — all users see demo data. Turn off to show real inventory."
+                  : "Live for all users — site shows your real Supabase inventory."}
+              </p>
+              <p className={`text-xs font-medium mt-1 ${isDemoMode ? "text-amber-500" : "text-green-600"}`}>
+                {isDemoMode ? "Demo mode active — all users see demo data" : "Live for all users"}
               </p>
             </div>
           </div>
           <button
             onClick={toggleDemoMode}
-            className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors focus:outline-none ${
+            disabled={isDemoModeLoading}
+            className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors focus:outline-none disabled:opacity-60 disabled:cursor-wait ${
               isDemoMode ? "bg-primary" : "bg-border"
             }`}
             role="switch"
@@ -455,7 +459,7 @@ const AdminDashboard = () => {
             >
               <div className="flex items-center gap-3">
                 <item.icon className="w-4 h-4 text-primary" />
-                <span className="font-medium text-foreground text-sm">{item.label}</span>
+                <span className="font-medium text-foreground text-xs sm:text-sm">{item.label}</span>
               </div>
               <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
             </Link>
