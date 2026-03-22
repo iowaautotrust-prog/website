@@ -40,6 +40,7 @@ function buildAuthUser(supabaseUser: SupabaseUser, profile: Profile | null): Aut
     phone: profile?.phone ?? null,
     location: profile?.location ?? null,
     isAdmin: profile?.is_admin === true || supabaseUser.email === ADMIN_EMAIL,
+    isManager: profile?.is_manager === true,
   };
 }
 

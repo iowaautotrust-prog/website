@@ -27,6 +27,7 @@ import AdminImport from "./pages/admin/AdminImport";
 import AdminLeads from "./pages/admin/AdminLeads";
 import AdminTransactions from "./pages/admin/AdminTransactions";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminDiscounts from "./pages/admin/AdminDiscounts";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -68,6 +69,7 @@ const App = () => (
               <Route path="/admin/leads" element={<AdminLeads />} />
               <Route path="/admin/transactions" element={<AdminTransactions />} />
               <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/discounts" element={<AdminDiscounts />} />
 
               {/* 404 */}
               <Route path="*" element={<NotFound />} />

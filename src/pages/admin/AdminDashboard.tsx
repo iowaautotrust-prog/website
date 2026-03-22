@@ -37,7 +37,7 @@ const COLORS = ["#2563eb", "#3b82f6", "#60a5fa", "#93c5fd", "#bfdbfe"];
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  const { isDemoMode, toggleDemoMode } = useApp();
+  const { isDemoMode, toggleDemoMode, recentlyViewedInHero, toggleRecentlyViewedLocation } = useApp();
   const [stats, setStats] = useState({
     vehicleCount: 0,
     leadCount: 0,
@@ -50,7 +50,7 @@ const AdminDashboard = () => {
   const [leadsTrend, setLeadsTrend] = useState<{ date: string; leads: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
-  if (!user?.isAdmin) return <Navigate to="/login" />;
+  if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -165,14 +165,20 @@ const AdminDashboard = () => {
     },
   ];
 
-  const navItems = [
-    { label: "Manage Inventory", to: "/admin/inventory", icon: Car },
-    { label: "Categories", to: "/admin/categories", icon: Tag },
-    { label: "CSV Import", to: "/admin/import", icon: UploadCloud },
-    { label: "Leads", to: "/admin/leads", icon: MessageSquare },
-    { label: "Transactions", to: "/admin/transactions", icon: DollarSign },
-    { label: "Users", to: "/admin/users", icon: Users },
-  ];
+  const navItems = user?.isAdmin
+    ? [
+        { label: "Manage Inventory", to: "/admin/inventory", icon: Car },
+        { label: "Categories", to: "/admin/categories", icon: Tag },
+        { label: "CSV Import", to: "/admin/import", icon: UploadCloud },
+        { label: "Leads", to: "/admin/leads", icon: MessageSquare },
+        { label: "Transactions", to: "/admin/transactions", icon: DollarSign },
+        { label: "Users", to: "/admin/users", icon: Users },
+      ]
+    : [
+        { label: "Inventory", to: "/admin/inventory", icon: Car },
+        { label: "Leads / Enquiries", to: "/admin/leads", icon: MessageSquare },
+        { label: "Transactions", to: "/admin/transactions", icon: DollarSign },
+      ];
 
   return (
     <div className="bg-background min-h-screen">
@@ -180,7 +186,9 @@ const AdminDashboard = () => {
         <div className="flex items-center justify-between mb-10">
           <div>
             <p className="text-overline mb-2">Iowa Auto Trust</p>
-            <h1 className="heading-section">Admin Dashboard</h1>
+            <h1 className="heading-section">
+              {user?.isAdmin ? "Admin Dashboard" : "Manager Dashboard"}
+            </h1>
           </div>
           <Link
             to="/"
@@ -216,7 +224,8 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        {/* Charts Row */}
+        {/* Charts + Leads Trend — admin only */}
+        {user?.isAdmin && <>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Top Viewed Vehicles */}
           <motion.div
@@ -320,6 +329,7 @@ const AdminDashboard = () => {
             </LineChart>
           </ResponsiveContainer>
         </motion.div>
+        </>}
 
         {/* Recent Leads */}
         <div className="mb-12">
@@ -367,8 +377,8 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Demo Data Toggle */}
-        <div className="mb-8 p-5 rounded-xl border border-border bg-secondary/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        {/* Demo Data Toggle — admin only */}
+        {user?.isAdmin && <div className="mb-8 p-5 rounded-xl border border-border bg-secondary/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
               <FlaskConical className="w-5 h-5 text-primary" />
@@ -397,7 +407,43 @@ const AdminDashboard = () => {
               }`}
             />
           </button>
-        </div>
+        </div>}
+
+        {/* Recently Viewed Location Toggle — admin only */}
+        {user?.isAdmin && <div className="mb-8 p-5 rounded-xl border border-border bg-secondary/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <Eye className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <p className="font-semibold text-foreground text-sm">Recently Viewed Strip</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {recentlyViewedInHero
+                  ? "Showing below the hero section on the homepage."
+                  : "Hidden from homepage — visible in each user's profile only."}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <span className={`text-xs font-medium ${recentlyViewedInHero ? "text-foreground" : "text-muted-foreground"}`}>
+              Hero
+            </span>
+            <button
+              onClick={toggleRecentlyViewedLocation}
+              className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors focus:outline-none ${
+                recentlyViewedInHero ? "bg-primary" : "bg-border"
+              }`}
+              role="switch"
+              aria-checked={recentlyViewedInHero}
+              aria-label="Toggle recently viewed location"
+            >
+              <span className={`inline-block h-5 w-5 rounded-full bg-background shadow-sm transition-transform ${recentlyViewedInHero ? "translate-x-6" : "translate-x-1"}`} />
+            </button>
+            <span className={`text-xs font-medium ${!recentlyViewedInHero ? "text-foreground" : "text-muted-foreground"}`}>
+              Profile
+            </span>
+          </div>
+        </div>}
 
         {/* Navigation Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-24">

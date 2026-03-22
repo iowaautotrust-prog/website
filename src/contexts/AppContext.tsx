@@ -52,6 +52,9 @@ interface AppContextType {
   // Demo mode
   isDemoMode: boolean;
   toggleDemoMode: () => void;
+  // Recently viewed location — hero or profile only
+  recentlyViewedInHero: boolean;
+  toggleRecentlyViewedLocation: () => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -78,10 +81,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [vehicleVersion, setVehicleVersion] = useState(0);
   const [isDemoMode, setIsDemoMode] = useState<boolean>(() => lsLoad("iat_demo", false));
   const toggleDemoMode = useCallback(() => {
-    setIsDemoMode((v) => {
-      lsSave("iat_demo", !v);
-      return !v;
-    });
+    setIsDemoMode((v) => { lsSave("iat_demo", !v); return !v; });
+  }, []);
+
+  const [recentlyViewedInHero, setRecentlyViewedInHero] = useState<boolean>(
+    () => lsLoad("iat_rv_hero", true)
+  );
+  const toggleRecentlyViewedLocation = useCallback(() => {
+    setRecentlyViewedInHero((v) => { lsSave("iat_rv_hero", !v); return !v; });
   }, []);
 
   // Prevent duplicate transaction submission
@@ -257,6 +264,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
         user_id: user?.id ?? null,
         created_at: new Date().toISOString(),
       });
+
+      // Fire-and-forget email notification to admin
+      supabase.functions
+        .invoke("send-lead-notification", {
+          body: {
+            name: lead.name,
+            email: lead.email,
+            phone: lead.phone ?? null,
+            vehicleName: lead.vehicle_name ?? null,
+            message: lead.message ?? null,
+            leadType: lead.lead_type,
+          },
+        })
+        .catch(() => {
+          // Silent fail — email is best-effort, lead is already saved
+        });
     },
     [user]
   );
@@ -325,6 +348,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         bumpVehicleVersion,
         isDemoMode,
         toggleDemoMode,
+        recentlyViewedInHero,
+        toggleRecentlyViewedLocation,
       }}
     >
       {children}

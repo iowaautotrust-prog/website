@@ -18,10 +18,11 @@ import {
 } from "lucide-react";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import { RecentlyViewedStrip } from "@/components/HeroSection";
 
 const Profile = () => {
   const { user, updateProfile, logout } = useAuth();
-  const { favorites, recentViews, recentSearches, toggleFavorite } = useApp();
+  const { favorites, recentViews, recentSearches, toggleFavorite, recentlyViewedInHero } = useApp();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", location: "" });
@@ -50,7 +51,13 @@ const Profile = () => {
   return (
     <div className="bg-background min-h-screen">
       <Navbar />
-      <div className="section-padding pt-28">
+      {/* Show recently viewed here when admin set it to profile-only */}
+      {!recentlyViewedInHero && (
+        <div className="pt-16">
+          <RecentlyViewedStrip />
+        </div>
+      )}
+      <div className="section-padding pt-10">
         <Link
           to="/"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-8"
@@ -79,6 +86,11 @@ const Profile = () => {
                 {user.isAdmin && (
                   <span className="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 text-xs font-semibold bg-primary text-primary-foreground rounded-full">
                     <Shield className="w-3 h-3" /> Admin
+                  </span>
+                )}
+                {!user.isAdmin && user.isManager && (
+                  <span className="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 text-xs font-semibold bg-amber-500 text-white rounded-full">
+                    <Shield className="w-3 h-3" /> Manager
                   </span>
                 )}
               </div>

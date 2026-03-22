@@ -7,7 +7,6 @@ import { supabase } from "@/lib/supabase";
 import type { Vehicle, Category } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
   Plus,
@@ -16,7 +15,6 @@ import {
   X,
   Star,
   Loader2,
-  UploadCloud,
   Eye,
 } from "lucide-react";
 import Footer from "@/components/Footer";
@@ -49,6 +47,11 @@ type FormState = {
   status: "available" | "pending";
   in_carousel: boolean;
   image_url: string;
+  vin: string;
+  discount_amount: string;
+  discount_label: string;
+  discount_expires: string;
+  image_urls: string[];
 };
 
 const emptyForm = (): FormState => ({
@@ -69,6 +72,11 @@ const emptyForm = (): FormState => ({
   status: "available",
   in_carousel: false,
   image_url: "",
+  vin: "",
+  discount_amount: "",
+  discount_label: "",
+  discount_expires: "",
+  image_urls: [],
 });
 
 const AdminInventory = () => {
@@ -85,8 +93,12 @@ const AdminInventory = () => {
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+  const [bulkStatus, setBulkStatus] = useState<"available" | "pending">("available");
+  const [bulkUpdating, setBulkUpdating] = useState(false);
 
-  if (!user?.isAdmin) return <Navigate to="/login" />;
+  if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
 
   const fetchData = async () => {
     setLoading(true);
@@ -112,6 +124,7 @@ const AdminInventory = () => {
   const openNew = () => {
     setForm(emptyForm());
     setImageFile(null);
+    setImageFiles([]);
     setEditingId(null);
     setFormError(null);
     setShowForm(true);
@@ -136,8 +149,14 @@ const AdminInventory = () => {
       status: v.status,
       in_carousel: v.in_carousel,
       image_url: v.image_url ?? "",
+      vin: v.vin ?? "",
+      discount_amount: v.discount_amount ? String(v.discount_amount) : "",
+      discount_label: v.discount_label ?? "",
+      discount_expires: v.discount_expires ? v.discount_expires.split("T")[0] : "",
+      image_urls: v.image_urls ?? (v.image_url ? [v.image_url] : []),
     });
     setImageFile(null);
+    setImageFiles([]);
     setEditingId(v.id);
     setFormError(null);
     setShowForm(true);
@@ -157,6 +176,20 @@ const AdminInventory = () => {
     return data.publicUrl;
   };
 
+  const uploadImages = async (vehicleId: string): Promise<string[]> => {
+    const uploaded: string[] = [];
+    for (const file of imageFiles) {
+      const ext = file.name.split(".").pop();
+      const path = `${vehicleId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage.from("vehicle-images").upload(path, file, { upsert: true });
+      if (!error) {
+        const { data } = supabase.storage.from("vehicle-images").getPublicUrl(path);
+        uploaded.push(data.publicUrl);
+      }
+    }
+    return uploaded;
+  };
+
   const handleSave = async () => {
     if (!form.name.trim() || !form.make.trim() || !form.price) {
       setFormError("Name, Make, and Price are required.");
@@ -170,15 +203,26 @@ const AdminInventory = () => {
       .map((f) => f.trim())
       .filter(Boolean);
 
+    const extraFields = {
+      vin: form.vin.trim() || null,
+      discount_amount: form.discount_amount ? Number(form.discount_amount) : null,
+      discount_label: form.discount_label.trim() || null,
+      discount_expires: form.discount_expires ? new Date(form.discount_expires).toISOString() : null,
+    };
+
     if (editingId) {
-      // Upload new image if provided
-      let image_url = form.image_url;
-      if (imageFile) {
+      // Get existing real URLs (not blob:)
+      const existingUrls = form.image_urls.filter((u) => !u.startsWith("blob:"));
+      let newUrls: string[] = [];
+      if (imageFiles.length > 0) {
         setImageUploading(true);
-        const url = await uploadImage(editingId);
-        if (url) image_url = url;
+        newUrls = await uploadImages(editingId);
         setImageUploading(false);
       }
+      const allUrls = [...existingUrls, ...newUrls];
+      const image_url = allUrls[0] ?? form.image_url ?? null;
+      const image_urls = allUrls.length > 0 ? allUrls : null;
+
       const { error } = await supabase
         .from("vehicles")
         .update({
@@ -199,7 +243,8 @@ const AdminInventory = () => {
           status: form.status,
           in_carousel: form.in_carousel,
           image_url,
-          image_urls: image_url ? [image_url] : null,
+          image_urls,
+          ...extraFields,
         })
         .eq("id", editingId);
       if (error) {
@@ -210,12 +255,19 @@ const AdminInventory = () => {
     } else {
       // Create new vehicle
       const id = crypto.randomUUID();
-      let image_url: string | null = null;
-      if (imageFile) {
+
+      // Get existing real URLs (not blob:)
+      const existingUrls = form.image_urls.filter((u) => !u.startsWith("blob:"));
+      let newUrls: string[] = [];
+      if (imageFiles.length > 0) {
         setImageUploading(true);
-        image_url = await uploadImage(id);
+        newUrls = await uploadImages(id);
         setImageUploading(false);
       }
+      const allUrls = [...existingUrls, ...newUrls];
+      const image_url = allUrls[0] ?? null;
+      const image_urls = allUrls.length > 0 ? allUrls : null;
+
       const { error } = await supabase.from("vehicles").insert({
         id,
         name: form.name,
@@ -236,9 +288,10 @@ const AdminInventory = () => {
         in_carousel: form.in_carousel,
         view_count: 0,
         image_url,
-        image_urls: image_url ? [image_url] : null,
+        image_urls,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        ...extraFields,
       });
       if (error) {
         setFormError(error.message);
@@ -259,6 +312,29 @@ const AdminInventory = () => {
     bumpVehicleVersion();
     setDeleteId(null);
     fetchData();
+  };
+
+  const handleBulkStatus = async () => {
+    if (selectedRows.size === 0) return;
+    setBulkUpdating(true);
+    await supabase.from("vehicles").update({ status: bulkStatus }).in("id", Array.from(selectedRows));
+    setSelectedRows(new Set());
+    bumpVehicleVersion();
+    setBulkUpdating(false);
+    fetchData();
+  };
+
+  const toggleRow = (id: string) => {
+    setSelectedRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (selectedRows.size === vehicles.length) setSelectedRows(new Set());
+    else setSelectedRows(new Set(vehicles.map((v) => v.id)));
   };
 
   const selectClass =
@@ -471,6 +547,26 @@ const AdminInventory = () => {
                   />
                 </div>
 
+                {/* VIN */}
+                <div className="col-span-2">
+                  <Label>VIN (Vehicle Identification Number)</Label>
+                  <Input value={form.vin} onChange={(e) => setField("vin", e.target.value)} placeholder="1HGBH41JXMN109186" className="mt-1 font-mono" maxLength={17} />
+                </div>
+
+                {/* Discount */}
+                <div>
+                  <Label>Discount Amount ($)</Label>
+                  <Input type="number" value={form.discount_amount} onChange={(e) => setField("discount_amount", e.target.value)} placeholder="500" className="mt-1" />
+                </div>
+                <div>
+                  <Label>Discount Label</Label>
+                  <Input value={form.discount_label} onChange={(e) => setField("discount_label", e.target.value)} placeholder="July 4th Sale" className="mt-1" />
+                </div>
+                <div className="col-span-2">
+                  <Label>Discount Expires</Label>
+                  <Input type="date" value={form.discount_expires} onChange={(e) => setField("discount_expires", e.target.value)} className="mt-1" />
+                </div>
+
                 {/* In Carousel toggle */}
                 <div className="col-span-2">
                   <label className="flex items-center gap-3 cursor-pointer group">
@@ -498,40 +594,42 @@ const AdminInventory = () => {
                   </label>
                 </div>
 
-                {/* Image upload */}
+                {/* Multi-image upload */}
                 <div className="col-span-2">
-                  <Label>Vehicle Image</Label>
-                  <div className="flex gap-4 items-start mt-2">
-                    <div className="w-40 aspect-video rounded-xl border border-border overflow-hidden bg-secondary flex items-center justify-center shrink-0">
-                      {form.image_url ? (
-                        <img
-                          src={form.image_url}
-                          alt="preview"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <UploadCloud className="w-6 h-6 text-muted-foreground" />
-                      )}
+                  <Label>Vehicle Photos</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5 mb-2">Upload up to 10 photos. First image is the main display photo.</p>
+                  {/* Existing images */}
+                  {form.image_urls.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {form.image_urls.map((url, i) => (
+                        <div key={i} className="relative group">
+                          <img src={url} alt="" className="w-20 h-14 rounded-lg object-cover border border-border" />
+                          {i === 0 && <span className="absolute bottom-0.5 left-0.5 text-[9px] bg-primary text-primary-foreground px-1 rounded">Main</span>}
+                          <button
+                            type="button"
+                            onClick={() => setField("image_urls", form.image_urls.filter((_, j) => j !== i))}
+                            className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-destructive text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex-1">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            setImageFile(file);
-                            setField("image_url", URL.createObjectURL(file));
-                          }
-                        }}
-                        className="text-sm"
-                      />
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Upload a JPG or PNG. Image will be stored on Supabase CDN.
-                        {editingId && " Leave blank to keep current image."}
-                      </p>
-                    </div>
-                  </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files ?? []);
+                      setImageFiles((prev) => [...prev, ...files].slice(0, 10));
+                      files.forEach((file) => {
+                        const url = URL.createObjectURL(file);
+                        setField("image_urls", [...form.image_urls, url]);
+                      });
+                    }}
+                    className="text-sm"
+                  />
                 </div>
               </div>
 
@@ -569,100 +667,130 @@ const AdminInventory = () => {
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="rounded-xl border border-border overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-secondary">
-                <tr>
-                  <th className="text-left p-4 font-medium text-muted-foreground">
-                    Vehicle
-                  </th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">
-                    Price
-                  </th>
-                  <th className="text-left p-4 font-medium text-muted-foreground hidden md:table-cell">
-                    Status
-                  </th>
-                  <th className="text-left p-4 font-medium text-muted-foreground hidden md:table-cell">
-                    Views
-                  </th>
-                  <th className="text-left p-4 font-medium text-muted-foreground hidden lg:table-cell">
-                    Carousel
-                  </th>
-                  <th className="text-right p-4 font-medium text-muted-foreground">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {vehicles.map((v) => (
-                  <tr
-                    key={v.id}
-                    className="border-t border-border hover:bg-secondary/50 transition-colors"
+          <>
+            {/* Bulk action bar */}
+            {selectedRows.size > 0 && (
+              <div className="mb-4 p-4 rounded-xl bg-primary/5 border border-primary/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <p className="text-sm font-medium text-foreground">{selectedRows.size} vehicle{selectedRows.size > 1 ? "s" : ""} selected</p>
+                <div className="flex items-center gap-3">
+                  <select
+                    value={bulkStatus}
+                    onChange={(e) => setBulkStatus(e.target.value as "available" | "pending")}
+                    className="h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   >
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        {v.image_url ? (
-                          <img
-                            src={v.image_url}
-                            alt={v.name}
-                            className="w-12 h-8 rounded object-cover"
-                          />
-                        ) : (
-                          <div className="w-12 h-8 rounded bg-secondary flex items-center justify-center">
-                            <span className="text-xs text-muted-foreground">–</span>
-                          </div>
-                        )}
-                        <span className="font-medium text-foreground">{v.name}</span>
-                      </div>
-                    </td>
-                    <td className="p-4 text-foreground font-medium">
-                      ${v.price.toLocaleString()}
-                    </td>
-                    <td className="p-4 hidden md:table-cell">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          v.status === "available"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-amber-100 text-amber-700"
-                        }`}
-                      >
-                        {v.status === "available" ? "Available" : "Pending"}
-                      </span>
-                    </td>
-                    <td className="p-4 text-muted-foreground hidden md:table-cell">
-                      <span className="flex items-center gap-1">
-                        <Eye className="w-3.5 h-3.5" />
-                        {v.view_count}
-                      </span>
-                    </td>
-                    <td className="p-4 hidden lg:table-cell">
-                      {v.in_carousel && (
-                        <Star className="w-4 h-4 text-primary fill-primary" />
-                      )}
-                    </td>
-                    <td className="p-4">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => openEdit(v)}
-                          className="p-2 rounded-lg hover:bg-secondary transition-colors"
-                          aria-label="Edit"
-                        >
-                          <Pencil className="w-4 h-4 text-muted-foreground" />
-                        </button>
-                        <button
-                          onClick={() => setDeleteId(v.id)}
-                          className="p-2 rounded-lg hover:bg-destructive/10 transition-colors"
-                          aria-label="Delete"
-                        >
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </button>
-                      </div>
-                    </td>
+                    <option value="available">Set Available</option>
+                    <option value="pending">Set Sale Pending</option>
+                  </select>
+                  <button onClick={handleBulkStatus} disabled={bulkUpdating} className="btn-hero text-xs flex items-center gap-2 h-9 px-4">
+                    {bulkUpdating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                    Apply to {selectedRows.size}
+                  </button>
+                  <button onClick={() => setSelectedRows(new Set())} className="text-sm text-muted-foreground hover:text-foreground">Clear</button>
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-xl border border-border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-secondary">
+                  <tr>
+                    <th className="p-4 w-10">
+                      <input type="checkbox" checked={selectedRows.size === vehicles.length && vehicles.length > 0} onChange={toggleAll} className="rounded" />
+                    </th>
+                    <th className="text-left p-4 font-medium text-muted-foreground">
+                      Vehicle
+                    </th>
+                    <th className="text-left p-4 font-medium text-muted-foreground">
+                      Price
+                    </th>
+                    <th className="text-left p-4 font-medium text-muted-foreground hidden md:table-cell">
+                      Status
+                    </th>
+                    <th className="text-left p-4 font-medium text-muted-foreground hidden md:table-cell">
+                      Views
+                    </th>
+                    <th className="text-left p-4 font-medium text-muted-foreground hidden lg:table-cell">
+                      Carousel
+                    </th>
+                    <th className="text-right p-4 font-medium text-muted-foreground">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {vehicles.map((v) => (
+                    <tr
+                      key={v.id}
+                      className="border-t border-border hover:bg-secondary/50 transition-colors"
+                    >
+                      <td className="p-4 w-10">
+                        <input type="checkbox" checked={selectedRows.has(v.id)} onChange={() => toggleRow(v.id)} className="rounded" />
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          {v.image_url ? (
+                            <img
+                              src={v.image_url}
+                              alt={v.name}
+                              className="w-12 h-8 rounded object-cover"
+                            />
+                          ) : (
+                            <div className="w-12 h-8 rounded bg-secondary flex items-center justify-center">
+                              <span className="text-xs text-muted-foreground">–</span>
+                            </div>
+                          )}
+                          <span className="font-medium text-foreground">{v.name}</span>
+                        </div>
+                      </td>
+                      <td className="p-4 text-foreground font-medium">
+                        ${v.price.toLocaleString()}
+                      </td>
+                      <td className="p-4 hidden md:table-cell">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            v.status === "available"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-amber-100 text-amber-700"
+                          }`}
+                        >
+                          {v.status === "available" ? "Available" : "Pending"}
+                        </span>
+                      </td>
+                      <td className="p-4 text-muted-foreground hidden md:table-cell">
+                        <span className="flex items-center gap-1">
+                          <Eye className="w-3.5 h-3.5" />
+                          {v.view_count}
+                        </span>
+                      </td>
+                      <td className="p-4 hidden lg:table-cell">
+                        {v.in_carousel && (
+                          <Star className="w-4 h-4 text-primary fill-primary" />
+                        )}
+                      </td>
+                      <td className="p-4">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => openEdit(v)}
+                            className="p-2 rounded-lg hover:bg-secondary transition-colors"
+                            aria-label="Edit"
+                          >
+                            <Pencil className="w-4 h-4 text-muted-foreground" />
+                          </button>
+                          <button
+                            onClick={() => setDeleteId(v.id)}
+                            className="p-2 rounded-lg hover:bg-destructive/10 transition-colors"
+                            aria-label="Delete"
+                          >
+                            <Trash2 className="w-4 h-4 text-destructive" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

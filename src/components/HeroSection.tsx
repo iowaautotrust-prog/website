@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useEffect, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Clock, ChevronLeft, ChevronRight } from "lucide-react";
@@ -8,7 +8,7 @@ import { useApp } from "@/contexts/AppContext";
 import { DEMO_VEHICLES } from "@/lib/demoData";
 import type { Vehicle } from "@/lib/types";
 
-// ─── Floating Orbs (micro animation) ─────────────────────────────────────────
+// ─── Floating Orbs ────────────────────────────────────────────────────────────
 function FloatingOrbs() {
   return (
     <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
@@ -24,144 +24,166 @@ function FloatingOrbs() {
         animate={{ x: [0, -30, 0], y: [0, -40, 0] }}
         transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 3 }}
       />
-      <motion.div
-        className="absolute w-[300px] h-[300px] rounded-full opacity-10"
-        style={{ background: "radial-gradient(circle, #60a5fa 0%, transparent 70%)", top: "40%", left: "40%" }}
-        animate={{ x: [0, 20, -20, 0], y: [0, -20, 20, 0] }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut", delay: 7 }}
-      />
     </div>
   );
 }
 
-// ─── Hero Carousel ────────────────────────────────────────────────────────────
+// ─── 3D Coverflow Carousel ────────────────────────────────────────────────────
 function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
   const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState(1);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const resetTimer = () => {
+  const resetTimer = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
+    if (vehicles.length <= 1) return;
     timerRef.current = setInterval(() => {
-      setDirection(1);
       setCurrent((c) => (c + 1) % vehicles.length);
     }, 3000);
-  };
+  }, [vehicles.length]);
 
   useEffect(() => {
-    if (vehicles.length <= 1) return;
     resetTimer();
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [vehicles.length]);
+  }, [resetTimer]);
 
-  const next = useCallback(() => {
-    setDirection(1);
-    setCurrent((c) => (c + 1) % vehicles.length);
+  const goTo = useCallback((i: number) => {
+    setCurrent(i);
     resetTimer();
-  }, [vehicles.length]);
+  }, [resetTimer]);
 
-  const prev = useCallback(() => {
-    setDirection(-1);
-    setCurrent((c) => (c - 1 + vehicles.length) % vehicles.length);
-    resetTimer();
-  }, [vehicles.length]);
+  const getOffset = (index: number) => {
+    const total = vehicles.length;
+    let off = ((index - current) % total + total) % total;
+    if (off > total / 2) off -= total;
+    return off;
+  };
+
+  const getStyle = (offset: number): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      position: "absolute",
+      top: "50%",
+      transition: "all 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    };
+    if (offset === 0) return {
+      ...base,
+      left: "50%",
+      width: "58%",
+      transform: "translate(-50%, -50%) rotateY(0deg) scale(1)",
+      opacity: 1,
+      zIndex: 10,
+    };
+    if (offset === -1) return {
+      ...base,
+      left: "14%",
+      width: "40%",
+      transform: "translate(-50%, -50%) rotateY(22deg) scale(0.84)",
+      opacity: 0.62,
+      zIndex: 5,
+      cursor: "pointer",
+    };
+    if (offset === 1) return {
+      ...base,
+      left: "86%",
+      width: "40%",
+      transform: "translate(-50%, -50%) rotateY(-22deg) scale(0.84)",
+      opacity: 0.62,
+      zIndex: 5,
+      cursor: "pointer",
+    };
+    if (offset < -1) return {
+      ...base,
+      left: "-4%",
+      width: "40%",
+      transform: "translate(-50%, -50%) rotateY(22deg) scale(0.84)",
+      opacity: 0,
+      zIndex: 0,
+    };
+    return {
+      ...base,
+      left: "104%",
+      width: "40%",
+      transform: "translate(-50%, -50%) rotateY(-22deg) scale(0.84)",
+      opacity: 0,
+      zIndex: 0,
+    };
+  };
 
   if (vehicles.length === 0) return null;
 
-  const variants = {
-    enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 60 : -60, scale: 0.97 }),
-    center: { opacity: 1, x: 0, scale: 1 },
-    exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -60 : 60, scale: 0.97 }),
-  };
-
-  const car = vehicles[current];
-
   return (
-    <div className="relative w-full">
-      <AnimatePresence custom={direction} mode="wait">
-        <motion.div
-          key={car.id}
-          custom={direction}
-          variants={variants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
-          <Link to={`/vehicle/${car.id}`} className="block group">
+    <div
+      className="relative w-full overflow-hidden h-[220px] md:h-[340px] lg:h-[420px]"
+      style={{ perspective: "1400px" }}
+    >
+      {vehicles.map((v, i) => {
+        const offset = getOffset(i);
+        const isCenter = offset === 0;
+        const isSide = Math.abs(offset) === 1;
+
+        return (
+          <div key={v.id} style={getStyle(offset)}>
             <div
-              className="relative rounded-2xl overflow-hidden aspect-[16/9] cursor-pointer"
-              style={{ transform: "perspective(1000px) rotateY(-2deg)" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "perspective(1000px) rotateY(0deg) scale(1.01)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "perspective(1000px) rotateY(-2deg)"; }}
+              className="w-full rounded-2xl overflow-hidden relative"
+              style={{ aspectRatio: "16/9" }}
+              onClick={() => isSide && goTo(i)}
             >
-              {car.image_url ? (
-                <img
-                  src={car.image_url}
-                  alt={car.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
+              {v.image_url ? (
+                <img src={v.image_url} alt={v.name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-foreground/20" />
+                <div className="w-full h-full bg-secondary" />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/10 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                <motion.p
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15 }}
-                  className="text-primary-foreground/70 text-xs mb-1"
-                >
-                  {car.year} · {car.type}
-                </motion.p>
-                <motion.p
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-primary-foreground font-bold text-xl leading-tight"
-                >
-                  {car.name}
-                </motion.p>
-                <motion.p
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.25 }}
-                  className="text-primary text-2xl font-bold mt-1"
-                >
-                  ${car.price.toLocaleString()}
-                </motion.p>
-              </div>
+
+              {/* Dark vignette on side cards */}
+              {!isCenter && (
+                <div className="absolute inset-0 bg-foreground/30" />
+              )}
+
+              {isCenter ? (
+                <Link to={`/vehicle/${v.id}`} className="absolute inset-0 flex flex-col justify-end">
+                  <div className="bg-black/85 backdrop-blur-sm px-4 md:px-6 py-3 md:py-4 flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-white/50 text-xs mb-0.5">{v.year} · {v.type}</p>
+                      <p className="text-white font-bold text-sm md:text-lg leading-tight line-clamp-1">{v.name}</p>
+                    </div>
+                    <div className="shrink-0 bg-primary rounded-lg px-3 py-1.5 text-center">
+                      <p className="text-primary-foreground font-bold text-base md:text-xl leading-tight">${v.price.toLocaleString()}</p>
+                    </div>
+                  </div>
+                </Link>
+              ) : (
+                <div className="absolute bottom-0 left-0 right-0 bg-black/80 backdrop-blur-sm px-3 md:px-4 py-2.5 flex items-center justify-between gap-2">
+                  <p className="text-white font-semibold text-xs line-clamp-1 min-w-0">{v.name}</p>
+                  <p className="text-white font-bold text-xs md:text-sm shrink-0 bg-primary/90 px-2 py-0.5 rounded">${v.price.toLocaleString()}</p>
+                </div>
+              )}
             </div>
-          </Link>
-        </motion.div>
-      </AnimatePresence>
+          </div>
+        );
+      })}
 
       {vehicles.length > 1 && (
         <>
           <button
-            onClick={(e) => { e.preventDefault(); prev(); }}
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors z-10 shadow-md"
+            onClick={() => goTo((current - 1 + vehicles.length) % vehicles.length)}
+            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 md:w-10 md:h-10 rounded-full bg-background/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-background transition-colors"
             aria-label="Previous"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
-            onClick={(e) => { e.preventDefault(); next(); }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-background transition-colors z-10 shadow-md"
+            onClick={() => goTo((current + 1) % vehicles.length)}
+            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 md:w-10 md:h-10 rounded-full bg-background/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-background transition-colors"
             aria-label="Next"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
 
-          {/* Progress bar dots */}
-          <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+          <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
             {vehicles.map((_, i) => (
               <button
                 key={i}
-                onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); resetTimer(); }}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === current ? "bg-primary w-5" : "bg-border w-1.5"
-                }`}
+                onClick={() => goTo(i)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${i === current ? "bg-primary w-5" : "bg-border w-1.5"}`}
                 aria-label={`Slide ${i + 1}`}
               />
             ))}
@@ -173,11 +195,19 @@ function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
 }
 
 // ─── Recently Viewed Strip ────────────────────────────────────────────────────
-function RecentlyViewedStrip() {
-  const { recentViews, recentSearches } = useApp();
+export function RecentlyViewedStrip() {
+  const { recentViews, recentSearches, isDemoMode } = useApp();
   const navigate = useNavigate();
 
-  if (recentViews.length === 0 && recentSearches.length === 0) return null;
+  const displayViews = isDemoMode && recentViews.length === 0
+    ? DEMO_VEHICLES.slice(0, 4)
+    : recentViews.slice(0, 4);
+
+  const displaySearches = isDemoMode && recentSearches.length === 0
+    ? ["BMW", "Tesla", "SUV under $50k"]
+    : recentSearches.slice(0, 5);
+
+  if (displayViews.length === 0 && displaySearches.length === 0) return null;
 
   return (
     <section className="section-padding py-8 border-b border-border bg-secondary/40">
@@ -186,11 +216,11 @@ function RecentlyViewedStrip() {
         <p className="text-sm font-semibold text-foreground">Pick Up Where You Left Off</p>
       </div>
       <div className="flex flex-col sm:flex-row gap-6">
-        {recentSearches.length > 0 && (
+        {displaySearches.length > 0 && (
           <div className="flex-1">
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Recent Searches</p>
             <div className="flex flex-wrap gap-2">
-              {recentSearches.slice(0, 5).map((q) => (
+              {displaySearches.map((q) => (
                 <button
                   key={q}
                   onClick={() => navigate(`/inventory?search=${encodeURIComponent(q)}`)}
@@ -202,11 +232,11 @@ function RecentlyViewedStrip() {
             </div>
           </div>
         )}
-        {recentViews.length > 0 && (
+        {displayViews.length > 0 && (
           <div className="flex-1">
             <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Recently Viewed</p>
             <div className="flex gap-3 overflow-x-auto pb-1">
-              {recentViews.slice(0, 4).map((v) => (
+              {displayViews.map((v) => (
                 <Link
                   key={v.id}
                   to={`/vehicle/${v.id}`}
@@ -231,20 +261,6 @@ function RecentlyViewedStrip() {
   );
 }
 
-// ─── Animated Stat ─────────────────────────────────────────────────────────────
-function StatItem({ label }: { label: string }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex items-center gap-2"
-    >
-      <span className="text-primary-foreground/50 text-xs">·</span>
-      <span className="text-primary-foreground/60 text-xs tracking-wide">{label}</span>
-    </motion.div>
-  );
-}
-
 // ─── Main Hero Section ────────────────────────────────────────────────────────
 const HeroSection = () => {
   const ref = useRef(null);
@@ -256,13 +272,13 @@ const HeroSection = () => {
   const contentOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const contentY = useTransform(scrollYProgress, [0, 0.5], [0, -60]);
 
-  const { isDemoMode } = useApp();
+  const { isDemoMode, recentlyViewedInHero } = useApp();
   const [carouselVehicles, setCarouselVehicles] = useState<Vehicle[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (isDemoMode) {
-      setCarouselVehicles(DEMO_VEHICLES.filter((v) => v.in_carousel).slice(0, 8));
+      setCarouselVehicles(DEMO_VEHICLES.filter((v) => v.in_carousel).slice(0, 7));
       return;
     }
     supabase
@@ -270,10 +286,9 @@ const HeroSection = () => {
       .select("id, name, price, year, type, image_url")
       .eq("in_carousel", true)
       .eq("status", "available")
-      .limit(8)
+      .limit(7)
       .then(({ data }) => {
-        if (data && data.length > 0) setCarouselVehicles(data as Vehicle[]);
-        else setCarouselVehicles([]);
+        setCarouselVehicles(data && data.length > 0 ? (data as Vehicle[]) : []);
       });
   }, [isDemoMode]);
 
@@ -288,140 +303,123 @@ const HeroSection = () => {
 
   return (
     <>
-      {/* Hero */}
       <section ref={ref} className="relative h-screen w-full overflow-hidden">
-        {/* Background image with parallax */}
         <motion.div className="absolute inset-0 z-0" style={{ y: imageY, scale: imageScale }}>
           <img src={heroCar} alt="Iowa Auto Trust" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-foreground/50" />
         </motion.div>
 
-        {/* Floating micro-animation orbs */}
         <FloatingOrbs />
 
-        {/* Content */}
         <motion.div
-          className="relative z-10 flex flex-col items-start justify-end h-full section-padding pb-16 md:pb-24"
+          className="relative z-10 flex flex-col items-start justify-between h-full section-padding pt-20 md:pt-24 pb-16 md:pb-24"
           style={{ opacity: contentOpacity, y: contentY }}
         >
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-overline text-primary-foreground/70 mb-5"
-          >
-            Iowa Auto Trust · Woodward, Iowa
-          </motion.p>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tight leading-[0.9] text-primary-foreground max-w-5xl"
-          >
-            Drive
-            <br />
-            <motion.span
-              className="text-primary inline-block"
-              animate={{ textShadow: ["0 0 30px hsl(var(--primary)/0)", "0 0 60px hsl(var(--primary)/0.6)", "0 0 30px hsl(var(--primary)/0)"] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+          {/* Top: Headline */}
+          <div>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="text-overline text-primary-foreground/70 mb-5"
             >
-              Beyond
-            </motion.span>
-            <br />
-            Ordinary
-          </motion.h1>
+              Iowa Auto Trust · Woodward, Iowa
+            </motion.p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.7 }}
-            className="mt-6 text-base md:text-lg text-primary-foreground/70 max-w-md"
-          >
-            Curated pre-owned vehicles in Woodward, Iowa. Every car inspected, priced right, and ready to drive.
-          </motion.p>
-
-          {/* Search bar */}
-          <motion.form
-            onSubmit={handleSearch}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.85 }}
-            className="mt-8 flex gap-0 max-w-lg w-full"
-          >
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search make, model, or year…"
-                className="w-full h-12 pl-11 pr-4 rounded-l-lg bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-            <motion.button
-              type="submit"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              className="h-12 px-6 bg-primary text-primary-foreground text-sm font-semibold rounded-r-lg hover:bg-primary/90 transition-colors"
+            <motion.h1
+              initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tight leading-[0.9] text-primary-foreground max-w-5xl"
             >
-              Search
-            </motion.button>
-          </motion.form>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 1.0 }}
-            className="mt-6 flex gap-4 flex-wrap"
-          >
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Link to="/inventory" className="btn-hero">Browse All Vehicles</Link>
-            </motion.div>
-            <motion.a
-              href="tel:5156725406"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              animate={{ boxShadow: ["0 0 0px hsl(var(--primary)/0)", "0 0 16px hsl(var(--primary)/0.4)", "0 0 0px hsl(var(--primary)/0)"] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-              className="btn-hero-outline border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-foreground"
-            >
-              Call Now
-            </motion.a>
-          </motion.div>
-
-          {/* Micro stats strip */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1.3 }}
-            className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-1"
-          >
-            {stats.map((s, i) => (
-              <motion.div
-                key={s}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 1.3 + i * 0.12 }}
+              Drive
+              <br />
+              <motion.span
+                className="text-primary inline-block"
+                animate={{ textShadow: ["0 0 30px hsl(var(--primary)/0)", "0 0 60px hsl(var(--primary)/0.6)", "0 0 30px hsl(var(--primary)/0)"] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
               >
-                <StatItem label={s} />
+                Beyond
+              </motion.span>
+              <br />
+              Ordinary
+            </motion.h1>
+          </div>
+
+          {/* Bottom: Search, CTAs, stats */}
+          <div className="w-full">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
+              className="mb-6 text-base md:text-lg text-primary-foreground/70 max-w-md"
+            >
+              Curated pre-owned vehicles in Woodward, Iowa. Every car inspected, priced right, and ready to drive.
+            </motion.p>
+
+            <motion.form
+              onSubmit={handleSearch}
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.85 }}
+              className="flex gap-0 max-w-lg w-full"
+            >
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text" value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search make, model, or year…"
+                  className="w-full h-12 pl-11 pr-4 rounded-l-lg bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <motion.button
+                type="submit" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                className="h-12 px-6 bg-primary text-primary-foreground text-sm font-semibold rounded-r-lg hover:bg-primary/90 transition-colors"
+              >
+                Search
+              </motion.button>
+            </motion.form>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.0 }}
+              className="mt-6 flex gap-4 flex-wrap"
+            >
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <Link to="/inventory" className="btn-hero">Browse All Vehicles</Link>
               </motion.div>
-            ))}
-          </motion.div>
+              <motion.a
+                href="tel:5156725406" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                animate={{ boxShadow: ["0 0 0px hsl(var(--primary)/0)", "0 0 16px hsl(var(--primary)/0.4)", "0 0 0px hsl(var(--primary)/0)"] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                className="btn-hero-outline border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-foreground"
+              >
+                Call Now
+              </motion.a>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 1.3 }}
+              className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1"
+            >
+              {stats.map((s, i) => (
+                <motion.div key={s} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.3 + i * 0.12 }}>
+                  <span className="text-primary-foreground/50 text-xs mr-1">·</span>
+                  <span className="text-primary-foreground/60 text-xs tracking-wide">{s}</span>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
         </motion.div>
       </section>
 
-      {/* Recently Viewed / Last Searched strip */}
-      <RecentlyViewedStrip />
+      {/* Recently Viewed strip — only if admin set it to show in hero */}
+      {recentlyViewedInHero && <RecentlyViewedStrip />}
 
       {/* Featured Car Carousel */}
       {carouselVehicles.length > 0 && (
         <section className="section-padding py-16 bg-background">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} transition={{ duration: 0.6 }}
           >
             <p className="text-overline mb-3">Spotlight</p>
             <h2 className="heading-section mb-10">Featured Vehicles</h2>
@@ -429,7 +427,7 @@ const HeroSection = () => {
           <div className="pb-8">
             <HeroCarousel vehicles={carouselVehicles} />
           </div>
-          <div className="mt-6 flex justify-center">
+          <div className="mt-8 flex justify-center">
             <Link to="/inventory" className="btn-hero-outline">View All Inventory</Link>
           </div>
         </section>

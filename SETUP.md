@@ -75,6 +75,10 @@ CREATE TABLE vehicles (
   view_count INTEGER DEFAULT 0,
   image_url TEXT,
   image_urls TEXT[],
+  vin TEXT UNIQUE,
+  discount_amount NUMERIC,
+  discount_label TEXT,
+  discount_expires TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -132,6 +136,20 @@ CREATE TABLE transactions (
   buyer_email TEXT,
   amount NUMERIC,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'completed', 'cancelled')),
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Coupons / Discount Codes
+CREATE TABLE coupons (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code TEXT UNIQUE NOT NULL,
+  discount_type TEXT NOT NULL CHECK (discount_type IN ('percent', 'fixed')),
+  discount_value NUMERIC NOT NULL,
+  min_price NUMERIC,
+  max_uses INTEGER,
+  used_count INTEGER DEFAULT 0,
+  expires_at TIMESTAMPTZ,
+  active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -257,6 +275,16 @@ CREATE POLICY "System inserts transactions"
 -- Recent searches: user manages own
 CREATE POLICY "User manages own searches"
   ON recent_searches FOR ALL USING (auth.uid() = user_id);
+
+-- Coupons: anyone can read active ones (to validate at checkout); admin manages all
+ALTER TABLE coupons ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public reads active coupons"
+  ON coupons FOR SELECT USING (active = true);
+
+CREATE POLICY "Admin full access on coupons"
+  ON coupons FOR ALL
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true));
 ```
 
 ---
@@ -363,9 +391,54 @@ npm run dev
 
 ---
 
-## Step 10 — First Steps After Going Live
+## Step 10 — Email Notifications (Optional but Recommended)
+
+When a customer submits an inquiry, a test drive request, or a contact form, you will receive an email notification automatically.
+
+This uses a **Supabase Edge Function** + **Resend** (free tier: 3,000 emails/month).
+
+### 10a — Create a Resend Account
+
+1. Go to [resend.com](https://resend.com) and sign up (free)
+2. Go to **API Keys** → **Create API Key**
+3. Copy the key — you'll use it in the next step
+
+### 10b — Deploy the Edge Function
+
+The edge function is already in this repo at `supabase/functions/send-lead-notification/index.ts`.
+
+Install the Supabase CLI if you haven't:
+```bash
+npm install -g supabase
+```
+
+Login and link your project:
+```bash
+supabase login
+supabase link --project-ref YOUR-PROJECT-REF
+```
+*(Find your project ref in Supabase → Settings → General)*
+
+Set your Resend API key as a secret:
+```bash
+supabase secrets set RESEND_API_KEY=re_your_key_here
+```
+
+Deploy the function:
+```bash
+supabase functions deploy send-lead-notification
+```
+
+### 10c — Set the Notification Email
+
+By default, notifications go to `iowaautotrust@gmail.com`. To change it, edit `supabase/functions/send-lead-notification/index.ts` and update the `ADMIN_EMAIL` constant.
+
+---
+
+## Step 11 — First Steps After Going Live
 
 1. **Log in** at `/login` with `iowaautotrust@gmail.com`
+
 2. **Add vehicle categories** at `/admin/categories` (e.g. Sedans, SUVs, Trucks)
 3. **Add your first vehicles** at `/admin/inventory`
    - Upload images directly from the admin panel

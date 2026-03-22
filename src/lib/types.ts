@@ -43,6 +43,11 @@ export type Database = {
         Insert: Omit<RecentSearch, "id" | "searched_at">;
         Update: never;
       };
+      coupons: {
+        Row: Coupon;
+        Insert: Omit<Coupon, "id" | "created_at" | "used_count">;
+        Update: Partial<Omit<Coupon, "id" | "created_at">>;
+      };
     };
   };
 };
@@ -78,6 +83,10 @@ export interface Vehicle {
   view_count: number;
   image_url: string | null;
   image_urls: string[] | null;
+  vin: string | null;
+  discount_amount: number | null;
+  discount_label: string | null;
+  discount_expires: string | null;
   created_at: string;
   updated_at: string;
   // joined
@@ -90,6 +99,7 @@ export interface Profile {
   phone: string | null;
   location: string | null;
   is_admin: boolean;
+  is_manager: boolean;
   created_at: string;
   // joined from auth
   email?: string;
@@ -143,6 +153,19 @@ export interface RecentSearch {
   searched_at: string;
 }
 
+export interface Coupon {
+  id: string;
+  code: string;
+  discount_type: "percent" | "fixed";
+  discount_value: number;
+  min_price: number | null;
+  max_uses: number | null;
+  used_count: number;
+  expires_at: string | null;
+  active: boolean;
+  created_at: string;
+}
+
 // ─── Auth Types ──────────────────────────────────────────────────────────────
 
 export interface AuthUser {
@@ -152,6 +175,7 @@ export interface AuthUser {
   phone: string | null;
   location: string | null;
   isAdmin: boolean;
+  isManager: boolean;
 }
 
 // ─── App Context Types ───────────────────────────────────────────────────────

@@ -3,7 +3,6 @@ import HeroSection from "@/components/HeroSection";
 import FeaturedCars from "@/components/FeaturedCars";
 import BrandStory from "@/components/BrandStory";
 import DiscoveryQuiz from "@/components/DiscoveryQuiz";
-import InventoryPreview from "@/components/InventoryPreview";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
 
@@ -15,7 +14,6 @@ const Index = () => {
       <FeaturedCars />
       <BrandStory />
       <DiscoveryQuiz />
-      <InventoryPreview />
       <FinalCTA />
       <Footer />
     </div>

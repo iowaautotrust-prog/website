@@ -18,7 +18,7 @@ const AdminLeads = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
 
-  if (!user?.isAdmin) return <Navigate to="/login" />;
+  if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
 
   useEffect(() => {
     supabase

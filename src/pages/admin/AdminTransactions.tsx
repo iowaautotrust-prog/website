@@ -12,7 +12,7 @@ const AdminTransactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
-  if (!user?.isAdmin) return <Navigate to="/login" />;
+  if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
 
   useEffect(() => {
     supabase
