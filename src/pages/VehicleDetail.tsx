@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
 import { supabase } from "@/lib/supabase";
+import { DEMO_VEHICLES } from "@/lib/demoData";
 import type { Vehicle } from "@/lib/types";
 import {
   ArrowLeft, Fuel, Users, Calendar, Gauge, Check, Heart, GitCompare,
@@ -105,6 +106,21 @@ const VehicleDetail = () => {
   useEffect(() => {
     if (!id) return;
     setLoading(true);
+
+    // Demo vehicle — resolve immediately from local data
+    if (id.startsWith("demo-")) {
+      const vehicle = DEMO_VEHICLES.find((v) => v.id === id) ?? null;
+      setCar(vehicle);
+      setLoading(false);
+      if (vehicle) {
+        addRecentView(vehicle);
+        setSimilarCars(
+          DEMO_VEHICLES.filter((v) => v.id !== id && v.type === vehicle.type).slice(0, 4)
+        );
+      }
+      return;
+    }
+
     supabase
       .from("vehicles")
       .select("*, category:categories(id,name)")

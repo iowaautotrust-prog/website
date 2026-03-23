@@ -200,8 +200,8 @@ export function RecentlyViewedStrip() {
   const navigate = useNavigate();
 
   const displayViews = isDemoMode && recentViews.length === 0
-    ? DEMO_VEHICLES.slice(0, 4)
-    : recentViews.slice(0, 4);
+    ? DEMO_VEHICLES.slice(0, 6)
+    : recentViews.slice(0, 6);
 
   const displaySearches = isDemoMode && recentSearches.length === 0
     ? ["BMW", "Tesla", "SUV under $50k"]
@@ -240,16 +240,16 @@ export function RecentlyViewedStrip() {
                 <Link
                   key={v.id}
                   to={`/vehicle/${v.id}`}
-                  className="flex-none flex items-center gap-2.5 bg-background border border-border rounded-xl px-3 py-2 hover:border-primary transition-colors group"
+                  className="flex-none w-44 bg-background border border-border rounded-xl overflow-hidden hover:border-primary hover:shadow-md transition-all group"
                 >
                   {v.image_url ? (
-                    <img src={v.image_url} alt={v.name} className="w-10 h-10 rounded-lg object-cover" />
+                    <img src={v.image_url} alt={v.name} className="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-300" />
                   ) : (
-                    <div className="w-10 h-10 rounded-lg bg-secondary" />
+                    <div className="w-full h-24 bg-secondary" />
                   )}
-                  <div>
-                    <p className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">{v.name}</p>
-                    <p className="text-xs text-muted-foreground">${v.price.toLocaleString()}</p>
+                  <div className="px-3 py-2.5">
+                    <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">{v.name}</p>
+                    <p className="text-sm font-bold text-primary mt-0.5">${v.price.toLocaleString()}</p>
                   </div>
                 </Link>
               ))}
