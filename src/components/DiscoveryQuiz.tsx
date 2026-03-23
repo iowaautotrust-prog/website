@@ -82,12 +82,17 @@ const DiscoveryQuiz = () => {
     if (!showResults) return;
     if (isDemoMode) {
       let results = DEMO_VEHICLES.filter((v) => {
+        if (answers.budget) {
+          if (answers.budget === "under30"  && v.price >= 30000)  return false;
+          if (answers.budget === "30to50"   && (v.price < 30000 || v.price > 50000)) return false;
+          if (answers.budget === "50to75"   && (v.price < 50000 || v.price > 75000)) return false;
+          if (answers.budget === "over75"   && v.price <= 75000)  return false;
+        }
         if (answers.type && answers.type !== "any" && v.type !== answers.type) return false;
         if (answers.fuel && answers.fuel !== "any" && v.fuel !== answers.fuel) return false;
         if (answers.seats && answers.seats !== "any") {
-          const s = parseInt(answers.seats);
           if (answers.seats === "7") { if ((v.seats ?? 0) < 7) return false; }
-          else if (v.seats !== s) return false;
+          else if (v.seats !== parseInt(answers.seats)) return false;
         }
         return true;
       });
@@ -95,12 +100,17 @@ const DiscoveryQuiz = () => {
       return;
     }
     let query = supabase.from("vehicles").select("*").eq("status", "available");
+    if (answers.budget) {
+      if (answers.budget === "under30")  query = query.lt("price", 30000);
+      if (answers.budget === "30to50")   query = query.gte("price", 30000).lte("price", 50000);
+      if (answers.budget === "50to75")   query = query.gte("price", 50000).lte("price", 75000);
+      if (answers.budget === "over75")   query = query.gt("price", 75000);
+    }
     if (answers.type && answers.type !== "any") query = query.eq("type", answers.type);
     if (answers.fuel && answers.fuel !== "any") query = query.eq("fuel", answers.fuel);
     if (answers.seats && answers.seats !== "any") {
-      const seatsNum = parseInt(answers.seats);
       if (answers.seats === "7") query = query.gte("seats", 7);
-      else query = query.eq("seats", seatsNum);
+      else query = query.eq("seats", parseInt(answers.seats));
     }
     query.limit(2).then(({ data }) => setRecommendations((data as Vehicle[]) ?? []));
   }, [showResults, isDemoMode]);

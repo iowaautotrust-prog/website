@@ -9,6 +9,24 @@ const img = (i: number): string => images[i % images.length];
 
 const NOW = new Date().toISOString();
 
+export const DEMO_CATEGORIES = [
+  { id: "demo-cat-1", name: "Sedans",           slug: "sedans" },
+  { id: "demo-cat-2", name: "SUVs",             slug: "suvs" },
+  { id: "demo-cat-3", name: "Coupes & Sports",  slug: "coupes-sports" },
+  { id: "demo-cat-4", name: "Hatchbacks",       slug: "hatchbacks" },
+  { id: "demo-cat-5", name: "Electric & Hybrid",slug: "electric-hybrid" },
+];
+
+// Map vehicle type + fuel → demo category id
+const catId = (type: string, fuel: string): string => {
+  if (fuel === "Electric" || fuel === "Hybrid") return "demo-cat-5";
+  if (type === "Sedan")    return "demo-cat-1";
+  if (type === "SUV")      return "demo-cat-2";
+  if (type === "Coupe")    return "demo-cat-3";
+  if (type === "Hatchback")return "demo-cat-4";
+  return "demo-cat-2";
+};
+
 export const DEMO_VEHICLES: Vehicle[] = [
   {
     id: "demo-1",
@@ -730,4 +748,4 @@ export const DEMO_VEHICLES: Vehicle[] = [
     created_at: NOW,
     updated_at: NOW,
   },
-];
+].map((v) => ({ ...v, category_id: catId(v.type, v.fuel) })) as Vehicle[];

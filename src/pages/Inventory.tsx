@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link, useSearchParams } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { supabase } from "@/lib/supabase";
-import { DEMO_VEHICLES } from "@/lib/demoData";
+import { DEMO_VEHICLES, DEMO_CATEGORIES } from "@/lib/demoData";
 import type { Vehicle } from "@/lib/types";
 import {
   ArrowRight,
@@ -48,7 +48,7 @@ const Inventory = () => {
   useEffect(() => {
     if (isDemoMode) {
       setVehicles(DEMO_VEHICLES);
-      setCategories([]);
+      setCategories(DEMO_CATEGORIES);
       setLoading(false);
       return;
     }
