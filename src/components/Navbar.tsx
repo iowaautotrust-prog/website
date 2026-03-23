@@ -83,10 +83,12 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-7">
             <Link to="/" className={linkClass}>Home</Link>
             <Link to="/inventory" className={linkClass}>Inventory</Link>
+            {/* Service link — hidden until shop goes live
             <Link to="/service" className={`${linkClass} flex items-center gap-1`}>
               <Wrench className="w-3.5 h-3.5" />
               Service
             </Link>
+            */}
             <Link to="/contact" className={linkClass}>Contact</Link>
             {compareList.length > 0 && (
               <Link to="/compare" className={`${linkClass} flex items-center gap-1`}>
@@ -179,7 +181,7 @@ const Navbar = () => {
                 { to: "/inventory", label: "Inventory" },
                 { to: "/contact", label: "Contact" },
                 ...(compareList.length > 0 ? [{ to: "/compare", label: `Compare (${compareList.length})` }] : []),
-                { to: "/service", label: "Service" },
+                // { to: "/service", label: "Service" }, // hidden until shop goes live
                 ...(user?.isAdmin ? [{ to: "/admin", label: newLeads > 0 ? `Admin Dashboard (${newLeads} new)` : "Admin Dashboard" }] : user?.isManager ? [{ to: "/shop", label: newLeads > 0 ? `Shop Dashboard (${newLeads} new)` : "Shop Dashboard" }] : []),
                 ...(user ? [{ to: "/profile", label: "My Profile" }] : [{ to: "/login", label: "Sign In" }]),
               ].map(({ to, label }) => (
