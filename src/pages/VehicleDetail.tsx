@@ -97,6 +97,11 @@ const VehicleDetail = () => {
   const [inquiryForm, setInquiryForm] = useState({ name: "", email: "", phone: "", message: "", coupon: "" });
   const [inquirySubmitting, setInquirySubmitting] = useState(false);
   const [inquiryDone, setInquiryDone] = useState(false);
+
+  const [showTestDrive, setShowTestDrive] = useState(false);
+  const [tdForm, setTdForm] = useState({ name: "", email: "", phone: "", preferred_date: "" });
+  const [tdSubmitting, setTdSubmitting] = useState(false);
+  const [tdDone, setTdDone] = useState(false);
   const [couponStatus, setCouponStatus] = useState<{ valid: boolean; label: string } | null>(null);
   const [checkingCoupon, setCheckingCoupon] = useState(false);
 
@@ -207,6 +212,26 @@ const VehicleDetail = () => {
     }
     setInquirySubmitting(false);
     setInquiryDone(true);
+  };
+
+  const handleTestDrive = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (tdSubmitting) return;
+    setTdSubmitting(true);
+    await supabase.from("leads").insert({
+      user_id: user?.id ?? null,
+      name: tdForm.name,
+      email: tdForm.email,
+      phone: tdForm.phone || null,
+      vehicle_id: car?.id ?? null,
+      vehicle_name: car?.name ?? null,
+      message: tdForm.preferred_date ? `Preferred date: ${tdForm.preferred_date}` : "Test drive requested.",
+      lead_type: "test_drive",
+      status: "new",
+      created_at: new Date().toISOString(),
+    });
+    setTdSubmitting(false);
+    setTdDone(true);
   };
 
   if (loading) {
@@ -418,6 +443,9 @@ const VehicleDetail = () => {
                 <button onClick={() => setShowInquiry(true)} className="btn-hero w-full justify-center">
                   Request Information
                 </button>
+                <button onClick={() => setShowTestDrive(true)} className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-primary text-primary font-medium hover:bg-primary hover:text-primary-foreground transition-colors">
+                  Schedule Test Drive
+                </button>
                 <div className="grid grid-cols-2 gap-3">
                   <a href="tel:5156725406" className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
                     <Phone className="w-4 h-4" /> Call Now
@@ -482,6 +510,49 @@ const VehicleDetail = () => {
                     <button type="button" onClick={() => setShowInquiry(false)} className="flex-1 px-4 py-2 border border-border rounded-lg text-sm">Cancel</button>
                     <button type="submit" disabled={inquirySubmitting} className="btn-hero flex-1 flex items-center justify-center gap-2">
                       {inquirySubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Send
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
+          </motion.div>
+        </div>
+      )}
+
+      {/* Test Drive Modal */}
+      {showTestDrive && (
+        <div className="fixed inset-0 bg-foreground/60 z-50 flex items-center justify-center p-4" onClick={() => setShowTestDrive(false)}>
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-background rounded-2xl p-6 sm:p-8 w-full max-w-[95vw] sm:max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {tdDone ? (
+              <div className="text-center py-6 space-y-3">
+                <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto">
+                  <Check className="w-7 h-7 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold">Test Drive Requested!</h3>
+                <p className="text-muted-foreground text-sm">We'll call you to confirm your appointment for the {car?.name}.</p>
+                <button onClick={() => { setShowTestDrive(false); setTdDone(false); setTdForm({ name: "", email: "", phone: "", preferred_date: "" }); }} className="btn-hero mt-2">Close</button>
+              </div>
+            ) : (
+              <>
+                <h3 className="text-xl font-bold mb-1">Schedule a Test Drive</h3>
+                <p className="text-sm text-muted-foreground mb-5">For: <span className="font-medium text-foreground">{car?.name}</span></p>
+                <form onSubmit={handleTestDrive} className="space-y-3">
+                  <input placeholder="Your Name *" value={tdForm.name} onChange={(e) => setTdForm((f) => ({ ...f, name: e.target.value }))} required className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                  <input type="email" placeholder="Email Address *" value={tdForm.email} onChange={(e) => setTdForm((f) => ({ ...f, email: e.target.value }))} required className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                  <input type="tel" placeholder="Phone Number *" value={tdForm.phone} onChange={(e) => setTdForm((f) => ({ ...f, phone: e.target.value }))} required className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Preferred Date</label>
+                    <input type="date" value={tdForm.preferred_date} onChange={(e) => setTdForm((f) => ({ ...f, preferred_date: e.target.value }))} min={new Date().toISOString().split("T")[0]} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                  </div>
+                  <div className="flex gap-3 pt-1">
+                    <button type="button" onClick={() => setShowTestDrive(false)} className="flex-1 px-4 py-2 border border-border rounded-lg text-sm">Cancel</button>
+                    <button type="submit" disabled={tdSubmitting} className="btn-hero flex-1 flex items-center justify-center gap-2">
+                      {tdSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />} Request
                     </button>
                   </div>
                 </form>

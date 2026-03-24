@@ -23,18 +23,12 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
   LineChart,
   Line,
   CartesianGrid,
-  Legend,
 } from "recharts";
 import type { Lead, Transaction, Vehicle } from "@/lib/types";
 import { DEMO_VEHICLES, DEMO_LEADS, DEMO_TRANSACTIONS } from "@/lib/demoData";
-
-const COLORS = ["#2563eb", "#3b82f6", "#60a5fa", "#93c5fd", "#bfdbfe"];
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -47,7 +41,7 @@ const AdminDashboard = () => {
   });
   const [recentLeads, setRecentLeads] = useState<Lead[]>([]);
   const [topViewed, setTopViewed] = useState<{ name: string; views: number }[]>([]);
-  const [statusBreakdown, setStatusBreakdown] = useState<{ name: string; value: number }[]>([]);
+  const [statusBreakdown, setStatusBreakdown] = useState<{ name: string; value: number; color: string }[]>([]);
   const [leadsTrend, setLeadsTrend] = useState<{ date: string; leads: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -73,9 +67,11 @@ const AdminDashboard = () => {
       })));
       const available = DEMO_VEHICLES.filter((v) => v.status === "available").length;
       const pending = DEMO_VEHICLES.filter((v) => v.status === "pending").length;
+      const sold = DEMO_VEHICLES.filter((v) => v.status === "sold").length;
       setStatusBreakdown([
-        { name: "Available", value: available },
-        { name: "Pending", value: pending },
+        { name: "Available", value: available, color: "text-green-600" },
+        { name: "Pending", value: pending, color: "text-amber-500" },
+        { name: "Sold", value: sold, color: "text-blue-600" },
       ]);
       // Leads trend
       const now = new Date();
@@ -146,9 +142,11 @@ const AdminDashboard = () => {
       // Status breakdown
       const available = (statusData ?? []).filter((v: { status: string }) => v.status === "available").length;
       const pending = (statusData ?? []).filter((v: { status: string }) => v.status === "pending").length;
+      const sold = (statusData ?? []).filter((v: { status: string }) => v.status === "sold").length;
       setStatusBreakdown([
-        { name: "Available", value: available },
-        { name: "Pending", value: pending },
+        { name: "Available", value: available, color: "text-green-600" },
+        { name: "Pending", value: pending, color: "text-amber-500" },
+        { name: "Sold", value: sold, color: "text-blue-600" },
       ]);
 
       // Leads trend — last 14 days
@@ -311,35 +309,14 @@ const AdminDashboard = () => {
               <Car className="w-4 h-4 text-primary" />
               <h3 className="font-semibold">Inventory Status</h3>
             </div>
-            {statusBreakdown.some((s) => s.value > 0) ? (
-              <ResponsiveContainer width="100%" height={180}>
-                <PieChart>
-                  <Pie
-                    data={statusBreakdown}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    paddingAngle={3}
-                    dataKey="value"
-                    label={({ name, value }) => `${name}: ${value}`}
-                  >
-                    {statusBreakdown.map((_, index) => (
-                      <Cell
-                        key={index}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="text-sm text-muted-foreground py-10 text-center">
-                No inventory data yet
-              </p>
-            )}
+            <div className="grid grid-cols-3 gap-4 mt-2">
+              {statusBreakdown.map((s) => (
+                <div key={s.name} className="rounded-xl bg-secondary p-4 text-center">
+                  <p className={`text-3xl font-bold ${s.color}`}>{loading ? "—" : s.value}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{s.name}</p>
+                </div>
+              ))}
+            </div>
           </motion.div>
         </div>
 
