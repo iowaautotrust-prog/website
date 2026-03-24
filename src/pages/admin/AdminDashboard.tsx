@@ -32,6 +32,7 @@ import {
   Legend,
 } from "recharts";
 import type { Lead, Transaction, Vehicle } from "@/lib/types";
+import { DEMO_VEHICLES, DEMO_LEADS, DEMO_TRANSACTIONS } from "@/lib/demoData";
 
 const COLORS = ["#2563eb", "#3b82f6", "#60a5fa", "#93c5fd", "#bfdbfe"];
 
@@ -53,6 +54,46 @@ const AdminDashboard = () => {
   if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
 
   useEffect(() => {
+    if (isDemoMode) {
+      // Build analytics from demo data
+      const completedRevenue = DEMO_TRANSACTIONS
+        .filter((t) => t.status === "completed")
+        .reduce((s, t) => s + (t.amount ?? 0), 0);
+      setStats({
+        vehicleCount: DEMO_VEHICLES.length,
+        leadCount: DEMO_LEADS.length,
+        transactionCount: DEMO_TRANSACTIONS.length,
+        revenue: completedRevenue,
+      });
+      setRecentLeads(DEMO_LEADS.slice(0, 5) as Lead[]);
+      const sorted = [...DEMO_VEHICLES].sort((a, b) => b.view_count - a.view_count).slice(0, 10);
+      setTopViewed(sorted.map((v) => ({
+        name: v.name.length > 20 ? v.name.substring(0, 18) + "…" : v.name,
+        views: v.view_count,
+      })));
+      const available = DEMO_VEHICLES.filter((v) => v.status === "available").length;
+      const pending = DEMO_VEHICLES.filter((v) => v.status === "pending").length;
+      setStatusBreakdown([
+        { name: "Available", value: available },
+        { name: "Pending", value: pending },
+      ]);
+      // Leads trend
+      const now = new Date();
+      const trendMap: Record<string, number> = {};
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        trendMap[d.toISOString().split("T")[0]] = 0;
+      }
+      DEMO_LEADS.forEach((l) => {
+        const day = l.created_at.split("T")[0];
+        if (day in trendMap) trendMap[day]++;
+      });
+      setLeadsTrend(Object.entries(trendMap).map(([date, leads]) => ({ date: date.slice(5), leads })));
+      setLoading(false);
+      return;
+    }
+
     const fetchAll = async () => {
       const [
         { count: vehicleCount },
@@ -136,7 +177,7 @@ const AdminDashboard = () => {
       setLoading(false);
     };
     fetchAll();
-  }, []);
+  }, [isDemoMode]);
 
   const statCards = [
     {

@@ -25,13 +25,16 @@ import {
 import { supabase } from "@/lib/supabase";
 import type { Category } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
+import { useApp } from "@/contexts/AppContext";
 import { useNavigate } from "react-router-dom";
+import { DEMO_CATEGORIES, DEMO_VEHICLES } from "@/lib/demoData";
 
 const slugify = (str: string) =>
   str.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 
 export default function AdminCategories() {
   const { user } = useAuth();
+  const { isDemoMode } = useApp();
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [vehicleCounts, setVehicleCounts] = useState<Record<string, number>>({});
@@ -49,6 +52,17 @@ export default function AdminCategories() {
   }, [user, navigate]);
 
   const fetchCategories = async () => {
+    if (isDemoMode) {
+      const cats = DEMO_CATEGORIES.map((c) => ({ ...c, description: null, created_at: new Date().toISOString() })) as Category[];
+      setCategories(cats);
+      const map: Record<string, number> = {};
+      DEMO_VEHICLES.forEach((v) => {
+        if (v.category_id) map[v.category_id] = (map[v.category_id] ?? 0) + 1;
+      });
+      setVehicleCounts(map);
+      setLoading(false);
+      return;
+    }
     const { data } = await supabase
       .from("categories")
       .select("*")
@@ -72,7 +86,7 @@ export default function AdminCategories() {
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [isDemoMode]);
 
   const openAdd = () => {
     setEditing(null);

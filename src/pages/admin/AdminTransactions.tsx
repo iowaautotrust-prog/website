@@ -2,19 +2,27 @@ import { useState, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { useApp } from "@/contexts/AppContext";
 import { supabase } from "@/lib/supabase";
 import type { Transaction } from "@/lib/types";
+import { DEMO_TRANSACTIONS } from "@/lib/demoData";
 import { ArrowLeft, Loader2, DollarSign } from "lucide-react";
 import Footer from "@/components/Footer";
 
 const AdminTransactions = () => {
   const { user } = useAuth();
+  const { isDemoMode } = useApp();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
   if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
 
   useEffect(() => {
+    if (isDemoMode) {
+      setTransactions(DEMO_TRANSACTIONS as Transaction[]);
+      setLoading(false);
+      return;
+    }
     supabase
       .from("transactions")
       .select("*")
@@ -23,7 +31,7 @@ const AdminTransactions = () => {
         setTransactions((data as Transaction[]) ?? []);
         setLoading(false);
       });
-  }, []);
+  }, [isDemoMode]);
 
   const totalRevenue = transactions
     .filter((t) => t.status === "completed")

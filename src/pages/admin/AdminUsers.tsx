@@ -4,8 +4,10 @@ import { motion } from "framer-motion";
 import { ArrowLeft, User, Shield, Loader2, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
+import { useApp } from "@/contexts/AppContext";
 import { supabase } from "@/lib/supabase";
 import type { Profile } from "@/lib/types";
+import { DEMO_USERS } from "@/lib/demoData";
 
 interface UserRow extends Profile {
   email?: string;
@@ -15,6 +17,7 @@ interface UserRow extends Profile {
 
 export default function AdminUsers() {
   const { user } = useAuth();
+  const { isDemoMode } = useApp();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -24,6 +27,11 @@ export default function AdminUsers() {
 
   const fetchUsers = async () => {
     setLoading(true);
+    if (isDemoMode) {
+      setUsers(DEMO_USERS as UserRow[]);
+      setLoading(false);
+      return;
+    }
     const { data: profiles } = await supabase
       .from("profiles")
       .select("*")
@@ -62,7 +70,7 @@ export default function AdminUsers() {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [isDemoMode]);
 
   const toggleAdmin = async (profileId: string, currentIsAdmin: boolean) => {
     const targetUser = users.find((u) => u.id === profileId);

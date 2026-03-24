@@ -1,4 +1,4 @@
-import type { Vehicle } from "@/lib/types";
+import type { Vehicle, Lead, Transaction, Profile } from "@/lib/types";
 import car1 from "@/assets/car-1.jpg";
 import car2 from "@/assets/car-2.jpg";
 import car3 from "@/assets/car-3.jpg";
@@ -749,3 +749,46 @@ export const DEMO_VEHICLES: Vehicle[] = [
     updated_at: NOW,
   },
 ].map((v) => ({ ...v, category_id: catId(v.type, v.fuel) })) as Vehicle[];
+
+// ─── Demo Leads ──────────────────────────────────────────────────────────────
+
+const daysAgo = (n: number) =>
+  new Date(Date.now() - n * 86400000).toISOString();
+
+export const DEMO_LEADS: Lead[] = [
+  { id: "dl-1", user_id: null, name: "James Harrington", email: "james.h@example.com", phone: "515-203-4812", vehicle_id: "demo-2", vehicle_name: "Mercedes GLC 300", message: "Is this still available? I'd love to schedule a test drive this weekend.", lead_type: "test_drive", status: "new", created_at: daysAgo(0) },
+  { id: "dl-2", user_id: null, name: "Priya Nair", email: "priya.n@example.com", phone: "515-889-2201", vehicle_id: "demo-1", vehicle_name: "BMW 5 Series", message: "Interested in the BMW. Can you share the full service history?", lead_type: "inquiry", status: "contacted", created_at: daysAgo(1) },
+  { id: "dl-3", user_id: null, name: "Carlos Mendoza", email: "cmendoza@example.com", phone: null, vehicle_id: "demo-5", vehicle_name: "Tesla Model 3", message: "What's the range and warranty remaining on the battery?", lead_type: "inquiry", status: "new", created_at: daysAgo(1) },
+  { id: "dl-4", user_id: null, name: "Sophie Andersson", email: "sophie.a@example.com", phone: "515-442-7790", vehicle_id: "demo-3", vehicle_name: "Audi Q5", message: "Looking for an SUV for family trips. Is the Q5 still under manufacturer warranty?", lead_type: "inquiry", status: "new", created_at: daysAgo(2) },
+  { id: "dl-5", user_id: null, name: "Marcus Webb", email: "marcuswebb@example.com", phone: "515-610-5544", vehicle_id: "demo-21", vehicle_name: "Chevrolet Corvette", message: "I'm very interested in the Corvette. What's your best out-the-door price?", lead_type: "inquiry", status: "contacted", created_at: daysAgo(3) },
+  { id: "dl-6", user_id: null, name: "Lin Zhao", email: "lin.zhao@example.com", phone: null, vehicle_id: null, vehicle_name: null, message: "Do you have any luxury sedans under $50K coming in soon?", lead_type: "contact", status: "new", created_at: daysAgo(4) },
+  { id: "dl-7", user_id: null, name: "Emily Carter", email: "emilycarter@example.com", phone: "515-777-3380", vehicle_id: "demo-4", vehicle_name: "Porsche Cayenne", message: "Can I bring the car to my mechanic for a pre-purchase inspection?", lead_type: "inquiry", status: "closed", created_at: daysAgo(5) },
+  { id: "dl-8", user_id: null, name: "Derek Thompson", email: "derek.t@example.com", phone: "515-234-9921", vehicle_id: "demo-12", vehicle_name: "Ford Mustang", message: "Would you consider a trade-in on my 2019 Camaro SS?", lead_type: "test_drive", status: "new", created_at: daysAgo(5) },
+  { id: "dl-9", user_id: null, name: "Aisha Kamara", email: "akamara@example.com", phone: null, vehicle_id: "demo-13", vehicle_name: "Hyundai Tucson", message: "Is financing available? Looking for 60-month terms.", lead_type: "inquiry", status: "contacted", created_at: daysAgo(7) },
+  { id: "dl-10", user_id: null, name: "Ryan O'Brien", email: "ryanobrienx@example.com", phone: "515-501-6677", vehicle_id: "demo-6", vehicle_name: "Honda Accord", message: "I live in Des Moines — can I come in tomorrow for a test drive?", lead_type: "test_drive", status: "closed", created_at: daysAgo(9) },
+  { id: "dl-11", user_id: null, name: "Natalie Brooke", email: "natalie.b@example.com", phone: "515-388-2209", vehicle_id: "demo-27", vehicle_name: "Porsche 911 Carrera", message: "Is there a CPO warranty on the 911? Looking for extended coverage.", lead_type: "inquiry", status: "new", created_at: daysAgo(11) },
+  { id: "dl-12", user_id: null, name: "Hassan Al-Farsi", email: "hassan.af@example.com", phone: null, vehicle_id: "demo-8", vehicle_name: "Toyota Camry", message: "I'd like to schedule a viewing for Saturday morning.", lead_type: "test_drive", status: "new", created_at: daysAgo(13) },
+];
+
+// ─── Demo Transactions ───────────────────────────────────────────────────────
+export const DEMO_TRANSACTIONS: Transaction[] = [
+  { id: "dt-1", idempotency_key: "ik-dt-1", vehicle_id: "demo-7", vehicle_name: "Range Rover Sport", buyer_id: null, buyer_name: "Emily Carter", buyer_email: "emilycarter@example.com", amount: 68500, status: "completed", created_at: daysAgo(6) },
+  { id: "dt-2", idempotency_key: "ik-dt-2", vehicle_id: "demo-9", vehicle_name: "Kia EV6", buyer_id: null, buyer_name: "Ryan O'Brien", buyer_email: "ryanobrienx@example.com", amount: 41200, status: "completed", created_at: daysAgo(11) },
+  { id: "dt-3", idempotency_key: "ik-dt-3", vehicle_id: "demo-6", vehicle_name: "Honda Accord", buyer_id: null, buyer_name: "Priya Nair", buyer_email: "priya.n@example.com", amount: 29800, status: "completed", created_at: daysAgo(15) },
+  { id: "dt-4", idempotency_key: "ik-dt-4", vehicle_id: "demo-18", vehicle_name: "Subaru Outback", buyer_id: null, buyer_name: "Sophie Andersson", buyer_email: "sophie.a@example.com", amount: 35500, status: "completed", created_at: daysAgo(22) },
+  { id: "dt-5", idempotency_key: "ik-dt-5", vehicle_id: "demo-14", vehicle_name: "Audi Q7", buyer_id: null, buyer_name: "Lin Zhao", buyer_email: "lin.zhao@example.com", amount: 61000, status: "pending", created_at: daysAgo(2) },
+  { id: "dt-6", idempotency_key: "ik-dt-6", vehicle_id: "demo-16", vehicle_name: "Mazda CX-5", buyer_id: null, buyer_name: "Marcus Webb", buyer_email: "marcuswebb@example.com", amount: 31000, status: "completed", created_at: daysAgo(30) },
+  { id: "dt-7", idempotency_key: "ik-dt-7", vehicle_id: "demo-24", vehicle_name: "Genesis GV80", buyer_id: null, buyer_name: "Natalie Brooke", buyer_email: "natalie.b@example.com", amount: 58000, status: "pending", created_at: daysAgo(1) },
+];
+
+// ─── Demo Users ──────────────────────────────────────────────────────────────
+export const DEMO_USERS: (Profile & { email?: string; favorites_count?: number; leads_count?: number })[] = [
+  { id: "du-1", name: "Admin Account", email: "iowaautotrust@gmail.com", phone: null, location: "Iowa City, IA", is_admin: true, is_manager: false, created_at: daysAgo(90), favorites_count: 0, leads_count: 0 },
+  { id: "du-2", name: "James Harrington", email: "james.h@example.com", phone: "515-203-4812", location: "Des Moines, IA", is_admin: false, is_manager: false, created_at: daysAgo(14), favorites_count: 3, leads_count: 1 },
+  { id: "du-3", name: "Priya Nair", email: "priya.n@example.com", phone: "515-889-2201", location: "Cedar Rapids, IA", is_admin: false, is_manager: false, created_at: daysAgo(20), favorites_count: 5, leads_count: 2 },
+  { id: "du-4", name: "Carlos Mendoza", email: "cmendoza@example.com", phone: null, location: null, is_admin: false, is_manager: false, created_at: daysAgo(8), favorites_count: 1, leads_count: 1 },
+  { id: "du-5", name: "Sarah Mitchell", email: "sarah.m@example.com", phone: "515-773-4490", location: "Ames, IA", is_admin: false, is_manager: true, created_at: daysAgo(45), favorites_count: 0, leads_count: 0 },
+  { id: "du-6", name: "Marcus Webb", email: "marcuswebb@example.com", phone: "515-610-5544", location: "Davenport, IA", is_admin: false, is_manager: false, created_at: daysAgo(31), favorites_count: 2, leads_count: 1 },
+  { id: "du-7", name: "Emily Carter", email: "emilycarter@example.com", phone: "515-777-3380", location: "Sioux City, IA", is_admin: false, is_manager: false, created_at: daysAgo(40), favorites_count: 4, leads_count: 1 },
+  { id: "du-8", name: "Ryan O'Brien", email: "ryanobrienx@example.com", phone: "515-501-6677", location: "Iowa City, IA", is_admin: false, is_manager: false, created_at: daysAgo(60), favorites_count: 1, leads_count: 1 },
+];

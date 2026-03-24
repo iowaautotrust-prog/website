@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { useApp } from "@/contexts/AppContext";
 import { supabase } from "@/lib/supabase";
 import type { Lead } from "@/lib/types";
+import { DEMO_LEADS } from "@/lib/demoData";
 import { ArrowLeft, Loader2, MessageSquare } from "lucide-react";
 import Footer from "@/components/Footer";
 
@@ -15,12 +17,18 @@ const statusColors: Record<string, string> = {
 
 const AdminLeads = () => {
   const { user } = useAuth();
+  const { isDemoMode } = useApp();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
 
   if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
 
   useEffect(() => {
+    if (isDemoMode) {
+      setLeads(DEMO_LEADS as Lead[]);
+      setLoading(false);
+      return;
+    }
     supabase
       .from("leads")
       .select("*")
@@ -29,7 +37,7 @@ const AdminLeads = () => {
         setLeads((data as Lead[]) ?? []);
         setLoading(false);
       });
-  }, []);
+  }, [isDemoMode]);
 
   const updateStatus = async (id: string, status: Lead["status"]) => {
     await supabase.from("leads").update({ status }).eq("id", id);
