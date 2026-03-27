@@ -17,7 +17,7 @@ interface UserRow extends Profile {
 
 export default function AdminUsers() {
   const { user } = useAuth();
-  const { isDemoMode } = useApp();
+  const { isDemoMode, isDemoModeReady } = useApp();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -69,8 +69,9 @@ export default function AdminUsers() {
   };
 
   useEffect(() => {
+    if (!isDemoModeReady) return;
     fetchUsers();
-  }, [isDemoMode]);
+  }, [isDemoMode, isDemoModeReady]);
 
   const toggleAdmin = async (profileId: string, currentIsAdmin: boolean) => {
     const targetUser = users.find((u) => u.id === profileId);

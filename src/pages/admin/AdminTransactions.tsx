@@ -11,13 +11,14 @@ import Footer from "@/components/Footer";
 
 const AdminTransactions = () => {
   const { user } = useAuth();
-  const { isDemoMode } = useApp();
+  const { isDemoMode, isDemoModeReady } = useApp();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
   if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
 
   useEffect(() => {
+    if (!isDemoModeReady) return;
     if (isDemoMode) {
       setTransactions(DEMO_TRANSACTIONS as Transaction[]);
       setLoading(false);
@@ -31,7 +32,7 @@ const AdminTransactions = () => {
         setTransactions((data as Transaction[]) ?? []);
         setLoading(false);
       });
-  }, [isDemoMode]);
+  }, [isDemoMode, isDemoModeReady]);
 
   const totalRevenue = transactions
     .filter((t) => t.status === "completed")

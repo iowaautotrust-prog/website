@@ -51,6 +51,7 @@ interface AppContextType {
   bumpVehicleVersion: () => void;
   // Demo mode
   isDemoMode: boolean;
+  isDemoModeReady: boolean;
   isDemoModeLoading: boolean;
   toggleDemoMode: () => Promise<void>;
   // Recently viewed location — hero or profile only
@@ -82,6 +83,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [vehicleVersion, setVehicleVersion] = useState(0);
   // Seed from localStorage immediately so there's no flash, then sync from Supabase
   const [isDemoMode, setIsDemoMode] = useState<boolean>(() => lsLoad("iat_demo", false));
+  const [isDemoModeReady, setIsDemoModeReady] = useState(false);
   const [isDemoModeLoading, setIsDemoModeLoading] = useState(false);
 
   // Fetch demo_mode from Supabase on mount and subscribe to realtime changes
@@ -98,6 +100,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           setIsDemoMode(val);
           lsSave("iat_demo", val);
         }
+        setIsDemoModeReady(true);
       });
 
     // Realtime subscription so all tabs/users get the update instantly
@@ -402,6 +405,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         vehicleVersion,
         bumpVehicleVersion,
         isDemoMode,
+        isDemoModeReady,
         isDemoModeLoading,
         toggleDemoMode,
         recentlyViewedInHero,

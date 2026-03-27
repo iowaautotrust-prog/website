@@ -32,7 +32,7 @@ import { DEMO_VEHICLES, DEMO_LEADS, DEMO_TRANSACTIONS } from "@/lib/demoData";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  const { isDemoMode, isDemoModeLoading, toggleDemoMode, recentlyViewedInHero, toggleRecentlyViewedLocation } = useApp();
+  const { isDemoMode, isDemoModeReady, isDemoModeLoading, toggleDemoMode, recentlyViewedInHero, toggleRecentlyViewedLocation } = useApp();
   const [stats, setStats] = useState({
     vehicleCount: 0,
     leadCount: 0,
@@ -48,6 +48,7 @@ const AdminDashboard = () => {
   if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
 
   useEffect(() => {
+    if (!isDemoModeReady) return;
     if (isDemoMode) {
       // Build analytics from demo data
       const completedRevenue = DEMO_TRANSACTIONS
@@ -175,7 +176,7 @@ const AdminDashboard = () => {
       setLoading(false);
     };
     fetchAll();
-  }, [isDemoMode]);
+  }, [isDemoMode, isDemoModeReady]);
 
   const statCards = [
     {

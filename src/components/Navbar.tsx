@@ -90,12 +90,10 @@ const Navbar = () => {
             </Link>
             */}
             <Link to="/contact" className={linkClass}>Contact</Link>
-            {compareList.length > 0 && (
-              <Link to="/compare" className={`${linkClass} flex items-center gap-1`}>
-                <GitCompare className="w-3.5 h-3.5" />
-                Compare ({compareList.length})
-              </Link>
-            )}
+            <Link to="/compare" className={`${linkClass} flex items-center gap-1`}>
+              <GitCompare className="w-3.5 h-3.5" />
+              Compare{compareList.length > 0 && ` (${compareList.length})`}
+            </Link>
           </div>
 
           {/* Right side */}
@@ -180,7 +178,7 @@ const Navbar = () => {
                 { to: "/", label: "Home" },
                 { to: "/inventory", label: "Inventory" },
                 { to: "/contact", label: "Contact" },
-                ...(compareList.length > 0 ? [{ to: "/compare", label: `Compare (${compareList.length})` }] : []),
+                { to: "/compare", label: compareList.length > 0 ? `Compare (${compareList.length})` : "Compare" },
                 // { to: "/service", label: "Service" }, // hidden until shop goes live
                 ...(user?.isAdmin ? [{ to: "/admin", label: newLeads > 0 ? `Admin Dashboard (${newLeads} new)` : "Admin Dashboard" }] : user?.isManager ? [{ to: "/shop", label: newLeads > 0 ? `Shop Dashboard (${newLeads} new)` : "Shop Dashboard" }] : []),
                 ...(user ? [{ to: "/profile", label: "My Profile" }] : [{ to: "/login", label: "Sign In" }]),

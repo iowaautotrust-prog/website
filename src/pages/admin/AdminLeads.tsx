@@ -17,13 +17,14 @@ const statusColors: Record<string, string> = {
 
 const AdminLeads = () => {
   const { user } = useAuth();
-  const { isDemoMode } = useApp();
+  const { isDemoMode, isDemoModeReady } = useApp();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
 
   if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
 
   useEffect(() => {
+    if (!isDemoModeReady) return;
     if (isDemoMode) {
       setLeads(DEMO_LEADS as Lead[]);
       setLoading(false);
@@ -37,7 +38,7 @@ const AdminLeads = () => {
         setLeads((data as Lead[]) ?? []);
         setLoading(false);
       });
-  }, [isDemoMode]);
+  }, [isDemoMode, isDemoModeReady]);
 
   const updateStatus = async (id: string, status: Lead["status"]) => {
     await supabase.from("leads").update({ status }).eq("id", id);

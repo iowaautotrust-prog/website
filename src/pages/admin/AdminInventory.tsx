@@ -81,7 +81,7 @@ const emptyForm = (): FormState => ({
 
 const AdminInventory = () => {
   const { user } = useAuth();
-  const { bumpVehicleVersion } = useApp();
+  const { bumpVehicleVersion, isDemoModeReady } = useApp();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,8 +115,9 @@ const AdminInventory = () => {
   };
 
   useEffect(() => {
+    if (!isDemoModeReady) return;
     fetchData();
-  }, []);
+  }, [isDemoModeReady]);
 
   const setField = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
