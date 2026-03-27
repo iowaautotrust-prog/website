@@ -22,11 +22,16 @@ export const supabase = createClient<Database>(
   }
 );
 
-// Refresh session when tab becomes visible again after inactivity
+// When tab becomes visible after being backgrounded/frozen by browser,
+// force a session refresh so auth state and queries work correctly
 if (typeof document !== "undefined") {
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
-      supabase.auth.getSession();
+      supabase.auth.startAutoRefresh();
     }
+  });
+
+  document.addEventListener("focus", () => {
+    supabase.auth.startAutoRefresh();
   });
 }
