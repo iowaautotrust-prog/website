@@ -21,3 +21,12 @@ export const supabase = createClient<Database>(
     },
   }
 );
+
+// Refresh session when tab becomes visible again after inactivity
+if (typeof document !== "undefined") {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      supabase.auth.getSession();
+    }
+  });
+}
