@@ -102,16 +102,19 @@ const AdminInventory = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const [{ data: vData }, { data: cData }] = await Promise.all([
-      supabase
-        .from("vehicles")
-        .select("*, category:categories(id,name)")
-        .order("created_at", { ascending: false }),
-      supabase.from("categories").select("*").order("name"),
-    ]);
-    setVehicles((vData as Vehicle[]) ?? []);
-    setCategories((cData as Category[]) ?? []);
-    setLoading(false);
+    try {
+      const [{ data: vData }, { data: cData }] = await Promise.all([
+        supabase
+          .from("vehicles")
+          .select("*, category:categories(id,name)")
+          .order("created_at", { ascending: false }),
+        supabase.from("categories").select("*").order("name"),
+      ]);
+      setVehicles((vData as Vehicle[]) ?? []);
+      setCategories((cData as Category[]) ?? []);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {

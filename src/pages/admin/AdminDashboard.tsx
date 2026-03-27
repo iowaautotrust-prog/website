@@ -92,6 +92,7 @@ const AdminDashboard = () => {
     }
 
     const fetchAll = async () => {
+      try {
       const [
         { count: vehicleCount },
         { count: leadCount },
@@ -174,6 +175,9 @@ const AdminDashboard = () => {
       );
 
       setLoading(false);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchAll();
   }, [isDemoMode, isDemoModeReady, vehicleVersion]);

@@ -36,8 +36,9 @@ const AdminLeads = () => {
       .order("created_at", { ascending: false })
       .then(({ data }) => {
         setLeads((data as Lead[]) ?? []);
-        setLoading(false);
-      });
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [isDemoMode, isDemoModeReady]);
 
   const updateStatus = async (id: string, status: Lead["status"]) => {

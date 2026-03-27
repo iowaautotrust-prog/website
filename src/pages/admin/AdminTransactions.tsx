@@ -30,8 +30,9 @@ const AdminTransactions = () => {
       .order("created_at", { ascending: false })
       .then(({ data }) => {
         setTransactions((data as Transaction[]) ?? []);
-        setLoading(false);
-      });
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [isDemoMode, isDemoModeReady]);
 
   const totalRevenue = transactions

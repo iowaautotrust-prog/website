@@ -27,45 +27,43 @@ export default function AdminUsers() {
 
   const fetchUsers = async () => {
     setLoading(true);
-    if (isDemoMode) {
-      setUsers(DEMO_USERS as UserRow[]);
+    try {
+      if (isDemoMode) {
+        setUsers(DEMO_USERS as UserRow[]);
+        return;
+      }
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!profiles) return;
+
+      const ids = profiles.map((p) => p.id);
+      const [{ data: favs }, { data: leadsData }] = await Promise.all([
+        supabase.from("favorites").select("user_id").in("user_id", ids),
+        supabase.from("leads").select("user_id").in("user_id", ids),
+      ]);
+
+      const favMap: Record<string, number> = {};
+      (favs ?? []).forEach((f: { user_id: string }) => {
+        favMap[f.user_id] = (favMap[f.user_id] ?? 0) + 1;
+      });
+      const leadsMap: Record<string, number> = {};
+      (leadsData ?? []).forEach((l: { user_id: string | null }) => {
+        if (l.user_id) leadsMap[l.user_id] = (leadsMap[l.user_id] ?? 0) + 1;
+      });
+
+      setUsers(
+        profiles.map((p) => ({
+          ...p,
+          favorites_count: favMap[p.id] ?? 0,
+          leads_count: leadsMap[p.id] ?? 0,
+        }))
+      );
+    } finally {
       setLoading(false);
-      return;
     }
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (!profiles) {
-      setLoading(false);
-      return;
-    }
-
-    // Get favorites and leads counts
-    const ids = profiles.map((p) => p.id);
-    const [{ data: favs }, { data: leadsData }] = await Promise.all([
-      supabase.from("favorites").select("user_id").in("user_id", ids),
-      supabase.from("leads").select("user_id").in("user_id", ids),
-    ]);
-
-    const favMap: Record<string, number> = {};
-    (favs ?? []).forEach((f: { user_id: string }) => {
-      favMap[f.user_id] = (favMap[f.user_id] ?? 0) + 1;
-    });
-    const leadsMap: Record<string, number> = {};
-    (leadsData ?? []).forEach((l: { user_id: string | null }) => {
-      if (l.user_id) leadsMap[l.user_id] = (leadsMap[l.user_id] ?? 0) + 1;
-    });
-
-    setUsers(
-      profiles.map((p) => ({
-        ...p,
-        favorites_count: favMap[p.id] ?? 0,
-        leads_count: leadsMap[p.id] ?? 0,
-      }))
-    );
-    setLoading(false);
   };
 
   useEffect(() => {
