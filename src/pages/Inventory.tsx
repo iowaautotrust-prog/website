@@ -56,7 +56,7 @@ const Inventory = () => {
     supabase
       .from("vehicles")
       .select("*, category:categories(id,name)")
-      .in("status", ["available", "pending"])
+      .eq("status", "available")
       .order("created_at", { ascending: false })
       .then(({ data }) => {
         setVehicles((data as Vehicle[]) ?? []);

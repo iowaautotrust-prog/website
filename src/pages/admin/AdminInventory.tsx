@@ -499,12 +499,13 @@ const AdminInventory = () => {
                   <select
                     value={form.status}
                     onChange={(e) =>
-                      setField("status", e.target.value as "available" | "pending")
+                      setField("status", e.target.value as "available" | "pending" | "sold")
                     }
                     className={`${selectClass} mt-1`}
                   >
                     <option value="available">Available</option>
                     <option value="pending">Sale Pending</option>
+                    <option value="sold">Sold</option>
                   </select>
                 </div>
                 <div>
@@ -750,10 +751,12 @@ const AdminInventory = () => {
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             v.status === "available"
                               ? "bg-green-100 text-green-700"
+                              : v.status === "sold"
+                              ? "bg-blue-100 text-blue-700"
                               : "bg-amber-100 text-amber-700"
                           }`}
                         >
-                          {v.status === "available" ? "Available" : "Pending"}
+                          {v.status === "available" ? "Available" : v.status === "sold" ? "Sold" : "Pending"}
                         </span>
                       </td>
                       <td className="p-4 text-muted-foreground hidden md:table-cell">

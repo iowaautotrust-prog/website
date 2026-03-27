@@ -130,6 +130,7 @@ const VehicleDetail = () => {
       .from("vehicles")
       .select("*, category:categories(id,name)")
       .eq("id", id)
+      .eq("status", "available")
       .single()
       .then(async ({ data }) => {
         if (!data) { setLoading(false); return; }
