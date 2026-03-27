@@ -32,7 +32,7 @@ import { DEMO_VEHICLES, DEMO_LEADS, DEMO_TRANSACTIONS } from "@/lib/demoData";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  const { isDemoMode, isDemoModeReady, isDemoModeLoading, toggleDemoMode, recentlyViewedInHero, toggleRecentlyViewedLocation } = useApp();
+  const { isDemoMode, isDemoModeReady, isDemoModeLoading, toggleDemoMode, vehicleVersion, recentlyViewedInHero, toggleRecentlyViewedLocation } = useApp();
   const [stats, setStats] = useState({
     vehicleCount: 0,
     leadCount: 0,
@@ -176,7 +176,7 @@ const AdminDashboard = () => {
       setLoading(false);
     };
     fetchAll();
-  }, [isDemoMode, isDemoModeReady]);
+  }, [isDemoMode, isDemoModeReady, vehicleVersion]);
 
   const statCards = [
     {

@@ -88,6 +88,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Fetch demo_mode from Supabase on mount and subscribe to realtime changes
   useEffect(() => {
+    // Fallback: if Supabase doesn't respond in 4s, unblock pages with cached value
+    const fallback = setTimeout(() => setIsDemoModeReady(true), 4000);
+
     // Initial fetch
     supabase
       .from("settings")
@@ -95,6 +98,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .eq("key", "demo_mode")
       .single()
       .then(({ data }) => {
+        clearTimeout(fallback);
         if (data) {
           const val = data.value === "true";
           setIsDemoMode(val);
