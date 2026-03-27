@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
 import { supabase } from "@/lib/supabase";
+import { query } from "@/lib/query";
 import type { Lead } from "@/lib/types";
 import { DEMO_LEADS } from "@/lib/demoData";
 import { ArrowLeft, Loader2, MessageSquare } from "lucide-react";
@@ -30,13 +31,10 @@ const AdminLeads = () => {
       setLoading(false);
       return;
     }
-    supabase
-      .from("leads")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setLeads((data as Lead[]) ?? []);
-      })
+    query(() =>
+      supabase.from("leads").select("*").order("created_at", { ascending: false })
+    )
+      .then(({ data }) => setLeads((data as Lead[]) ?? []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [isDemoMode, isDemoModeReady]);

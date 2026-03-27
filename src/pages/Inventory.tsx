@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link, useSearchParams } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { supabase } from "@/lib/supabase";
+import { query } from "@/lib/query";
 import { DEMO_VEHICLES, DEMO_CATEGORIES } from "@/lib/demoData";
 import type { Vehicle } from "@/lib/types";
 import {
@@ -53,23 +54,24 @@ const Inventory = () => {
       return;
     }
     setLoading(true);
-    supabase
-      .from("vehicles")
-      .select("*, category:categories(id,name)")
-      .eq("status", "available")
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setVehicles((data as Vehicle[]) ?? []);
-        setLoading(false);
-      });
+    query(() =>
+      supabase
+        .from("vehicles")
+        .select("*, category:categories(id,name)")
+        .eq("status", "available")
+        .order("created_at", { ascending: false })
+    )
+      .then(({ data }) => setVehicles((data as Vehicle[]) ?? []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [vehicleVersion, isDemoMode]);
 
   // Fetch categories for filter (Supabase mode only)
   useEffect(() => {
     if (isDemoMode) return;
-    supabase.from("categories").select("id, name").then(({ data }) => {
+    query(() => supabase.from("categories").select("id, name")).then(({ data }) => {
       if (data) setCategories(data);
-    });
+    }).catch(() => {});
   }, [isDemoMode]);
 
   const makes = useMemo(() => {

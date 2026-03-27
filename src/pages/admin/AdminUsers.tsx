@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
 import { supabase } from "@/lib/supabase";
+import { query } from "@/lib/query";
 import type { Profile } from "@/lib/types";
 import { DEMO_USERS } from "@/lib/demoData";
 
@@ -32,17 +33,16 @@ export default function AdminUsers() {
         setUsers(DEMO_USERS as UserRow[]);
         return;
       }
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data: profiles } = await query(() =>
+        supabase.from("profiles").select("*").order("created_at", { ascending: false })
+      );
 
       if (!profiles) return;
 
       const ids = profiles.map((p) => p.id);
       const [{ data: favs }, { data: leadsData }] = await Promise.all([
-        supabase.from("favorites").select("user_id").in("user_id", ids),
-        supabase.from("leads").select("user_id").in("user_id", ids),
+        query(() => supabase.from("favorites").select("user_id").in("user_id", ids)),
+        query(() => supabase.from("leads").select("user_id").in("user_id", ids)),
       ]);
 
       const favMap: Record<string, number> = {};

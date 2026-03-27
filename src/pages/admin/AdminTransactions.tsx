@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
 import { supabase } from "@/lib/supabase";
+import { query } from "@/lib/query";
 import type { Transaction } from "@/lib/types";
 import { DEMO_TRANSACTIONS } from "@/lib/demoData";
 import { ArrowLeft, Loader2, DollarSign } from "lucide-react";
@@ -24,13 +25,10 @@ const AdminTransactions = () => {
       setLoading(false);
       return;
     }
-    supabase
-      .from("transactions")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setTransactions((data as Transaction[]) ?? []);
-      })
+    query(() =>
+      supabase.from("transactions").select("*").order("created_at", { ascending: false })
+    )
+      .then(({ data }) => setTransactions((data as Transaction[]) ?? []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [isDemoMode, isDemoModeReady]);

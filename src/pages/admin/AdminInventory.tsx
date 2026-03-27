@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
 import { supabase } from "@/lib/supabase";
+import { query } from "@/lib/query";
 import type { Vehicle, Category } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -104,11 +105,13 @@ const AdminInventory = () => {
     setLoading(true);
     try {
       const [{ data: vData }, { data: cData }] = await Promise.all([
-        supabase
-          .from("vehicles")
-          .select("*, category:categories(id,name)")
-          .order("created_at", { ascending: false }),
-        supabase.from("categories").select("*").order("name"),
+        query(() =>
+          supabase
+            .from("vehicles")
+            .select("*, category:categories(id,name)")
+            .order("created_at", { ascending: false })
+        ),
+        query(() => supabase.from("categories").select("*").order("name")),
       ]);
       setVehicles((vData as Vehicle[]) ?? []);
       setCategories((cData as Category[]) ?? []);

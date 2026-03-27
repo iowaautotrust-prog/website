@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
 import { supabase } from "@/lib/supabase";
+import { query } from "@/lib/query";
 import {
   Car,
   Users,
@@ -102,24 +103,13 @@ const AdminDashboard = () => {
         { data: topVehicles },
         { data: statusData },
       ] = await Promise.all([
-        supabase.from("vehicles").select("*", { count: "exact", head: true }),
-        supabase.from("leads").select("*", { count: "exact", head: true }),
-        supabase.from("transactions").select("*", { count: "exact", head: true }),
-        supabase
-          .from("transactions")
-          .select("amount, status")
-          .eq("status", "completed"),
-        supabase
-          .from("leads")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(5),
-        supabase
-          .from("vehicles")
-          .select("name, view_count")
-          .order("view_count", { ascending: false })
-          .limit(10),
-        supabase.from("vehicles").select("status"),
+        query(() => supabase.from("vehicles").select("*", { count: "exact", head: true })),
+        query(() => supabase.from("leads").select("*", { count: "exact", head: true })),
+        query(() => supabase.from("transactions").select("*", { count: "exact", head: true })),
+        query(() => supabase.from("transactions").select("amount, status").eq("status", "completed")),
+        query(() => supabase.from("leads").select("*").order("created_at", { ascending: false }).limit(5)),
+        query(() => supabase.from("vehicles").select("name, view_count").order("view_count", { ascending: false }).limit(10)),
+        query(() => supabase.from("vehicles").select("status")),
       ]);
 
       const revenue = (transactions ?? []).reduce(
@@ -159,10 +149,12 @@ const AdminDashboard = () => {
         d.setDate(d.getDate() - i);
         trendMap[d.toISOString().split("T")[0]] = 0;
       }
-      const { data: allLeads } = await supabase
-        .from("leads")
-        .select("created_at")
-        .gte("created_at", new Date(Date.now() - 14 * 86400000).toISOString());
+      const { data: allLeads } = await query(() =>
+        supabase
+          .from("leads")
+          .select("created_at")
+          .gte("created_at", new Date(Date.now() - 14 * 86400000).toISOString())
+      );
       (allLeads ?? []).forEach((l: { created_at: string }) => {
         const day = l.created_at.split("T")[0];
         if (day in trendMap) trendMap[day]++;
