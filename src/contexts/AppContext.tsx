@@ -259,15 +259,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
 
       // Increment view_count
-      await supabase.rpc("increment_view_count" as never, {
+      const { error: rpcError } = await supabase.rpc("increment_view_count" as never, {
         vehicle_id: vehicle.id,
-      }).catch(() => {
+      });
+      if (rpcError) {
         // Fallback: direct update if RPC not set up
         supabase
           .from("vehicles")
           .update({ view_count: vehicle.view_count + 1 })
           .eq("id", vehicle.id);
-      });
+      }
     },
     [user]
   );
