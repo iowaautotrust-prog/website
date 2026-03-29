@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Mail, Lock, User, Check, X } from "lucide-react";
+import { ArrowLeft, Mail, Lock, User, Check, X, CheckCircle2 } from "lucide-react";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
@@ -41,6 +41,7 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [checkEmail, setCheckEmail] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
@@ -70,10 +71,16 @@ const Signup = () => {
     }
 
     setLoading(true);
+    const timeout = setTimeout(() => {
+      setLoading(false);
+      setError("Request timed out. Please try again.");
+    }, 15000);
     const result = await signup(name, email, password);
+    clearTimeout(timeout);
     setLoading(false);
     if (result.success) {
-      navigate("/");
+      setSuccess(true);
+      setTimeout(() => navigate("/"), 1500);
     } else {
       setError(result.error || "Signup failed. Please try again.");
     }
@@ -109,6 +116,21 @@ const Signup = () => {
       </div>
     );
   }
+
+  if (success) return (
+    <div className="min-h-screen bg-background flex items-center justify-center section-padding">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4 }}
+        className="text-center"
+      >
+        <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-foreground mb-2">Account created!</h2>
+        <p className="text-muted-foreground">Welcome to Iowa Auto Trust. Redirecting you now…</p>
+      </motion.div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center section-padding">
