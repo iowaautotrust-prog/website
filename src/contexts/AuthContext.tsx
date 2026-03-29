@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [fetchProfile]);
 
   const signUp = async (email: string, password: string, name: string): Promise<{ error: string | null }> => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -92,6 +92,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
     if (error) return { error: error.message };
+    // If session is returned directly (email confirmation disabled), set user immediately
+    if (data.session?.user) {
+      const authUser = await fetchProfile(data.session.user);
+      setUser(authUser);
+      setSession(data.session);
+    }
     return { error: null };
   };
 
