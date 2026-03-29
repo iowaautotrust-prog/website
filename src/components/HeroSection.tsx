@@ -58,6 +58,8 @@ function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
     return off;
   };
 
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
   const getStyle = (offset: number): React.CSSProperties => {
     const base: React.CSSProperties = {
       position: "absolute",
@@ -67,26 +69,26 @@ function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
     if (offset === 0) return {
       ...base,
       left: "50%",
-      width: "58%",
+      width: isMobile ? "92%" : "58%",
       transform: "translate(-50%, -50%) rotateY(0deg) scale(1)",
       opacity: 1,
       zIndex: 10,
     };
     if (offset === -1) return {
       ...base,
-      left: "14%",
+      left: isMobile ? "-60%" : "14%",
       width: "40%",
       transform: "translate(-50%, -50%) rotateY(22deg) scale(0.84)",
-      opacity: 0.62,
+      opacity: isMobile ? 0 : 0.62,
       zIndex: 5,
       cursor: "pointer",
     };
     if (offset === 1) return {
       ...base,
-      left: "86%",
+      left: isMobile ? "160%" : "86%",
       width: "40%",
       transform: "translate(-50%, -50%) rotateY(-22deg) scale(0.84)",
-      opacity: 0.62,
+      opacity: isMobile ? 0 : 0.62,
       zIndex: 5,
       cursor: "pointer",
     };
