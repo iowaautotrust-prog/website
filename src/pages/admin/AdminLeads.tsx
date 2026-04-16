@@ -6,7 +6,6 @@ import { useApp } from "@/contexts/AppContext";
 import { supabase } from "@/lib/supabase";
 import { query } from "@/lib/query";
 import type { Lead } from "@/lib/types";
-import { DEMO_LEADS } from "@/lib/demoData";
 import { ArrowLeft, Loader2, MessageSquare } from "lucide-react";
 import Footer from "@/components/Footer";
 
@@ -18,7 +17,7 @@ const statusColors: Record<string, string> = {
 
 const AdminLeads = () => {
   const { user } = useAuth();
-  const { isDemoMode, isDemoModeReady } = useApp();
+  const { isDemoModeReady } = useApp();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,18 +25,13 @@ const AdminLeads = () => {
 
   useEffect(() => {
     if (!isDemoModeReady) return;
-    if (isDemoMode) {
-      setLeads(DEMO_LEADS as Lead[]);
-      setLoading(false);
-      return;
-    }
     query(() =>
       supabase.from("leads").select("*").order("created_at", { ascending: false })
     )
       .then(({ data }) => setLeads((data as Lead[]) ?? []))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [isDemoMode, isDemoModeReady]);
+  }, [isDemoModeReady]);
 
   const updateStatus = async (id: string, status: Lead["status"]) => {
     await supabase.from("leads").update({ status }).eq("id", id);

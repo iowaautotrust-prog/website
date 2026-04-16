@@ -2,8 +2,6 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { useApp } from "@/contexts/AppContext";
-import { DEMO_VEHICLES } from "@/lib/demoData";
 import type { Vehicle } from "@/lib/types";
 import { ArrowRight, Gauge } from "lucide-react";
 
@@ -11,13 +9,8 @@ const FeaturedCars = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [featured, setFeatured] = useState<Vehicle[]>([]);
-  const { isDemoMode } = useApp();
 
   useEffect(() => {
-    if (isDemoMode) {
-      setFeatured(DEMO_VEHICLES.slice(0, 4));
-      return;
-    }
     supabase
       .from("vehicles")
       .select("*")
@@ -25,7 +18,7 @@ const FeaturedCars = () => {
       .order("view_count", { ascending: false })
       .limit(4)
       .then(({ data }) => setFeatured((data as Vehicle[]) ?? []));
-  }, [isDemoMode]);
+  }, []);
 
   if (featured.length === 0) return null;
 

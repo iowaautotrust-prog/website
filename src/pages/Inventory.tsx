@@ -4,7 +4,6 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useApp } from "@/contexts/AppContext";
 import { supabase } from "@/lib/supabase";
 import { query } from "@/lib/query";
-import { DEMO_VEHICLES, DEMO_CATEGORIES } from "@/lib/demoData";
 import type { Vehicle } from "@/lib/types";
 import {
   ArrowRight,
@@ -43,16 +42,9 @@ const Inventory = () => {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [showFilters, setShowFilters] = useState(false);
 
-  const { toggleFavorite, isFavorite, toggleCompare, isInCompare, addRecentSearch, vehicleVersion, isDemoMode } = useApp();
+  const { toggleFavorite, isFavorite, toggleCompare, isInCompare, addRecentSearch, vehicleVersion } = useApp();
 
-  // Fetch vehicles — demo data or Supabase
   useEffect(() => {
-    if (isDemoMode) {
-      setVehicles(DEMO_VEHICLES);
-      setCategories(DEMO_CATEGORIES);
-      setLoading(false);
-      return;
-    }
     setLoading(true);
     query(() =>
       supabase
@@ -64,15 +56,13 @@ const Inventory = () => {
       .then(({ data }) => setVehicles((data as Vehicle[]) ?? []))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [vehicleVersion, isDemoMode]);
+  }, [vehicleVersion]);
 
-  // Fetch categories for filter (Supabase mode only)
   useEffect(() => {
-    if (isDemoMode) return;
     query(() => supabase.from("categories").select("id, name")).then(({ data }) => {
       if (data) setCategories(data);
     }).catch(() => {});
-  }, [isDemoMode]);
+  }, []);
 
   const makes = useMemo(() => {
     const m = [...new Set(vehicles.map((v) => v.make))].sort();

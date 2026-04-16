@@ -1,8 +1,6 @@
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { useApp } from "@/contexts/AppContext";
-import { DEMO_VEHICLES } from "@/lib/demoData";
 import type { Vehicle } from "@/lib/types";
 import { Link } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Fuel, Users, Car, DollarSign } from "lucide-react";
@@ -76,29 +74,8 @@ const DiscoveryQuiz = () => {
   const [recommendations, setRecommendations] = useState<Vehicle[]>([]);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
-  const { isDemoMode } = useApp();
-
   useEffect(() => {
     if (!showResults) return;
-    if (isDemoMode) {
-      let results = DEMO_VEHICLES.filter((v) => {
-        if (answers.budget) {
-          if (answers.budget === "under30"  && v.price >= 30000)  return false;
-          if (answers.budget === "30to50"   && (v.price < 30000 || v.price > 50000)) return false;
-          if (answers.budget === "50to75"   && (v.price < 50000 || v.price > 75000)) return false;
-          if (answers.budget === "over75"   && v.price <= 75000)  return false;
-        }
-        if (answers.type && answers.type !== "any" && v.type !== answers.type) return false;
-        if (answers.fuel && answers.fuel !== "any" && v.fuel !== answers.fuel) return false;
-        if (answers.seats && answers.seats !== "any") {
-          if (answers.seats === "7") { if ((v.seats ?? 0) < 7) return false; }
-          else if (v.seats !== parseInt(answers.seats)) return false;
-        }
-        return true;
-      });
-      setRecommendations(results.slice(0, 2));
-      return;
-    }
     let query = supabase.from("vehicles").select("*").eq("status", "available");
     if (answers.budget) {
       if (answers.budget === "under30")  query = query.lt("price", 30000);
@@ -113,7 +90,7 @@ const DiscoveryQuiz = () => {
       else query = query.eq("seats", parseInt(answers.seats));
     }
     query.limit(2).then(({ data }) => setRecommendations((data as Vehicle[]) ?? []));
-  }, [showResults, isDemoMode]);
+  }, [showResults]);
 
   const handleSelect = (key: string, value: string) => {
     const newAnswers = { ...answers, [key]: value };

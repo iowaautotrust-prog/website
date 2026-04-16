@@ -2,8 +2,6 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { useApp } from "@/contexts/AppContext";
-import { DEMO_VEHICLES } from "@/lib/demoData";
 import type { Vehicle } from "@/lib/types";
 import { ArrowRight } from "lucide-react";
 
@@ -11,21 +9,16 @@ const InventoryPreview = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const { isDemoMode } = useApp();
 
   useEffect(() => {
-    if (isDemoMode) {
-      setVehicles(DEMO_VEHICLES.slice(4, 8));
-      return;
-    }
     supabase
       .from("vehicles")
       .select("*")
-      .in("status", ["available", "pending"])
+      .eq("status", "available")
       .order("created_at", { ascending: false })
       .limit(4)
       .then(({ data }) => setVehicles((data as Vehicle[]) ?? []));
-  }, [isDemoMode]);
+  }, []);
 
   if (vehicles.length === 0) return null;
 

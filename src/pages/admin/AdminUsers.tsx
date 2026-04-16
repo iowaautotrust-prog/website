@@ -8,7 +8,6 @@ import { useApp } from "@/contexts/AppContext";
 import { supabase } from "@/lib/supabase";
 import { query } from "@/lib/query";
 import type { Profile } from "@/lib/types";
-import { DEMO_USERS } from "@/lib/demoData";
 
 interface UserRow extends Profile {
   email?: string;
@@ -18,7 +17,7 @@ interface UserRow extends Profile {
 
 export default function AdminUsers() {
   const { user } = useAuth();
-  const { isDemoMode, isDemoModeReady } = useApp();
+  const { isDemoModeReady } = useApp();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -29,10 +28,6 @@ export default function AdminUsers() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      if (isDemoMode) {
-        setUsers(DEMO_USERS as UserRow[]);
-        return;
-      }
       const { data: profiles } = await query(() =>
         supabase.from("profiles").select("*").order("created_at", { ascending: false })
       );
@@ -69,7 +64,7 @@ export default function AdminUsers() {
   useEffect(() => {
     if (!isDemoModeReady) return;
     fetchUsers();
-  }, [isDemoMode, isDemoModeReady]);
+  }, [isDemoModeReady]);
 
   const toggleAdmin = async (profileId: string, currentIsAdmin: boolean) => {
     const targetUser = users.find((u) => u.id === profileId);

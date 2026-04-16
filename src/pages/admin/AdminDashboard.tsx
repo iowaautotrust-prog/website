@@ -14,7 +14,6 @@ import {
   Tag,
   UploadCloud,
   Eye,
-  FlaskConical,
 } from "lucide-react";
 import Footer from "@/components/Footer";
 import {
@@ -29,11 +28,10 @@ import {
   CartesianGrid,
 } from "recharts";
 import type { Lead, Transaction, Vehicle } from "@/lib/types";
-import { DEMO_VEHICLES, DEMO_LEADS, DEMO_TRANSACTIONS } from "@/lib/demoData";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  const { isDemoMode, isDemoModeReady, isDemoModeLoading, toggleDemoMode, vehicleVersion, recentlyViewedInHero, toggleRecentlyViewedLocation } = useApp();
+  const { isDemoModeReady, vehicleVersion, recentlyViewedInHero, toggleRecentlyViewedLocation } = useApp();
   const [stats, setStats] = useState({
     vehicleCount: 0,
     leadCount: 0,
@@ -50,47 +48,6 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (!isDemoModeReady) return;
-    if (isDemoMode) {
-      // Build analytics from demo data
-      const completedRevenue = DEMO_TRANSACTIONS
-        .filter((t) => t.status === "completed")
-        .reduce((s, t) => s + (t.amount ?? 0), 0);
-      setStats({
-        vehicleCount: DEMO_VEHICLES.length,
-        leadCount: DEMO_LEADS.length,
-        transactionCount: DEMO_TRANSACTIONS.length,
-        revenue: completedRevenue,
-      });
-      setRecentLeads(DEMO_LEADS.slice(0, 5) as Lead[]);
-      const sorted = [...DEMO_VEHICLES].sort((a, b) => b.view_count - a.view_count).slice(0, 10);
-      setTopViewed(sorted.map((v) => ({
-        name: v.name.length > 20 ? v.name.substring(0, 18) + "…" : v.name,
-        views: v.view_count,
-      })));
-      const available = DEMO_VEHICLES.filter((v) => v.status === "available").length;
-      const pending = DEMO_VEHICLES.filter((v) => v.status === "pending").length;
-      const sold = DEMO_VEHICLES.filter((v) => v.status === "sold").length;
-      setStatusBreakdown([
-        { name: "Available", value: available, color: "text-green-600" },
-        { name: "Pending", value: pending, color: "text-amber-500" },
-        { name: "Sold", value: sold, color: "text-blue-600" },
-      ]);
-      // Leads trend
-      const now = new Date();
-      const trendMap: Record<string, number> = {};
-      for (let i = 13; i >= 0; i--) {
-        const d = new Date(now);
-        d.setDate(d.getDate() - i);
-        trendMap[d.toISOString().split("T")[0]] = 0;
-      }
-      DEMO_LEADS.forEach((l) => {
-        const day = l.created_at.split("T")[0];
-        if (day in trendMap) trendMap[day]++;
-      });
-      setLeadsTrend(Object.entries(trendMap).map(([date, leads]) => ({ date: date.slice(5), leads })));
-      setLoading(false);
-      return;
-    }
 
     const fetchAll = async () => {
       try {
@@ -172,7 +129,7 @@ const AdminDashboard = () => {
       }
     };
     fetchAll();
-  }, [isDemoMode, isDemoModeReady, vehicleVersion]);
+  }, [isDemoModeReady, vehicleVersion]);
 
   const statCards = [
     {
@@ -392,41 +349,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Demo Data Toggle — admin only */}
-        {user?.isAdmin && <div className="mb-8 p-5 rounded-xl border border-border bg-secondary/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <FlaskConical className="w-5 h-5 text-primary" />
-            </div>
-            <div>
-              <p className="font-semibold text-foreground text-sm">Demo Data Mode</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {isDemoMode
-                  ? "Demo mode active — all users see demo data. Turn off to show real inventory."
-                  : "Live for all users — site shows your real Supabase inventory."}
-              </p>
-              <p className={`text-xs font-medium mt-1 ${isDemoMode ? "text-amber-500" : "text-green-600"}`}>
-                {isDemoMode ? "Demo mode active — all users see demo data" : "Live for all users"}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={toggleDemoMode}
-            disabled={isDemoModeLoading}
-            className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors focus:outline-none disabled:opacity-60 disabled:cursor-wait ${
-              isDemoMode ? "bg-primary" : "bg-border"
-            }`}
-            role="switch"
-            aria-checked={isDemoMode}
-            aria-label="Toggle demo data"
-          >
-            <span
-              className={`inline-block h-5 w-5 rounded-full bg-background shadow-sm transition-transform ${
-                isDemoMode ? "translate-x-6" : "translate-x-1"
-              }`}
-            />
-          </button>
-        </div>}
 
         {/* Recently Viewed Location Toggle — admin only */}
         {user?.isAdmin && <div className="mb-8 p-5 rounded-xl border border-border bg-secondary/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">

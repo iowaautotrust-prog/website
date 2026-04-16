@@ -5,7 +5,6 @@ import { Search, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import heroCar from "@/assets/hero-car.jpg";
 import { supabase } from "@/lib/supabase";
 import { useApp } from "@/contexts/AppContext";
-import { DEMO_VEHICLES } from "@/lib/demoData";
 import type { Vehicle } from "@/lib/types";
 
 // ─── Floating Orbs ────────────────────────────────────────────────────────────
@@ -198,16 +197,11 @@ function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
 
 // ─── Recently Viewed Strip ────────────────────────────────────────────────────
 export function RecentlyViewedStrip() {
-  const { recentViews, recentSearches, isDemoMode } = useApp();
+  const { recentViews, recentSearches } = useApp();
   const navigate = useNavigate();
 
-  const displayViews = isDemoMode && recentViews.length === 0
-    ? DEMO_VEHICLES.slice(0, 6)
-    : recentViews.slice(0, 6);
-
-  const displaySearches = isDemoMode && recentSearches.length === 0
-    ? ["BMW", "Tesla", "SUV under $50k"]
-    : recentSearches.slice(0, 5);
+  const displayViews = recentViews.slice(0, 6);
+  const displaySearches = recentSearches.slice(0, 5);
 
   if (displayViews.length === 0 && displaySearches.length === 0) return null;
 
@@ -274,15 +268,11 @@ const HeroSection = () => {
   const contentOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const contentY = useTransform(scrollYProgress, [0, 0.5], [0, -60]);
 
-  const { isDemoMode, recentlyViewedInHero } = useApp();
+  const { recentlyViewedInHero } = useApp();
   const [carouselVehicles, setCarouselVehicles] = useState<Vehicle[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    if (isDemoMode) {
-      setCarouselVehicles(DEMO_VEHICLES.filter((v) => v.in_carousel).slice(0, 7));
-      return;
-    }
     supabase
       .from("vehicles")
       .select("id, name, price, year, type, image_url")
@@ -292,7 +282,7 @@ const HeroSection = () => {
       .then(({ data }) => {
         setCarouselVehicles(data && data.length > 0 ? (data as Vehicle[]) : []);
       });
-  }, [isDemoMode]);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
