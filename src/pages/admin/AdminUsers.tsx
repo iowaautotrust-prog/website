@@ -132,7 +132,8 @@ export default function AdminUsers() {
               <table className="w-full text-sm">
                 <thead className="bg-secondary">
                   <tr>
-                    <th className="text-left p-4 font-medium text-muted-foreground">User</th>
+                    <th className="text-left p-4 font-medium text-muted-foreground">Name</th>
+                    <th className="text-left p-4 font-medium text-muted-foreground">Email</th>
                     <th className="text-left p-4 font-medium text-muted-foreground">Joined</th>
                     <th className="text-left p-4 font-medium text-muted-foreground">Saved</th>
                     <th className="text-left p-4 font-medium text-muted-foreground">Inquiries</th>
@@ -151,15 +152,13 @@ export default function AdminUsers() {
                           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                             <User className="w-4 h-4 text-primary" />
                           </div>
-                          <div>
-                            <p className="font-medium text-foreground">
-                              {u.name ?? "—"}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {u.email}
-                            </p>
-                          </div>
+                          <p className="font-medium text-foreground">
+                            {u.name ?? "—"}
+                          </p>
                         </div>
+                      </td>
+                      <td className="p-4 text-foreground">
+                        {u.email ?? <span className="text-muted-foreground">—</span>}
                       </td>
                       <td className="p-4 text-muted-foreground">
                         {new Date(u.created_at).toLocaleDateString()}
@@ -223,14 +222,15 @@ export default function AdminUsers() {
                         <p className="font-medium text-foreground truncate">
                           {u.name ?? "—"}
                         </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {u.email}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          ID: {u.id.slice(0, 8)}…
-                        </p>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="text-sm">
+                    <p className="text-xs text-muted-foreground mb-0.5">Email</p>
+                    <p className="text-foreground break-all">
+                      {u.email ?? <span className="text-muted-foreground">—</span>}
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-3 gap-3 text-xs">

@@ -100,8 +100,7 @@ export interface Profile {
   location: string | null;
   is_admin: boolean;
   created_at: string;
-  // joined from auth
-  email?: string;
+  email?: string | null;
 }
 
 export interface VehicleView {
