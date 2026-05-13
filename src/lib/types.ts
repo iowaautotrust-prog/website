@@ -99,7 +99,6 @@ export interface Profile {
   phone: string | null;
   location: string | null;
   is_admin: boolean;
-  is_manager: boolean;
   created_at: string;
   // joined from auth
   email?: string;
@@ -175,7 +174,6 @@ export interface AuthUser {
   phone: string | null;
   location: string | null;
   isAdmin: boolean;
-  isManager: boolean;
 }
 
 // ─── App Context Types ───────────────────────────────────────────────────────

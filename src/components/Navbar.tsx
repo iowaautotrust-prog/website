@@ -14,9 +14,9 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [newLeads, setNewLeads] = useState(0);
 
-  // Fetch new leads count for admin/manager badge
+  // Fetch new leads count for admin badge
   useEffect(() => {
-    if (!user?.isAdmin && !user?.isManager) return;
+    if (!user?.isAdmin) return;
 
     const fetchCount = () => {
       supabase
@@ -34,7 +34,7 @@ const Navbar = () => {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user?.isAdmin, user?.isManager]);
+  }, [user?.isAdmin]);
 
   // Only show transparent navbar on the homepage hero
   const isHome = location.pathname === "/";
@@ -110,15 +110,15 @@ const Navbar = () => {
 
             {user ? (
               <>
-                {(user.isAdmin || user.isManager) && (
+                {user.isAdmin && (
                   <Link
-                    to={user.isManager && !user.isAdmin ? "/shop" : "/admin"}
+                    to="/admin"
                     className={`hidden md:inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 relative ${
                       transparent ? "text-white/90 hover:text-white" : "text-foreground/80 hover:text-foreground"
                     }`}
                   >
                     <LayoutDashboard className="w-3.5 h-3.5" />
-                    {user.isManager && !user.isAdmin ? "Shop" : "Admin"}
+                    Admin
                     {newLeads > 0 && (
                       <span className="absolute -top-1.5 -right-2.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1 leading-none">
                         {newLeads > 99 ? "99+" : newLeads}
@@ -180,7 +180,7 @@ const Navbar = () => {
                 { to: "/contact", label: "Contact" },
                 { to: "/compare", label: compareList.length > 0 ? `Compare (${compareList.length})` : "Compare" },
                 // { to: "/service", label: "Service" }, // hidden until shop goes live
-                ...(user?.isAdmin ? [{ to: "/admin", label: newLeads > 0 ? `Admin Dashboard (${newLeads} new)` : "Admin Dashboard" }] : user?.isManager ? [{ to: "/shop", label: newLeads > 0 ? `Shop Dashboard (${newLeads} new)` : "Shop Dashboard" }] : []),
+                ...(user?.isAdmin ? [{ to: "/admin", label: newLeads > 0 ? `Admin Dashboard (${newLeads} new)` : "Admin Dashboard" }] : []),
                 ...(user ? [{ to: "/profile", label: "My Profile" }] : [{ to: "/login", label: "Sign In" }]),
               ].map(({ to, label }) => (
                 <Link
