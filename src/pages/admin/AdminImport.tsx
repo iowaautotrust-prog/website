@@ -251,7 +251,7 @@ export default function AdminImport() {
 
           {/* Upload Area */}
           <div
-            className="border-2 border-dashed border-border rounded-xl p-10 text-center cursor-pointer hover:border-primary transition-colors"
+            className="border-2 border-dashed border-border rounded-xl p-6 sm:p-10 text-center cursor-pointer hover:border-primary transition-colors"
             onClick={() => fileInputRef.current?.click()}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
@@ -293,7 +293,7 @@ export default function AdminImport() {
               animate={{ opacity: 1, y: 0 }}
               className="mt-8"
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <p className="font-semibold">
                   Preview — {parsed.length} vehicle
                   {parsed.length !== 1 ? "s" : ""} ready to import
@@ -313,10 +313,10 @@ export default function AdminImport() {
                     <tr>
                       <th className="text-left p-3 font-medium text-muted-foreground">Name</th>
                       <th className="text-left p-3 font-medium text-muted-foreground">Make</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">Year</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground hidden sm:table-cell">Year</th>
                       <th className="text-left p-3 font-medium text-muted-foreground">Price</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">Mileage</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">Status</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground hidden sm:table-cell">Mileage</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground hidden sm:table-cell">Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -327,14 +327,14 @@ export default function AdminImport() {
                       >
                         <td className="p-3 font-medium">{v.name}</td>
                         <td className="p-3 text-muted-foreground">{v.make}</td>
-                        <td className="p-3 text-muted-foreground">{v.year}</td>
+                        <td className="p-3 text-muted-foreground hidden sm:table-cell">{v.year}</td>
                         <td className="p-3 text-foreground">
                           ${v.price.toLocaleString()}
                         </td>
-                        <td className="p-3 text-muted-foreground">
+                        <td className="p-3 text-muted-foreground hidden sm:table-cell">
                           {v.mileage.toLocaleString()} mi
                         </td>
-                        <td className="p-3">
+                        <td className="p-3 hidden sm:table-cell">
                           <span
                             className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                               v.status === "available"

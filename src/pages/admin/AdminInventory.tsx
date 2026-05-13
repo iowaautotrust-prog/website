@@ -356,12 +356,12 @@ const AdminInventory = () => {
         >
           <ArrowLeft className="w-4 h-4" /> Dashboard
         </Link>
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-wrap items-start sm:items-center justify-between gap-3 sm:gap-0 mb-8">
           <div>
             <p className="text-overline mb-1">Admin</p>
             <h1 className="heading-section">Inventory Management</h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
             <Link to="/admin/import" className="btn-hero-outline text-xs">
               CSV Import
             </Link>
@@ -379,14 +379,14 @@ const AdminInventory = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-foreground/60 z-50 flex items-start justify-center p-4 overflow-y-auto"
+            className="fixed inset-0 bg-foreground/60 z-50 flex items-start justify-center p-2 sm:p-4 overflow-y-auto"
             onClick={() => setShowForm(false)}
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-background rounded-2xl p-8 w-full max-w-2xl my-8"
+              className="bg-background rounded-2xl p-4 sm:p-8 w-full max-w-2xl my-4 sm:my-8"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">
@@ -398,7 +398,7 @@ const AdminInventory = () => {
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <Label>Name *</Label>
                   <Input
@@ -645,7 +645,7 @@ const AdminInventory = () => {
                 <p className="text-sm text-destructive mt-4">{formError}</p>
               )}
 
-              <div className="flex justify-end gap-3 mt-6">
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 mt-6">
                 <button
                   onClick={() => setShowForm(false)}
                   className="px-6 py-2 text-sm font-medium border border-border rounded-lg hover:bg-secondary transition-colors"
@@ -698,7 +698,7 @@ const AdminInventory = () => {
               </div>
             )}
 
-            <div className="rounded-xl border border-border overflow-hidden">
+            <div className="rounded-xl border border-border overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-secondary">
                   <tr>
