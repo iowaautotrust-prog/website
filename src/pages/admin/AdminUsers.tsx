@@ -10,7 +10,6 @@ import { query } from "@/lib/query";
 import type { Profile } from "@/lib/types";
 
 interface UserRow extends Profile {
-  email?: string;
   favorites_count?: number;
   leads_count?: number;
 }
