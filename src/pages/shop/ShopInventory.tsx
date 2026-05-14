@@ -38,7 +38,7 @@ const ShopInventory = () => {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
+  if (!user?.isAdmin) return <Navigate to="/login" />;
 
   useEffect(() => {
     supabase.from("shop_inventory" as any).select("*").order("name")

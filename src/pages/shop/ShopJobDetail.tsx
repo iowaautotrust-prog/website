@@ -40,7 +40,7 @@ const ShopJobDetail = () => {
   const [nextDate, setNextDate] = useState("");
   const [nextMileage, setNextMileage] = useState("");
 
-  if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
+  if (!user?.isAdmin) return <Navigate to="/login" />;
 
   useEffect(() => {
     if (!id) return;

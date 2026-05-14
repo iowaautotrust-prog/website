@@ -16,12 +16,13 @@ const statusColors: Record<string, string> = {
 };
 
 const AdminLeads = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { isDemoModeReady } = useApp();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
 
-  if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
+  if (!user?.isAdmin) return <Navigate to="/login" />;
 
   useEffect(() => {
     if (!isDemoModeReady) return;

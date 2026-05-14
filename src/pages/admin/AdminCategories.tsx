@@ -31,7 +31,7 @@ const slugify = (str: string) =>
   str.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 
 export default function AdminCategories() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [vehicleCounts, setVehicleCounts] = useState<Record<string, number>>({});
@@ -45,8 +45,8 @@ export default function AdminCategories() {
   const [form, setForm] = useState({ name: "", slug: "", description: "" });
 
   useEffect(() => {
-    if (!user?.isAdmin) navigate("/");
-  }, [user, navigate]);
+    if (!authLoading && !user?.isAdmin) navigate("/login");
+  }, [authLoading, user, navigate]);
 
   const fetchCategories = async () => {
     const { data } = await supabase
@@ -131,6 +131,8 @@ export default function AdminCategories() {
     setDeleteId(null);
     fetchCategories();
   };
+
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
 
   return (
     <div className="min-h-screen bg-background">

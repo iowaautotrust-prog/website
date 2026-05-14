@@ -25,7 +25,7 @@ const ShopReports = () => {
   const [dailyRevenue, setDailyRevenue] = useState<DailyRevenue[]>([]);
   const [topServices, setTopServices] = useState<ServiceCount[]>([]);
 
-  if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
+  if (!user?.isAdmin) return <Navigate to="/login" />;
 
   const getDateRange = (): { start: Date; end: Date } => {
     const now = new Date();

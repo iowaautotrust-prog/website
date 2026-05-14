@@ -47,7 +47,7 @@ const ShopAppointments = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const [convertingId, setConvertingId] = useState<string | null>(null);
 
-  if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
+  if (!user?.isAdmin) return <Navigate to="/login" />;
 
   useEffect(() => {
     const load = async () => {

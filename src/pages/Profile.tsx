@@ -107,11 +107,6 @@ const Profile = () => {
                     <Shield className="w-3 h-3" /> Admin
                   </span>
                 )}
-                {!user.isAdmin && user.isManager && (
-                  <span className="inline-flex items-center gap-1 mt-1 px-2.5 py-0.5 text-xs font-semibold bg-amber-500 text-white rounded-full">
-                    <Shield className="w-3 h-3" /> Manager
-                  </span>
-                )}
               </div>
             </div>
             <div className="flex gap-3">

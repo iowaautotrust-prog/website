@@ -15,13 +15,14 @@ interface UserRow extends Profile {
 }
 
 export default function AdminUsers() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { isDemoModeReady } = useApp();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
   if (!user?.isAdmin) return <Navigate to="/login" />;
 
   const fetchUsers = async () => {

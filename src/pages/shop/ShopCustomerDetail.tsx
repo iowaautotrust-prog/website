@@ -32,7 +32,7 @@ const ShopCustomerDetail = () => {
   const [savingVeh, setSavingVeh] = useState(false);
   const [vehError, setVehError] = useState<string | null>(null);
 
-  if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
+  if (!user?.isAdmin) return <Navigate to="/login" />;
 
   useEffect(() => {
     if (!id) return;

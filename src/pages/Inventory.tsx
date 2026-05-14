@@ -29,6 +29,8 @@ const Inventory = () => {
 
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
 
   const [typeFilter, setTypeFilter] = useState("All");
@@ -46,6 +48,7 @@ const Inventory = () => {
 
   useEffect(() => {
     setLoading(true);
+    setFetchError(false);
     query(() =>
       supabase
         .from("vehicles")
@@ -53,10 +56,10 @@ const Inventory = () => {
         .eq("status", "available")
         .order("created_at", { ascending: false })
     )
-      .then(({ data }) => setVehicles((data as Vehicle[]) ?? []))
-      .catch(() => {})
+      .then(({ data }) => { setVehicles((data as Vehicle[]) ?? []); setFetchError(false); })
+      .catch(() => setFetchError(true))
       .finally(() => setLoading(false));
-  }, [vehicleVersion]);
+  }, [vehicleVersion, retryCount]);
 
   useEffect(() => {
     query(() => supabase.from("categories").select("id, name")).then(({ data }) => {
@@ -361,7 +364,18 @@ const Inventory = () => {
                   {filtered.length} vehicle{filtered.length !== 1 ? "s" : ""}{" "}
                   found
                 </p>
-                {filtered.length === 0 && (
+                {fetchError && (
+                  <div className="flex flex-col items-center justify-center py-24 gap-4">
+                    <p className="text-muted-foreground text-sm">Couldn't load vehicles. Check your connection.</p>
+                    <button
+                      onClick={() => setRetryCount(c => c + 1)}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                )}
+                {!fetchError && filtered.length === 0 && (
                   <div className="text-center py-20">
                     <p className="text-body mb-4">
                       No vehicles match your filters.

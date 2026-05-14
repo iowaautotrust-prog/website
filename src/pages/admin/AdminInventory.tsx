@@ -81,7 +81,7 @@ const emptyForm = (): FormState => ({
 });
 
 const AdminInventory = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { bumpVehicleVersion, isDemoModeReady } = useApp();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -99,7 +99,8 @@ const AdminInventory = () => {
   const [bulkStatus, setBulkStatus] = useState<"available" | "pending">("available");
   const [bulkUpdating, setBulkUpdating] = useState(false);
 
-  if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
+  if (!user?.isAdmin) return <Navigate to="/login" />;
 
   const fetchData = async () => {
     setLoading(true);

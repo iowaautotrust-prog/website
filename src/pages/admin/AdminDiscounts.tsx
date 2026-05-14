@@ -24,7 +24,7 @@ const emptyForm = () => ({
 });
 
 const AdminDiscounts = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -33,6 +33,7 @@ const AdminDiscounts = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
   if (!user?.isAdmin) return <Navigate to="/login" />;
 
   const fetchCoupons = async () => {

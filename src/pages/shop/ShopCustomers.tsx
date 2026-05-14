@@ -22,7 +22,7 @@ const ShopCustomers = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
-  if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
+  if (!user?.isAdmin) return <Navigate to="/login" />;
 
   useEffect(() => {
     supabase.from("shop_customers" as any).select("*").order("created_at", { ascending: false })

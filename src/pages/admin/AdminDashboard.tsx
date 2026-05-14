@@ -14,6 +14,7 @@ import {
   Tag,
   UploadCloud,
   Eye,
+  Loader2,
 } from "lucide-react";
 import Footer from "@/components/Footer";
 import {
@@ -30,7 +31,7 @@ import {
 import type { Lead, Transaction, Vehicle } from "@/lib/types";
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { isDemoModeReady, vehicleVersion, recentlyViewedInHero, toggleRecentlyViewedLocation } = useApp();
   const [stats, setStats] = useState({
     vehicleCount: 0,
@@ -44,7 +45,8 @@ const AdminDashboard = () => {
   const [leadsTrend, setLeadsTrend] = useState<{ date: string; leads: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
-  if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
+  if (!user?.isAdmin) return <Navigate to="/login" />;
 
   useEffect(() => {
     if (!isDemoModeReady) return;
@@ -167,11 +169,7 @@ const AdminDashboard = () => {
         { label: "Transactions", to: "/admin/transactions", icon: DollarSign },
         { label: "Users", to: "/admin/users", icon: Users },
       ]
-    : [
-        { label: "Inventory", to: "/admin/inventory", icon: Car },
-        { label: "Leads / Enquiries", to: "/admin/leads", icon: MessageSquare },
-        { label: "Transactions", to: "/admin/transactions", icon: DollarSign },
-      ];
+    : [];
 
   return (
     <div className="bg-background min-h-screen">
@@ -179,9 +177,7 @@ const AdminDashboard = () => {
         <div className="flex items-center justify-between mb-10">
           <div>
             <p className="text-overline mb-2">Iowa Auto Trust</p>
-            <h1 className="heading-section">
-              {user?.isAdmin ? "Admin Dashboard" : "Manager Dashboard"}
-            </h1>
+            <h1 className="heading-section">Admin Dashboard</h1>
           </div>
           <Link
             to="/"

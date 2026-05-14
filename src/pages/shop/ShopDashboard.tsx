@@ -26,7 +26,7 @@ const ShopDashboard = () => {
   const [recentJobs, setRecentJobs] = useState<ServiceJob[]>([]);
   const [todayAppts, setTodayAppts] = useState<Appointment[]>([]);
 
-  if (!user?.isAdmin && !user?.isManager) return <Navigate to="/login" />;
+  if (!user?.isAdmin) return <Navigate to="/login" />;
 
   useEffect(() => {
     const load = async () => {
