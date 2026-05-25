@@ -27,7 +27,7 @@ const contactInfo = [
   {
     icon: MapPin,
     label: "Address",
-    value: "204 S Main St, Woodward, IA 50276",
+    value: "IOWA",
     href: "https://maps.google.com/?q=204+S+Main+St+Woodward+IA+50276",
   },
   {

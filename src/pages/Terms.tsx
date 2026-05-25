@@ -291,7 +291,7 @@ export default function Terms() {
               <p className="mt-2">
                 <strong className="text-foreground">Iowa Auto Trust</strong>
                 <br />
-                204 S Main St, Woodward, IA 50276
+                IOWA
                 <br />
                 <a
                   href="mailto:info@iowaautotrust.com"
