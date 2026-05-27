@@ -1,4 +1,4 @@
-# Iowa Auto Trust — Website
+# Iowa Trust Motors — Website
 
 Premium pre-owned vehicle dealership website built with React, Vite, TypeScript, Tailwind CSS, and Supabase.
 

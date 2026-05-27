@@ -102,7 +102,7 @@ const Login = () => {
 
         <div className="mb-8">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-3">
-            Iowa Auto Trust
+            Iowa Trust Motors
           </p>
           <h1 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h1>
           <p className="text-muted-foreground text-sm">Sign in to your account to continue.</p>

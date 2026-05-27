@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const FROM = "Iowa Auto Trust <noreply@iowaautotrust.com>";
+const FROM = "Iowa Trust Motors <noreply@iowatrustmotors.com>";
 
 // Called by a cron job (pg_cron or Supabase scheduled function)
 serve(async (_req) => {
@@ -46,7 +46,7 @@ serve(async (_req) => {
         <p>Hi ${appt.guest_name ?? "there"}, just a reminder about your upcoming appointment.</p>
         <p><strong>Service:</strong> ${appt.service_type}</p>
         <p><strong>When:</strong> ${dateStr} (Central)</p>
-        <p>Iowa Auto Trust · Woodward, Iowa · (515) 672-5406</p>
+        <p>Iowa Trust Motors · Woodward, Iowa · (515) 672-5406</p>
       </div>`;
     await fetch("https://api.resend.com/emails", {
       method: "POST",

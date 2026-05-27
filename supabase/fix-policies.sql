@@ -1,5 +1,5 @@
 -- ============================================================
--- Iowa Auto Trust — FINAL POLICY FIX
+-- Iowa Trust Motors — FINAL POLICY FIX
 -- Run this ONE TIME in Supabase SQL Editor
 -- Fixes all recursion, conflicts, and 500 errors permanently
 -- ============================================================

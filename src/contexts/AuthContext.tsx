@@ -12,7 +12,7 @@ import type { AuthUser, Profile } from "@/lib/types";
 
 export type { AuthUser as User };
 
-const ADMIN_EMAIL = "iowaautotrust@gmail.com";
+const ADMIN_EMAIL = "iowatrustmotors@gmail.com";
 
 interface AuthContextValue {
   user: AuthUser | null;

@@ -68,10 +68,10 @@ const ShopInvoicePrint = () => {
         {/* Header */}
         <div className="flex items-start justify-between mb-8 pb-6 border-b-2 border-gray-900">
           <div>
-            <h1 className="text-2xl font-black uppercase tracking-tight text-gray-900">Iowa Auto Trust</h1>
+            <h1 className="text-2xl font-black uppercase tracking-tight text-gray-900">Iowa Trust Motors</h1>
             <p className="text-sm text-gray-500 mt-0.5">Woodward, Iowa</p>
             <p className="text-sm text-gray-600 mt-2">(515) 672-5406</p>
-            <p className="text-sm text-gray-600">iowaautotrust@gmail.com</p>
+            <p className="text-sm text-gray-600">iowatrustmotors@gmail.com</p>
           </div>
           <div className="text-right">
             <p className="text-3xl font-black text-gray-900 uppercase tracking-tight">Invoice</p>
@@ -192,8 +192,8 @@ const ShopInvoicePrint = () => {
 
         {/* Footer */}
         <div className="border-t border-gray-200 pt-6 text-center">
-          <p className="text-base font-semibold text-gray-900">Thank you for choosing Iowa Auto Trust!</p>
-          <p className="text-sm text-gray-500 mt-1">Questions? Call us at (515) 672-5406 or email iowaautotrust@gmail.com</p>
+          <p className="text-base font-semibold text-gray-900">Thank you for choosing Iowa Trust Motors!</p>
+          <p className="text-sm text-gray-500 mt-1">Questions? Call us at (515) 672-5406 or email iowatrustmotors@gmail.com</p>
         </div>
       </div>
     </>

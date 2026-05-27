@@ -127,7 +127,7 @@ const Signup = () => {
       >
         <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-foreground mb-2">Account created!</h2>
-        <p className="text-muted-foreground">Welcome to Iowa Auto Trust. Redirecting you now…</p>
+        <p className="text-muted-foreground">Welcome to Iowa Trust Motors. Redirecting you now…</p>
       </motion.div>
     </div>
   );
@@ -149,7 +149,7 @@ const Signup = () => {
 
         <div className="mb-8">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-3">
-            Iowa Auto Trust
+            Iowa Trust Motors
           </p>
           <h1 className="text-3xl font-bold text-foreground mb-2">Create Account</h1>
           <p className="text-muted-foreground text-sm">

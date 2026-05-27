@@ -45,7 +45,7 @@ export default function Privacy() {
               Effective Date: March 1, 2026
             </p>
             <p className="text-muted-foreground max-w-2xl mt-2">
-              Iowa Auto Trust ("we," "us," or "our") is committed to protecting
+              Iowa Trust Motors ("we," "us," or "our") is committed to protecting
               your personal information. This Privacy Policy explains how we
               collect, use, disclose, and safeguard information when you visit
               our website or interact with our services. Please read it
@@ -56,7 +56,7 @@ export default function Privacy() {
           <div className="max-w-3xl">
             <Section title="1. Who We Are" delay={0.1}>
               <p>
-                <strong className="text-foreground">Iowa Auto Trust</strong>
+                <strong className="text-foreground">Iowa Trust Motors</strong>
                 <br />
                 IOWA
                 <br />
@@ -64,10 +64,10 @@ export default function Privacy() {
                 <br />
                 Email:{" "}
                 <a
-                  href="mailto:info@iowaautotrust.com"
+                  href="mailto:info@iowatrustmotors.com"
                   className="text-primary hover:underline"
                 >
-                  info@iowaautotrust.com
+                  info@iowatrustmotors.com
                 </a>
               </p>
             </Section>
@@ -197,10 +197,10 @@ export default function Privacy() {
               <p>
                 To exercise any of the above rights, contact us at{" "}
                 <a
-                  href="mailto:info@iowaautotrust.com"
+                  href="mailto:info@iowatrustmotors.com"
                   className="text-primary hover:underline"
                 >
-                  info@iowaautotrust.com
+                  info@iowatrustmotors.com
                 </a>{" "}
                 or call (515) 672-5406. We will respond to verifiable requests
                 within 45 days.
@@ -291,15 +291,15 @@ export default function Privacy() {
                 contact:
               </p>
               <p className="mt-2">
-                <strong className="text-foreground">Iowa Auto Trust</strong>
+                <strong className="text-foreground">Iowa Trust Motors</strong>
                 <br />
                 IOWA
                 <br />
                 <a
-                  href="mailto:info@iowaautotrust.com"
+                  href="mailto:info@iowatrustmotors.com"
                   className="text-primary hover:underline"
                 >
-                  info@iowaautotrust.com
+                  info@iowatrustmotors.com
                 </a>
                 <br />
                 (515) 672-5406

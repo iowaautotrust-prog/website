@@ -46,15 +46,15 @@ export default function Terms() {
             </p>
             <p className="text-muted-foreground max-w-2xl mt-2">
               Please read these Terms of Service ("Terms") carefully before
-              using the Iowa Auto Trust website or services. By accessing or
+              using the Iowa Trust Motors website or services. By accessing or
               using our services, you agree to be bound by these Terms.
             </p>
           </motion.div>
 
           <div className="max-w-3xl">
-            <Section title="1. About Iowa Auto Trust" delay={0.1}>
+            <Section title="1. About Iowa Trust Motors" delay={0.1}>
               <p>
-                Iowa Auto Trust operates as a pre-owned vehicle dealership and
+                Iowa Trust Motors operates as a pre-owned vehicle dealership and
                 automotive service provider located at 204 S Main St, Woodward,
                 IA 50276. Our website provides information about available
                 vehicles, service offerings, and means to contact our team.
@@ -66,7 +66,7 @@ export default function Terms() {
                 You must be at least 18 years of age to use our website,
                 create an account, submit inquiries, schedule service
                 appointments, or enter into any purchase or service agreement
-                with Iowa Auto Trust. By using our services, you represent and
+                with Iowa Trust Motors. By using our services, you represent and
                 warrant that you meet this age requirement.
               </p>
             </Section>
@@ -96,7 +96,7 @@ export default function Terms() {
                 </li>
               </ul>
               <p>
-                Iowa Auto Trust is not liable for losses arising from reliance
+                Iowa Trust Motors is not liable for losses arising from reliance
                 on inaccurate listing information.
               </p>
             </Section>
@@ -117,10 +117,10 @@ export default function Terms() {
                 <li>
                   Notify us immediately at{" "}
                   <a
-                    href="mailto:info@iowaautotrust.com"
+                    href="mailto:info@iowatrustmotors.com"
                     className="text-primary hover:underline"
                   >
-                    info@iowaautotrust.com
+                    info@iowatrustmotors.com
                   </a>{" "}
                   if you suspect unauthorized access.
                 </li>
@@ -226,7 +226,7 @@ export default function Terms() {
 
             <Section title="9. Limitation of Liability" delay={0.5}>
               <p>
-                To the fullest extent permitted by Iowa law, Iowa Auto Trust,
+                To the fullest extent permitted by Iowa law, Iowa Trust Motors,
                 its owners, employees, and agents shall not be liable for any
                 indirect, incidental, special, consequential, or punitive
                 damages arising from:
@@ -247,7 +247,7 @@ export default function Terms() {
               </ul>
               <p>
                 Our total liability to you for any claim arising under these
-                Terms shall not exceed the amount you paid to Iowa Auto Trust
+                Terms shall not exceed the amount you paid to Iowa Trust Motors
                 for the specific service giving rise to the claim.
               </p>
             </Section>
@@ -289,15 +289,15 @@ export default function Terms() {
                 For questions about these Terms, please contact:
               </p>
               <p className="mt-2">
-                <strong className="text-foreground">Iowa Auto Trust</strong>
+                <strong className="text-foreground">Iowa Trust Motors</strong>
                 <br />
                 IOWA
                 <br />
                 <a
-                  href="mailto:info@iowaautotrust.com"
+                  href="mailto:info@iowatrustmotors.com"
                   className="text-primary hover:underline"
                 >
-                  info@iowaautotrust.com
+                  info@iowatrustmotors.com
                 </a>
                 <br />
                 (515) 672-5406

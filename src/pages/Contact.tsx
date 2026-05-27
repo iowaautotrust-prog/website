@@ -21,8 +21,8 @@ const contactInfo = [
   {
     icon: Mail,
     label: "Email",
-    value: "info@iowaautotrust.com",
-    href: "mailto:info@iowaautotrust.com",
+    value: "info@iowatrustmotors.com",
+    href: "mailto:info@iowatrustmotors.com",
   },
   {
     icon: MapPin,
@@ -93,7 +93,7 @@ export default function Contact() {
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-3">
               Get In Touch
             </p>
-            <h1 className="heading-section mb-4">Contact Iowa Auto Trust</h1>
+            <h1 className="heading-section mb-4">Contact Iowa Trust Motors</h1>
             <p className="text-muted-foreground max-w-xl">
               Have a question about a vehicle or ready to schedule a visit? Reach
               out — we'd love to help you find your next car.
@@ -136,7 +136,7 @@ export default function Contact() {
               {/* Map embed placeholder */}
               <div className="rounded-xl overflow-hidden border border-border h-40 sm:h-56 mt-8">
                 <iframe
-                  title="Iowa Auto Trust location"
+                  title="Iowa Trust Motors location"
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3000!2d-93.9277!3d41.857!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2s204+S+Main+St%2C+Woodward%2C+IA+50276!5e0!3m2!1sen!2sus!4v1"
                   width="100%"
                   height="100%"

@@ -783,7 +783,7 @@ export const DEMO_TRANSACTIONS: Transaction[] = [
 
 // ─── Demo Users ──────────────────────────────────────────────────────────────
 export const DEMO_USERS: (Profile & { email?: string; favorites_count?: number; leads_count?: number })[] = [
-  { id: "du-1", name: "Admin Account", email: "iowaautotrust@gmail.com", phone: null, location: "Iowa City, IA", is_admin: true, created_at: daysAgo(90), favorites_count: 0, leads_count: 0 },
+  { id: "du-1", name: "Admin Account", email: "iowatrustmotors@gmail.com", phone: null, location: "Iowa City, IA", is_admin: true, created_at: daysAgo(90), favorites_count: 0, leads_count: 0 },
   { id: "du-2", name: "James Harrington", email: "james.h@example.com", phone: "515-203-4812", location: "Des Moines, IA", is_admin: false, created_at: daysAgo(14), favorites_count: 3, leads_count: 1 },
   { id: "du-3", name: "Priya Nair", email: "priya.n@example.com", phone: "515-889-2201", location: "Cedar Rapids, IA", is_admin: false, created_at: daysAgo(20), favorites_count: 5, leads_count: 2 },
   { id: "du-4", name: "Carlos Mendoza", email: "cmendoza@example.com", phone: null, location: null, is_admin: false, created_at: daysAgo(8), favorites_count: 1, leads_count: 1 },

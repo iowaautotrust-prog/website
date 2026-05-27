@@ -1,4 +1,4 @@
-# Iowa Auto Trust — Email & Scheduled Reminders Setup
+# Iowa Trust Motors — Email & Scheduled Reminders Setup
 
 Everything here is configured **once** after your Vercel deployment is live.
 
@@ -8,7 +8,7 @@ Everything here is configured **once** after your Vercel deployment is live.
 
 1. Go to [resend.com](https://resend.com) → Sign up (free tier is fine to start)
 2. After signing in, go to **Domains** → **Add Domain**
-3. Enter `iowaautotrust.com`
+3. Enter `iowatrustmotors.com`
 4. Resend will give you DNS records (TXT + MX) — add these in your domain registrar (GoDaddy, Namecheap, etc.)
 5. Click **Verify** — takes 5–30 minutes to propagate
 
@@ -111,7 +111,7 @@ The `send-welcome-email` function is called automatically from `src/pages/Signup
 | E4 | Job marked completed | `send-invoice-email` | Customer |
 | E5 | 5 days before next oil change | `send-service-reminder` | Customer |
 | E5b | 2 days before next oil change | `send-service-reminder` | Customer |
-| E7 | Contact form / vehicle inquiry | `send-lead-notification` | Admin (iowaautotrust@gmail.com) |
+| E7 | Contact form / vehicle inquiry | `send-lead-notification` | Admin (iowatrustmotors@gmail.com) |
 
 > E3, E3b, E5, E5b are triggered automatically by the pg_cron job (see below) — not manually.
 

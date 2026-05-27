@@ -1,4 +1,4 @@
-# Iowa Auto Trust — Database Updates
+# Iowa Trust Motors — Database Updates
 
 Run these in your Supabase **SQL Editor** — these are additions on top of the original schema you already ran.
 

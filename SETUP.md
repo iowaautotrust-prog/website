@@ -1,4 +1,4 @@
-# Iowa Auto Trust — Setup Guide
+# Iowa Trust Motors — Setup Guide
 
 Complete instructions to get the platform live on Supabase + Vercel.
 
@@ -161,7 +161,7 @@ CREATE TABLE recent_searches (
   searched_at TIMESTAMPTZ DEFAULT now()
 );
 
--- Auto-create profile on signup (sets admin=true for iowaautotrust@gmail.com)
+-- Auto-create profile on signup (sets admin=true for iowatrustmotors@gmail.com)
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -169,7 +169,7 @@ BEGIN
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
-    CASE WHEN NEW.email = 'iowaautotrust@gmail.com' THEN true ELSE false END
+    CASE WHEN NEW.email = 'iowatrustmotors@gmail.com' THEN true ELSE false END
   );
   RETURN NEW;
 END;
@@ -312,7 +312,7 @@ CREATE POLICY "Admin full access on coupons"
 
 1. In Supabase → click **Authentication** → **Users**
 2. Click **Invite user**
-3. Email: `iowaautotrust@gmail.com`
+3. Email: `iowatrustmotors@gmail.com`
 4. The signup trigger will automatically set `is_admin = true` for this email
 5. An email invite link will be sent — use it to set a password
 
@@ -323,16 +323,16 @@ CREATE POLICY "Admin full access on coupons"
 ## Step 6 — Set Up Google Sign-In
 
 1. Go to [console.cloud.google.com](https://console.cloud.google.com)
-2. Create a new project named `Iowa Auto Trust`
+2. Create a new project named `Iowa Trust Motors`
 3. Navigate to **APIs & Services → OAuth consent screen**
    - User type: **External**
-   - App name: `Iowa Auto Trust`
-   - Support email: `info@iowaautotrust.com`
+   - App name: `Iowa Trust Motors`
+   - Support email: `info@iowatrustmotors.com`
    - Click through and **Save**
 4. Navigate to **APIs & Services → Credentials**
    - Click **Create Credentials → OAuth client ID**
    - Application type: **Web application**
-   - Name: `Iowa Auto Trust Web`
+   - Name: `Iowa Trust Motors Web`
    - Authorized JavaScript origins: add your Vercel URL later (e.g. `https://iowa-auto-trust.vercel.app`)
    - Authorized redirect URIs: `https://YOUR-SUPABASE-PROJECT-REF.supabase.co/auth/v1/callback`
      *(Replace `YOUR-SUPABASE-PROJECT-REF` with the ref from your Supabase project URL)*
@@ -431,13 +431,13 @@ supabase functions deploy send-lead-notification
 
 ### 10c — Set the Notification Email
 
-By default, notifications go to `iowaautotrust@gmail.com`. To change it, edit `supabase/functions/send-lead-notification/index.ts` and update the `ADMIN_EMAIL` constant.
+By default, notifications go to `iowatrustmotors@gmail.com`. To change it, edit `supabase/functions/send-lead-notification/index.ts` and update the `ADMIN_EMAIL` constant.
 
 ---
 
 ## Step 11 — First Steps After Going Live
 
-1. **Log in** at `/login` with `iowaautotrust@gmail.com`
+1. **Log in** at `/login` with `iowatrustmotors@gmail.com`
 
 2. **Add vehicle categories** at `/admin/categories` (e.g. Sedans, SUVs, Trucks)
 3. **Add your first vehicles** at `/admin/inventory`
@@ -459,7 +459,7 @@ By default, notifications go to `iowaautotrust@gmail.com`. To change it, edit `s
 - Confirm the storage policy allows admin inserts
 
 **Admin page not accessible?**
-- Confirm you signed in with `iowaautotrust@gmail.com`
+- Confirm you signed in with `iowatrustmotors@gmail.com`
 - Check the `profiles` table in Supabase — the row for your user should have `is_admin = true`
 - If not, run in SQL Editor: `UPDATE profiles SET is_admin = true WHERE id = 'your-user-id';`
 

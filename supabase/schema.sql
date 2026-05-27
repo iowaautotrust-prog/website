@@ -1,5 +1,5 @@
 -- ============================================================
--- Iowa Auto Trust — Full Database Schema
+-- Iowa Trust Motors — Full Database Schema
 -- Run this in Supabase SQL Editor (in one go)
 -- ============================================================
 
@@ -31,7 +31,7 @@ begin
     new.email,
     coalesce(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name'),
     new.raw_user_meta_data->>'avatar_url',
-    new.email = 'iowaautotrust@gmail.com'
+    new.email = 'iowatrustmotors@gmail.com'
   )
   on conflict (id) do nothing;
   return new;

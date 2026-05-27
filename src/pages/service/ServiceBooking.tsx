@@ -206,7 +206,7 @@ const ServiceBooking = () => {
       <div className="section-padding pt-28 pb-24">
         <div className="max-w-lg mx-auto">
           <div className="text-center mb-8">
-            <p className="text-overline mb-1">Iowa Auto Trust</p>
+            <p className="text-overline mb-1">Iowa Trust Motors</p>
             <h1 className="heading-section">Book a Service</h1>
             <p className="text-muted-foreground mt-2">Quick, easy appointment booking</p>
           </div>

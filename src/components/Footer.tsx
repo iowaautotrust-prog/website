@@ -17,7 +17,7 @@ const Footer = () => (
           </p>
           <div className="flex items-center gap-3 mt-6">
             <a
-              href="https://instagram.com/iowaautotrust"
+              href="https://instagram.com/iowatrustmotors"
               target="_blank"
               rel="noopener noreferrer"
               className="w-8 h-8 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
@@ -26,7 +26,7 @@ const Footer = () => (
               <Instagram className="w-4 h-4" />
             </a>
             <a
-              href="https://facebook.com/iowaautotrust"
+              href="https://facebook.com/iowatrustmotors"
               target="_blank"
               rel="noopener noreferrer"
               className="w-8 h-8 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
@@ -79,11 +79,11 @@ const Footer = () => (
             </li>
             <li>
               <a
-                href="mailto:info@iowaautotrust.com"
+                href="mailto:info@iowatrustmotors.com"
                 className="flex items-start gap-3 text-sm text-background/70 hover:text-background transition-colors group"
               >
                 <Mail className="w-4 h-4 mt-0.5 shrink-0 group-hover:text-primary transition-colors" />
-                <span>info@iowaautotrust.com</span>
+                <span>info@iowatrustmotors.com</span>
               </a>
             </li>
             <li>
@@ -94,7 +94,7 @@ const Footer = () => (
                 className="flex items-start gap-3 text-sm text-background/70 hover:text-background transition-colors group"
               >
                 <MapPin className="w-4 h-4 mt-0.5 shrink-0 group-hover:text-primary transition-colors" />
-                <span>204 S Main St<br />Woodward, IA 50276</span>
+                <span>IOWA</span>
               </a>
             </li>
           </ul>
@@ -106,7 +106,7 @@ const Footer = () => (
     <div className="section-padding py-5 border-t border-background/10">
       <div className="flex flex-col md:flex-row justify-between items-center gap-2">
         <p className="text-xs text-background/40">
-          © {new Date().getFullYear()} Iowa Auto Trust. All rights reserved.
+          © {new Date().getFullYear()} Iowa Trust Motors. All rights reserved.
         </p>
         <div className="flex items-center gap-4">
           <Link to="/privacy" className="text-xs text-background/40 hover:text-background/70 transition-colors">

@@ -8,7 +8,7 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:5173';
 test.describe('Smoke Tests', () => {
   test('Home page loads', async ({ page }) => {
     await page.goto(BASE_URL);
-    await expect(page).toHaveTitle(/Iowa Auto Trust/);
+    await expect(page).toHaveTitle(/Iowa Trust Motors/);
     await expect(page.locator('nav')).toBeVisible();
   });
 

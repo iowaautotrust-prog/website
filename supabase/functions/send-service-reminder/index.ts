@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const FROM = "Iowa Auto Trust <noreply@iowaautotrust.com>";
+const FROM = "Iowa Trust Motors <noreply@iowatrustmotors.com>";
 
 // Called by a cron job — sends next oil change reminders at T-5 and T-2 days
 serve(async (_req) => {
@@ -42,11 +42,11 @@ serve(async (_req) => {
         <p>Hi ${cust.name ?? "there"}, your next oil change for <strong>${vehicleStr}</strong> is coming up in <strong>${daysAway} day${daysAway > 1 ? "s" : ""}</strong>!</p>
         <p><strong>Recommended service date:</strong> ${reminder.next_service_date}</p>
         ${reminder.next_service_mileage ? `<p><strong>Recommended at:</strong> ${Number(reminder.next_service_mileage).toLocaleString()} miles</p>` : ""}
-        <a href="https://iowaautotrust.com/service"
+        <a href="https://iowatrustmotors.com/service"
           style="display:inline-block;margin-top:16px;padding:12px 24px;background:#1e40af;color:white;text-decoration:none;border-radius:8px;font-weight:600;">
           Book Appointment
         </a>
-        <p style="margin-top:32px;color:#6b7280;font-size:13px;">Iowa Auto Trust · Woodward, Iowa · (515) 672-5406</p>
+        <p style="margin-top:32px;color:#6b7280;font-size:13px;">Iowa Trust Motors · Woodward, Iowa · (515) 672-5406</p>
       </div>`;
 
     await fetch("https://api.resend.com/emails", {

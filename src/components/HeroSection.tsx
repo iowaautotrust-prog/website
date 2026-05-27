@@ -297,7 +297,7 @@ const HeroSection = () => {
     <>
       <section ref={ref} className="relative h-screen w-full overflow-hidden">
         <motion.div className="absolute inset-0 z-0" style={{ y: imageY, scale: imageScale }}>
-          <img src={heroCar} alt="Iowa Auto Trust" className="w-full h-full object-cover" />
+          <img src={heroCar} alt="Iowa Trust Motors" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-foreground/50" />
         </motion.div>
 
@@ -314,7 +314,7 @@ const HeroSection = () => {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="text-overline text-primary-foreground/70 mb-5"
             >
-              Iowa Auto Trust · Woodward, Iowa
+              Iowa Trust Motors · Woodward, Iowa
             </motion.p>
 
             <motion.h1

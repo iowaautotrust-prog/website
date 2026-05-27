@@ -176,7 +176,7 @@ const AdminDashboard = () => {
       <div className="section-padding pt-10 pb-4">
         <div className="flex items-center justify-between mb-10">
           <div>
-            <p className="text-overline mb-2">Iowa Auto Trust</p>
+            <p className="text-overline mb-2">Iowa Trust Motors</p>
             <h1 className="heading-section">Admin Dashboard</h1>
           </div>
           <Link

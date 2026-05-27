@@ -139,7 +139,7 @@ const VehicleDetail = () => {
   const handleShare = async () => {
     const url = `${window.location.origin}/vehicle/${id}`;
     if (navigator.share) {
-      await navigator.share({ title: car?.name, text: `Check out this ${car?.name} at Iowa Auto Trust`, url });
+      await navigator.share({ title: car?.name, text: `Check out this ${car?.name} at Iowa Trust Motors`, url });
     } else {
       await navigator.clipboard.writeText(url);
       setCopied(true);
@@ -436,7 +436,7 @@ const VehicleDetail = () => {
                   <a href="tel:5156725406" className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
                     <Phone className="w-4 h-4" /> Call Now
                   </a>
-                  <a href="mailto:iowaautotrust@gmail.com" className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
+                  <a href="mailto:iowatrustmotors@gmail.com" className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
                     <Mail className="w-4 h-4" /> Email Us
                   </a>
                 </div>
