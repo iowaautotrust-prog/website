@@ -19,7 +19,7 @@
 ### Trigger
 - Created `handle_new_user()` function + `on_auth_user_created` trigger on `auth.users`
 - Inserts into profiles on every new signup: `id, name, is_admin`
-- Sets `is_admin = true` automatically if email = `iowatrustmotors@gmail.com`
+- Sets `is_admin = true` automatically if email = `iowaautotrust@gmail.com`
 
 ### Settings Table
 - Created `public.settings` table: `key (text PK), value (text), updated_at`
@@ -93,7 +93,7 @@ begin
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'full_name', new.raw_user_meta_data->>'name', new.email),
-    new.email = 'iowatrustmotors@gmail.com'
+    new.email = 'iowaautotrust@gmail.com'
   )
   on conflict (id) do nothing;
   return new;

@@ -17,7 +17,7 @@ const Footer = () => (
           </p>
           <div className="flex items-center gap-3 mt-6">
             <a
-              href="https://instagram.com/iowatrustmotors"
+              href="https://instagram.com/iowaautotrust"
               target="_blank"
               rel="noopener noreferrer"
               className="w-8 h-8 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
@@ -26,7 +26,7 @@ const Footer = () => (
               <Instagram className="w-4 h-4" />
             </a>
             <a
-              href="https://facebook.com/iowatrustmotors"
+              href="https://facebook.com/iowaautotrust"
               target="_blank"
               rel="noopener noreferrer"
               className="w-8 h-8 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
@@ -79,11 +79,11 @@ const Footer = () => (
             </li>
             <li>
               <a
-                href="mailto:info@iowatrustmotors.com"
+                href="mailto:info@iowaautotrust.com"
                 className="flex items-start gap-3 text-sm text-background/70 hover:text-background transition-colors group"
               >
                 <Mail className="w-4 h-4 mt-0.5 shrink-0 group-hover:text-primary transition-colors" />
-                <span>info@iowatrustmotors.com</span>
+                <span>info@iowaautotrust.com</span>
               </a>
             </li>
             <li>

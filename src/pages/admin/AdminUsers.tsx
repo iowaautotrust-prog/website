@@ -68,7 +68,7 @@ export default function AdminUsers() {
 
   const toggleAdmin = async (profileId: string, currentIsAdmin: boolean) => {
     const targetUser = users.find((u) => u.id === profileId);
-    if (targetUser?.email === "iowatrustmotors@gmail.com") return;
+    if (targetUser?.email === "iowaautotrust@gmail.com") return;
     setTogglingId(profileId);
     await supabase
       .from("profiles")

@@ -6,7 +6,22 @@
       "Bash(npm list:*)",
       "Bash(npm run:*)",
       "Bash(npm update:*)",
-      "Bash(npm audit:*)"
+      "Bash(npm audit:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(npx --version)",
+      "Bash(npx -y @supabase/mcp-server-supabase@latest --help)",
+      "Bash(npx clear-npx-cache:*)",
+      "Bash(rm -rf \"C:\\\\Users\\\\Sharvesh\\\\AppData\\\\Local\\\\npm-cache\\\\_npx\\\\53c4795544aaa350\")",
+      "Bash(where claude:*)",
+      "Read(//c/Users/Sharvesh/**)",
+      "Bash(npm bin:*)",
+      "Bash(npm config:*)",
+      "Bash(claude mcp:*)",
+      "Bash(grep -v \"^[+-]$\")"
     ]
   }
 }

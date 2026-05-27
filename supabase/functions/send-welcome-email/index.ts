@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const FROM = "Iowa Trust Motors <noreply@iowatrustmotors.com>";
+const FROM = "Iowa Trust Motors <noreply@iowaautotrust.com>";
 
 serve(async (req) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
@@ -18,7 +18,7 @@ serve(async (req) => {
         <li>Track your service appointments</li>
         <li>View your invoices</li>
       </ul>
-      <a href="https://iowatrustmotors.com/inventory"
+      <a href="https://iowaautotrust.com/inventory"
         style="display:inline-block;margin-top:16px;padding:12px 24px;background:#1e40af;color:white;text-decoration:none;border-radius:8px;font-weight:600;">
         Browse Inventory
       </a>

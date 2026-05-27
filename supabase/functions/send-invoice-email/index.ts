@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const FROM = "Iowa Trust Motors <noreply@iowatrustmotors.com>";
+const FROM = "Iowa Trust Motors <noreply@iowaautotrust.com>";
 
 serve(async (req) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
@@ -45,7 +45,7 @@ serve(async (req) => {
         ${discount ? `<tr><td style="text-align:right;padding:4px;color:#6b7280;">Discount:</td><td style="text-align:right;padding:4px;color:#16a34a;">-$${Number(discount).toFixed(2)}</td></tr>` : ""}
         <tr><td style="text-align:right;padding:8px;font-weight:700;">Total:</td><td style="text-align:right;padding:8px;font-weight:700;font-size:18px;">$${Number(total ?? 0).toFixed(2)}</td></tr>
       </table>
-      ${invoiceId ? `<a href="https://iowatrustmotors.com/shop/invoices/${invoiceId}"
+      ${invoiceId ? `<a href="https://iowaautotrust.com/shop/invoices/${invoiceId}"
         style="display:inline-block;margin-top:16px;padding:12px 24px;background:#1e40af;color:white;text-decoration:none;border-radius:8px;font-weight:600;">
         View &amp; Print Invoice
       </a>` : ""}

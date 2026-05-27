@@ -21,8 +21,8 @@ const contactInfo = [
   {
     icon: Mail,
     label: "Email",
-    value: "info@iowatrustmotors.com",
-    href: "mailto:info@iowatrustmotors.com",
+    value: "info@iowaautotrust.com",
+    href: "mailto:info@iowaautotrust.com",
   },
   {
     icon: MapPin,

@@ -117,10 +117,10 @@ export default function Terms() {
                 <li>
                   Notify us immediately at{" "}
                   <a
-                    href="mailto:info@iowatrustmotors.com"
+                    href="mailto:info@iowaautotrust.com"
                     className="text-primary hover:underline"
                   >
-                    info@iowatrustmotors.com
+                    info@iowaautotrust.com
                   </a>{" "}
                   if you suspect unauthorized access.
                 </li>
@@ -294,10 +294,10 @@ export default function Terms() {
                 IOWA
                 <br />
                 <a
-                  href="mailto:info@iowatrustmotors.com"
+                  href="mailto:info@iowaautotrust.com"
                   className="text-primary hover:underline"
                 >
-                  info@iowatrustmotors.com
+                  info@iowaautotrust.com
                 </a>
                 <br />
                 (515) 672-5406

@@ -5,7 +5,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const ADMIN_EMAIL = "iowatrustmotors@gmail.com";
+const ADMIN_EMAIL = "iowaautotrust@gmail.com";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -91,7 +91,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Iowa Trust Motors <notifications@iowatrustmotors.com>",
+        from: "Iowa Trust Motors <notifications@iowaautotrust.com>",
         to: [ADMIN_EMAIL],
         subject: `New ${typeLabel} from ${name}`,
         html,

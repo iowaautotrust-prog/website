@@ -64,10 +64,10 @@ export default function Privacy() {
                 <br />
                 Email:{" "}
                 <a
-                  href="mailto:info@iowatrustmotors.com"
+                  href="mailto:info@iowaautotrust.com"
                   className="text-primary hover:underline"
                 >
-                  info@iowatrustmotors.com
+                  info@iowaautotrust.com
                 </a>
               </p>
             </Section>
@@ -197,10 +197,10 @@ export default function Privacy() {
               <p>
                 To exercise any of the above rights, contact us at{" "}
                 <a
-                  href="mailto:info@iowatrustmotors.com"
+                  href="mailto:info@iowaautotrust.com"
                   className="text-primary hover:underline"
                 >
-                  info@iowatrustmotors.com
+                  info@iowaautotrust.com
                 </a>{" "}
                 or call (515) 672-5406. We will respond to verifiable requests
                 within 45 days.
@@ -296,10 +296,10 @@ export default function Privacy() {
                 IOWA
                 <br />
                 <a
-                  href="mailto:info@iowatrustmotors.com"
+                  href="mailto:info@iowaautotrust.com"
                   className="text-primary hover:underline"
                 >
-                  info@iowatrustmotors.com
+                  info@iowaautotrust.com
                 </a>
                 <br />
                 (515) 672-5406
