@@ -72,7 +72,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex flex-col leading-none shrink-0">
             <span className={`text-base font-bold tracking-tight transition-colors duration-200 ${transparent ? "text-white" : "text-foreground"}`}>
-              IOWA AUTO TRUST
+              IOWA TRUST MOTORS
             </span>
             <span className={`text-[9px] font-medium tracking-[0.2em] uppercase transition-colors duration-200 ${transparent ? "text-white/60" : "text-muted-foreground"}`}>
               Woodward, Iowa
