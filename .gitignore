@@ -15,6 +15,16 @@ dist-ssr
 # Claude Code
 .claude/
 
+# MCP config
+.mcp.json
+
+# Setup & internal docs
+SETUP.md
+EMAIL_SETUP.md
+UPDATES.md
+README.md
+supabase/CHANGES.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
