@@ -170,31 +170,38 @@ const AdminInventory = () => {
     setShowForm(true);
   };
 
-  const uploadToR2 = async (file: File): Promise<string | null> => {
-    const { data, error } = await supabase.functions.invoke("r2-upload-url", {
-      body: { fileName: file.name, contentType: file.type },
+  const uploadToCloudinary = async (file: File): Promise<string | null> => {
+    const { data, error } = await supabase.functions.invoke("cloudinary-upload-signature", {
+      body: {},
     });
-    if (error || !data?.uploadUrl) return null;
+    if (error || !data?.signature) return null;
 
-    const putRes = await fetch(data.uploadUrl, {
-      method: "PUT",
-      body: file,
-      headers: { "Content-Type": file.type },
-    });
-    if (!putRes.ok) return null;
+    const form = new FormData();
+    form.append("file", file);
+    form.append("api_key", data.apiKey);
+    form.append("timestamp", String(data.timestamp));
+    form.append("signature", data.signature);
+    form.append("folder", data.folder);
 
-    return data.publicUrl as string;
+    const uploadRes = await fetch(
+      `https://api.cloudinary.com/v1_1/${data.cloudName}/image/upload`,
+      { method: "POST", body: form }
+    );
+    if (!uploadRes.ok) return null;
+
+    const uploaded = await uploadRes.json();
+    return uploaded.secure_url as string;
   };
 
   const uploadImage = async (): Promise<string | null> => {
     if (!imageFile) return null;
-    return uploadToR2(imageFile);
+    return uploadToCloudinary(imageFile);
   };
 
   const uploadImages = async (): Promise<string[]> => {
     const uploaded: string[] = [];
     for (const file of imageFiles) {
-      const url = await uploadToR2(file);
+      const url = await uploadToCloudinary(file);
       if (url) uploaded.push(url);
     }
     return uploaded;
