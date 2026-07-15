@@ -18,12 +18,9 @@ dist-ssr
 # MCP config
 .mcp.json
 
-# Setup & internal docs
-SETUP.md
-EMAIL_SETUP.md
-UPDATES.md
-README.md
-supabase/CHANGES.md
+# Claude / internal docs — none of this belongs in the public repo
+CLAUDE.md
+*.md
 
 # Editor directories and files
 .vscode/*

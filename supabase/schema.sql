@@ -99,6 +99,20 @@ create policy "Admins can manage vehicles" on public.vehicles for all using (
   exists (select 1 from public.profiles where id = auth.uid() and (is_admin = true or is_manager = true))
 );
 
+-- Lets anyone bump a vehicle's view count without granting broader update
+-- rights (RLS above only allows admins/managers to update vehicles directly).
+create or replace function public.increment_view_count(vehicle_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.vehicles set view_count = view_count + 1 where id = vehicle_id;
+end;
+$$;
+grant execute on function public.increment_view_count(uuid) to anon, authenticated;
+
 -- ─── LEADS ───────────────────────────────────────────────────
 create table if not exists public.leads (
   id           uuid primary key default gen_random_uuid(),
