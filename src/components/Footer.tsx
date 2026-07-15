@@ -12,7 +12,7 @@ const Footer = () => (
             Premium Pre-Owned Vehicles
           </p>
           <p className="text-sm text-background/70 leading-relaxed max-w-xs">
-            Your trusted source for quality pre-owned vehicles in Woodward, Iowa.
+            Your trusted source for quality pre-owned vehicles in Johnston, Iowa.
             Every vehicle is inspected and ready for the road.
           </p>
           <div className="flex items-center gap-3 mt-6">
@@ -70,20 +70,20 @@ const Footer = () => (
           <ul className="space-y-4">
             <li>
               <a
-                href="tel:5156725406"
+                href="tel:5158098051"
                 className="flex items-start gap-3 text-sm text-background/70 hover:text-background transition-colors group"
               >
                 <Phone className="w-4 h-4 mt-0.5 shrink-0 group-hover:text-primary transition-colors" />
-                <span>(515) 672-5406</span>
+                <span>(515) 809-8051</span>
               </a>
             </li>
             <li>
               <a
-                href="mailto:info@iowaautotrust.com"
+                href="mailto:sales@iowatrustmotors.com"
                 className="flex items-start gap-3 text-sm text-background/70 hover:text-background transition-colors group"
               >
                 <Mail className="w-4 h-4 mt-0.5 shrink-0 group-hover:text-primary transition-colors" />
-                <span>info@iowaautotrust.com</span>
+                <span>sales@iowatrustmotors.com</span>
               </a>
             </li>
             <li>

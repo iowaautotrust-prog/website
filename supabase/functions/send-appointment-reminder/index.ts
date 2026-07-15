@@ -46,7 +46,7 @@ serve(async (_req) => {
         <p>Hi ${appt.guest_name ?? "there"}, just a reminder about your upcoming appointment.</p>
         <p><strong>Service:</strong> ${appt.service_type}</p>
         <p><strong>When:</strong> ${dateStr} (Central)</p>
-        <p>Iowa Trust Motors · Woodward, Iowa · (515) 672-5406</p>
+        <p>Iowa Trust Motors · Johnston, Iowa · (515) 809-8051</p>
       </div>`;
     await fetch("https://api.resend.com/emails", {
       method: "POST",

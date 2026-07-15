@@ -75,7 +75,7 @@ const Navbar = () => {
               IOWA TRUST MOTORS
             </span>
             <span className={`text-[9px] font-medium tracking-[0.2em] uppercase transition-colors duration-200 ${transparent ? "text-white/60" : "text-muted-foreground"}`}>
-              Woodward, Iowa
+              Johnston, Iowa
             </span>
           </Link>
 
@@ -99,13 +99,13 @@ const Navbar = () => {
           {/* Right side */}
           <div className="flex items-center gap-3">
             <a
-              href="tel:5156725406"
+              href="tel:5158098051"
               className={`hidden md:inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 ${
                 transparent ? "text-white/90 hover:text-white" : "text-foreground/80 hover:text-foreground"
               }`}
             >
               <Phone className="w-3.5 h-3.5" />
-              (515) 672-5406
+              (515) 809-8051
             </a>
 
             {user ? (
@@ -193,10 +193,10 @@ const Navbar = () => {
                 </Link>
               ))}
               <a
-                href="tel:5156725406"
+                href="tel:5158098051"
                 className="py-3.5 text-sm font-medium text-primary flex items-center gap-2"
               >
-                <Phone className="w-4 h-4" /> (515) 672-5406
+                <Phone className="w-4 h-4" /> (515) 809-8051
               </a>
             </div>
           </motion.div>

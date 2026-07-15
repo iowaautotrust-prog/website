@@ -50,7 +50,7 @@ serve(async (req) => {
         View &amp; Print Invoice
       </a>` : ""}
       ${nextServiceHtml}
-      <p style="margin-top:32px;color:#6b7280;font-size:13px;">Iowa Trust Motors · Woodward, Iowa · (515) 672-5406</p>
+      <p style="margin-top:32px;color:#6b7280;font-size:13px;">Iowa Trust Motors · Johnston, Iowa · (515) 809-8051</p>
     </div>`;
 
   const res = await fetch("https://api.resend.com/emails", {

@@ -60,14 +60,14 @@ export default function Privacy() {
                 <br />
                 IOWA
                 <br />
-                Phone: (515) 672-5406
+                Phone: (515) 809-8051
                 <br />
                 Email:{" "}
                 <a
-                  href="mailto:info@iowaautotrust.com"
+                  href="mailto:sales@iowatrustmotors.com"
                   className="text-primary hover:underline"
                 >
-                  info@iowaautotrust.com
+                  sales@iowatrustmotors.com
                 </a>
               </p>
             </Section>
@@ -197,12 +197,12 @@ export default function Privacy() {
               <p>
                 To exercise any of the above rights, contact us at{" "}
                 <a
-                  href="mailto:info@iowaautotrust.com"
+                  href="mailto:sales@iowatrustmotors.com"
                   className="text-primary hover:underline"
                 >
-                  info@iowaautotrust.com
+                  sales@iowatrustmotors.com
                 </a>{" "}
-                or call (515) 672-5406. We will respond to verifiable requests
+                or call (515) 809-8051. We will respond to verifiable requests
                 within 45 days.
               </p>
             </Section>
@@ -296,13 +296,13 @@ export default function Privacy() {
                 IOWA
                 <br />
                 <a
-                  href="mailto:info@iowaautotrust.com"
+                  href="mailto:sales@iowatrustmotors.com"
                   className="text-primary hover:underline"
                 >
-                  info@iowaautotrust.com
+                  sales@iowatrustmotors.com
                 </a>
                 <br />
-                (515) 672-5406
+                (515) 809-8051
               </p>
             </Section>
           </div>

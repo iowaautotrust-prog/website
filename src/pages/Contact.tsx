@@ -15,14 +15,14 @@ const contactInfo = [
   {
     icon: Phone,
     label: "Phone",
-    value: "(515) 672-5406",
-    href: "tel:5156725406",
+    value: "(515) 809-8051",
+    href: "tel:5158098051",
   },
   {
     icon: Mail,
     label: "Email",
-    value: "info@iowaautotrust.com",
-    href: "mailto:info@iowaautotrust.com",
+    value: "sales@iowatrustmotors.com",
+    href: "mailto:sales@iowatrustmotors.com",
   },
   {
     icon: MapPin,
@@ -165,7 +165,7 @@ export default function Contact() {
                     business day.
                   </p>
                   <a
-                    href="tel:5156725406"
+                    href="tel:5158098051"
                     className="btn-hero mt-2"
                   >
                     Call Us Now
@@ -235,8 +235,8 @@ export default function Contact() {
                   </Button>
                   <p className="text-xs text-muted-foreground text-center">
                     Or call us directly at{" "}
-                    <a href="tel:5156725406" className="text-primary font-medium">
-                      (515) 672-5406
+                    <a href="tel:5158098051" className="text-primary font-medium">
+                      (515) 809-8051
                     </a>
                   </p>
                 </form>

@@ -433,10 +433,10 @@ const VehicleDetail = () => {
                   Schedule Test Drive
                 </button>
                 <div className="grid grid-cols-2 gap-3">
-                  <a href="tel:5156725406" className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
+                  <a href="tel:5158098051" className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
                     <Phone className="w-4 h-4" /> Call Now
                   </a>
-                  <a href="mailto:iowaautotrust@gmail.com" className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
+                  <a href="mailto:sales@iowatrustmotors.com" className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
                     <Mail className="w-4 h-4" /> Email Us
                   </a>
                 </div>
@@ -575,7 +575,7 @@ const VehicleDetail = () => {
 
       {/* Sticky mobile CTA */}
       <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background border-t border-border px-4 py-3 flex gap-3">
-        <a href="tel:5156725406" className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold">
+        <a href="tel:5158098051" className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold">
           <Phone className="w-4 h-4" /> Call
         </a>
         <button onClick={() => setShowInquiry(true)} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border border-primary text-primary text-sm font-semibold">

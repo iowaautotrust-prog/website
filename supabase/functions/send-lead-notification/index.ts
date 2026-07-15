@@ -5,7 +5,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const ADMIN_EMAIL = "iowaautotrust@gmail.com";
+const ADMIN_EMAIL = "sales@iowatrustmotors.com";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -34,7 +34,7 @@ serve(async (req) => {
       <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
         <div style="background:#1e40af;color:white;padding:24px 32px;border-radius:8px 8px 0 0">
           <h2 style="margin:0;font-size:20px">New ${typeLabel}</h2>
-          <p style="margin:4px 0 0;opacity:0.8;font-size:14px">Iowa Trust Motors — Woodward, Iowa</p>
+          <p style="margin:4px 0 0;opacity:0.8;font-size:14px">Iowa Trust Motors — Johnston, Iowa</p>
         </div>
         <div style="background:#f8fafc;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px">
           <table style="width:100%;border-collapse:collapse">

@@ -27,8 +27,8 @@ serve(async (req) => {
         style="display:inline-block;margin-top:8px;padding:12px 24px;background:#1e40af;color:white;text-decoration:none;border-radius:8px;font-weight:600;">
         Track Your Job
       </a>` : ""}
-      <p style="margin-top:24px;">Questions? Call us at <a href="tel:5156725406">(515) 672-5406</a></p>
-      <p style="color:#6b7280;font-size:13px;">Iowa Trust Motors · Woodward, Iowa</p>
+      <p style="margin-top:24px;">Questions? Call us at <a href="tel:5158098051">(515) 809-8051</a></p>
+      <p style="color:#6b7280;font-size:13px;">Iowa Trust Motors · Johnston, Iowa</p>
     </div>`;
 
   const res = await fetch("https://api.resend.com/emails", {

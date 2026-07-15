@@ -46,7 +46,7 @@ serve(async (_req) => {
           style="display:inline-block;margin-top:16px;padding:12px 24px;background:#1e40af;color:white;text-decoration:none;border-radius:8px;font-weight:600;">
           Book Appointment
         </a>
-        <p style="margin-top:32px;color:#6b7280;font-size:13px;">Iowa Trust Motors · Woodward, Iowa · (515) 672-5406</p>
+        <p style="margin-top:32px;color:#6b7280;font-size:13px;">Iowa Trust Motors · Johnston, Iowa · (515) 809-8051</p>
       </div>`;
 
     await fetch("https://api.resend.com/emails", {

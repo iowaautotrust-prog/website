@@ -291,7 +291,7 @@ const HeroSection = () => {
     }
   };
 
-  const stats = ["Woodward, Iowa", "Pre-Owned Specialists", "Same-Day Test Drives", "Trusted Since 2010"];
+  const stats = ["Johnston, Iowa", "Pre-Owned Specialists", "Same-Day Test Drives", "Trusted Since 2010"];
 
   return (
     <>
@@ -314,7 +314,7 @@ const HeroSection = () => {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="text-overline text-primary-foreground/70 mb-5"
             >
-              Iowa Trust Motors · Woodward, Iowa
+              Iowa Trust Motors · Johnston, Iowa
             </motion.p>
 
             <motion.h1
@@ -343,7 +343,7 @@ const HeroSection = () => {
               transition={{ duration: 0.6, delay: 0.7 }}
               className="mb-6 text-base md:text-lg text-primary-foreground/70 max-w-md"
             >
-              Curated pre-owned vehicles in Woodward, Iowa. Every car inspected, priced right, and ready to drive.
+              Curated pre-owned vehicles in Johnston, Iowa. Every car inspected, priced right, and ready to drive.
             </motion.p>
 
             <motion.form
@@ -378,7 +378,7 @@ const HeroSection = () => {
                 <Link to="/inventory" className="btn-hero">Browse All Vehicles</Link>
               </motion.div>
               <motion.a
-                href="tel:5156725406" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                href="tel:5158098051" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                 animate={{ boxShadow: ["0 0 0px hsl(var(--primary)/0)", "0 0 16px hsl(var(--primary)/0.4)", "0 0 0px hsl(var(--primary)/0)"] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
                 className="btn-hero-outline border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-foreground"

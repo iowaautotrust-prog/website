@@ -170,30 +170,32 @@ const AdminInventory = () => {
     setShowForm(true);
   };
 
-  const uploadImage = async (vehicleId: string): Promise<string | null> => {
-    if (!imageFile) return null;
-    const ext = imageFile.name.split(".").pop();
-    const path = `${vehicleId}/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage
-      .from("vehicle-images")
-      .upload(path, imageFile, { upsert: true });
-    if (error) return null;
-    const { data } = supabase.storage
-      .from("vehicle-images")
-      .getPublicUrl(path);
-    return data.publicUrl;
+  const uploadToR2 = async (file: File): Promise<string | null> => {
+    const { data, error } = await supabase.functions.invoke("r2-upload-url", {
+      body: { fileName: file.name, contentType: file.type },
+    });
+    if (error || !data?.uploadUrl) return null;
+
+    const putRes = await fetch(data.uploadUrl, {
+      method: "PUT",
+      body: file,
+      headers: { "Content-Type": file.type },
+    });
+    if (!putRes.ok) return null;
+
+    return data.publicUrl as string;
   };
 
-  const uploadImages = async (vehicleId: string): Promise<string[]> => {
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) return null;
+    return uploadToR2(imageFile);
+  };
+
+  const uploadImages = async (): Promise<string[]> => {
     const uploaded: string[] = [];
     for (const file of imageFiles) {
-      const ext = file.name.split(".").pop();
-      const path = `${vehicleId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error } = await supabase.storage.from("vehicle-images").upload(path, file, { upsert: true });
-      if (!error) {
-        const { data } = supabase.storage.from("vehicle-images").getPublicUrl(path);
-        uploaded.push(data.publicUrl);
-      }
+      const url = await uploadToR2(file);
+      if (url) uploaded.push(url);
     }
     return uploaded;
   };
@@ -224,7 +226,7 @@ const AdminInventory = () => {
       let newUrls: string[] = [];
       if (imageFiles.length > 0) {
         setImageUploading(true);
-        newUrls = await uploadImages(editingId);
+        newUrls = await uploadImages();
         setImageUploading(false);
       }
       const allUrls = [...existingUrls, ...newUrls];
@@ -269,7 +271,7 @@ const AdminInventory = () => {
       let newUrls: string[] = [];
       if (imageFiles.length > 0) {
         setImageUploading(true);
-        newUrls = await uploadImages(id);
+        newUrls = await uploadImages();
         setImageUploading(false);
       }
       const allUrls = [...existingUrls, ...newUrls];
