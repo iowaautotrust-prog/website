@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Phone, Mail, MapPin, Facebook, Instagram, Twitter } from "lucide-react";
+import { Phone, Mail, MapPin } from "lucide-react";
 
 const Footer = () => (
   <footer className="bg-foreground text-background">
@@ -7,7 +7,7 @@ const Footer = () => (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
         {/* Brand */}
         <div>
-          <p className="text-xl font-bold tracking-tight mb-1">IOWA AUTO TRUST</p>
+          <p className="text-xl font-bold tracking-tight mb-1">IOWA TRUST MOTORS</p>
           <p className="text-xs tracking-[0.2em] text-background/50 uppercase mb-4">
             Premium Pre-Owned Vehicles
           </p>
@@ -15,26 +15,6 @@ const Footer = () => (
             Your trusted source for quality pre-owned vehicles in Johnston, Iowa.
             Every vehicle is inspected and ready for the road.
           </p>
-          <div className="flex items-center gap-3 mt-6">
-            <a
-              href="https://instagram.com/iowaautotrust"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-8 h-8 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
-              aria-label="Instagram"
-            >
-              <Instagram className="w-4 h-4" />
-            </a>
-            <a
-              href="https://facebook.com/iowaautotrust"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-8 h-8 rounded-full bg-background/10 flex items-center justify-center hover:bg-primary transition-colors"
-              aria-label="Facebook"
-            >
-              <Facebook className="w-4 h-4" />
-            </a>
-          </div>
         </div>
 
         {/* Quick Links */}

@@ -91,7 +91,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Iowa Trust Motors <notifications@iowaautotrust.com>",
+        from: "Iowa Trust Motors <notifications@iowatrustmotors.com>",
         to: [ADMIN_EMAIL],
         subject: `New ${typeLabel} from ${name}`,
         html,
