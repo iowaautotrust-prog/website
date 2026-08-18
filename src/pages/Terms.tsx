@@ -55,8 +55,8 @@ export default function Terms() {
             <Section title="1. About Iowa Trust Motors" delay={0.1}>
               <p>
                 Iowa Trust Motors operates as a pre-owned vehicle dealership and
-                automotive service provider located at 204 S Main St, Woodward,
-                IA 50276. Our website provides information about available
+                automotive service provider located at 5421 NW Beaver Dr Unit 2,
+                Johnston, IA. Our website provides information about available
                 vehicles, service offerings, and means to contact our team.
               </p>
             </Section>

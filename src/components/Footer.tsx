@@ -68,7 +68,7 @@ const Footer = () => (
             </li>
             <li>
               <a
-                href="https://maps.google.com/?q=204+S+Main+St+Woodward+IA+50276"
+                href="https://maps.google.com/?q=5421+NW+Beaver+Dr+Unit+2+Johnston+IA"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-start gap-3 text-sm text-background/70 hover:text-background transition-colors group"

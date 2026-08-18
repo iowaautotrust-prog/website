@@ -28,12 +28,12 @@ const contactInfo = [
     icon: MapPin,
     label: "Address",
     value: "IOWA",
-    href: "https://maps.google.com/?q=204+S+Main+St+Woodward+IA+50276",
+    href: "https://maps.google.com/?q=5421+NW+Beaver+Dr+Unit+2+Johnston+IA",
   },
   {
     icon: Clock,
     label: "Hours",
-    value: "Mon–Sat: 9am – 6pm\nSunday: Closed",
+    value: "Mon-Sat: 9am - 5pm",
     href: null,
   },
 ];
@@ -137,7 +137,7 @@ export default function Contact() {
               <div className="rounded-xl overflow-hidden border border-border h-40 sm:h-56 mt-8">
                 <iframe
                   title="Iowa Trust Motors location"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3000!2d-93.9277!3d41.857!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2s204+S+Main+St%2C+Woodward%2C+IA+50276!5e0!3m2!1sen!2sus!4v1"
+                  src="https://maps.google.com/maps?q=5421+NW+Beaver+Dr+Unit+2%2C+Johnston%2C+IA&output=embed"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}

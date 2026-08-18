@@ -42,7 +42,7 @@ const BrandStory = () => {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-overline mb-6"
             >
-              Our Promise
+              Our Commitment
             </motion.p>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -50,8 +50,8 @@ const BrandStory = () => {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="heading-section mb-6"
             >
-              Quality Without
-              <br />Compromise
+              Simple. Honest.
+              <br />Straightforward.
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -59,25 +59,25 @@ const BrandStory = () => {
               transition={{ duration: 0.5, delay: 0.4 }}
               className="text-body mb-8"
             >
-              Every vehicle undergoes a rigorous 150-point inspection process. We partner only with certified dealerships and private sellers who share our commitment to excellence.
+              We make buying a used vehicle simple and transparent. Explore our available inventory, get clear vehicle information, and find the right car for your needs and budget.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.5 }}
-              className="flex gap-12"
+              className="grid grid-cols-1 sm:grid-cols-3 gap-6"
             >
               <div>
-                <p className="text-4xl font-bold text-primary">150+</p>
-                <p className="text-sm text-muted-foreground mt-1">Point Inspection</p>
+                <p className="font-semibold text-foreground mb-1">Quality Selection</p>
+                <p className="text-sm text-muted-foreground">Pre-owned vehicles at competitive prices.</p>
               </div>
               <div>
-                <p className="text-4xl font-bold text-primary">2yr</p>
-                <p className="text-sm text-muted-foreground mt-1">Warranty</p>
+                <p className="font-semibold text-foreground mb-1">Clear Information</p>
+                <p className="text-sm text-muted-foreground">Vehicle details available to help you make an informed decision.</p>
               </div>
               <div>
-                <p className="text-4xl font-bold text-primary">100%</p>
-                <p className="text-sm text-muted-foreground mt-1">Certified</p>
+                <p className="font-semibold text-foreground mb-1">Customer Focused</p>
+                <p className="text-sm text-muted-foreground">Friendly service from your first visit to the final paperwork.</p>
               </div>
             </motion.div>
           </div>

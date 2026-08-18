@@ -291,7 +291,7 @@ const HeroSection = () => {
     }
   };
 
-  const stats = ["Johnston, Iowa", "Pre-Owned Specialists", "Same-Day Test Drives", "Trusted Since 2010"];
+  const stats = ["Johnston, Iowa", "Pre-Owned Specialists", "Same-Day Test Drives"];
 
   return (
     <>
