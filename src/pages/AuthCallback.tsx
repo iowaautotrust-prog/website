@@ -3,27 +3,51 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 
 /**
- * Handles OAuth redirects and email confirmation links from Supabase Auth.
- * Supabase appends tokens in the URL hash or query params — this page
- * processes them and redirects the user to the appropriate destination.
+ * Handles OAuth redirects, email confirmation links, and password recovery
+ * links from Supabase Auth. Listens for the PASSWORD_RECOVERY auth event
+ * specifically (Supabase's documented way to detect a recovery link) rather
+ * than relying on getSession() alone, which can race with the SDK's own
+ * async parsing of the URL hash/PKCE code on a fresh page load.
  */
 export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        // Check if this is a password recovery flow
-        const params = new URLSearchParams(window.location.search);
-        if (params.get("type") === "recovery") {
-          navigate("/profile?reset=true", { replace: true });
-        } else {
-          navigate("/", { replace: true });
-        }
-      } else {
-        navigate("/login", { replace: true });
+    let settled = false;
+    const finish = (path: string) => {
+      if (settled) return;
+      settled = true;
+      navigate(path, { replace: true });
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        finish("/reset-password");
+      } else if (event === "SIGNED_IN" && session) {
+        finish("/");
       }
     });
+
+    // Covers the case where a session already existed before this effect
+    // ran (event won't fire again for it).
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (settled || !session) return;
+      const params = new URLSearchParams(window.location.search);
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      if (params.get("type") === "recovery" || hashParams.get("type") === "recovery") {
+        finish("/reset-password");
+      } else {
+        finish("/");
+      }
+    });
+
+    // Never leave the user stuck here forever (e.g. an expired/invalid link).
+    const fallback = setTimeout(() => finish("/login"), 6000);
+
+    return () => {
+      clearTimeout(fallback);
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   return (

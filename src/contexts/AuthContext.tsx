@@ -27,6 +27,7 @@ interface AuthContextValue {
   signInWithGoogle: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   forgotPassword: (email: string) => Promise<{ error: string | null }>;
+  updatePassword: (newPassword: string) => Promise<{ error: string | null }>;
   updateProfile: (updates: Partial<Pick<Profile, "name" | "phone" | "location">>) => Promise<{ error: string | null }>;
 }
 
@@ -154,6 +155,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   };
 
+  const updatePassword = async (newPassword: string): Promise<{ error: string | null }> => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) return { error: error.message };
+    return { error: null };
+  };
+
   const updateProfile = async (
     updates: Partial<Pick<Profile, "name" | "phone" | "location">>
   ): Promise<{ error: string | null }> => {
@@ -195,6 +202,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithGoogle,
         signOut,
         forgotPassword,
+        updatePassword,
         updateProfile,
       }}
     >
