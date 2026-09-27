@@ -113,6 +113,8 @@ const AdminInventory = () => {
       ]);
       setVehicles((vData as Vehicle[]) ?? []);
       setCategories((cData as Category[]) ?? []);
+    } catch (err) {
+      console.error("Failed to load inventory:", err);
     } finally {
       setLoading(false);
     }

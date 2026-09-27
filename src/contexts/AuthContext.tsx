@@ -57,11 +57,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return buildAuthUser(supabaseUser, profile as Profile | null);
   }, []);
 
+  // supabase.auth.getSession()/onAuthStateChange can hang indefinitely under
+  // some conditions (observed: gotrue-js's navigator.locks-based session
+  // lock not releasing on a fresh page load shortly after signing in). With
+  // no fallback, `loading` would never flip to false and the whole app gets
+  // stuck on a spinner forever. These race against a timeout so it always
+  // resolves one way or another.
+  const AUTH_TIMEOUT_MS = 8000;
+  const getSessionSafe = useCallback((): Promise<Session | null> => {
+    return Promise.race([
+      supabase.auth.getSession().then(({ data }) => data.session),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), AUTH_TIMEOUT_MS)),
+    ]);
+  }, []);
+  const fetchProfileSafe = useCallback(
+    (supabaseUser: SupabaseUser): Promise<AuthUser> => {
+      return Promise.race([
+        fetchProfile(supabaseUser),
+        new Promise<AuthUser>((resolve) =>
+          setTimeout(() => resolve(buildAuthUser(supabaseUser, null)), AUTH_TIMEOUT_MS)
+        ),
+      ]);
+    },
+    [fetchProfile]
+  );
+
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    getSessionSafe().then(async (session) => {
       setSession(session);
       if (session?.user) {
-        const authUser = await fetchProfile(session.user);
+        const authUser = await fetchProfileSafe(session.user);
         setUser(authUser);
       }
       setLoading(false);
@@ -70,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       if (session?.user) {
-        const authUser = await fetchProfile(session.user);
+        const authUser = await fetchProfileSafe(session.user);
         setUser(authUser);
       } else {
         setUser(null);
@@ -79,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, [fetchProfile]);
+  }, [getSessionSafe, fetchProfileSafe]);
 
   const signUp = async (email: string, password: string, name: string): Promise<{ error: string | null }> => {
     const { data, error } = await supabase.auth.signUp({
