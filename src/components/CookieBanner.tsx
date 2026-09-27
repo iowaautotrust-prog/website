@@ -30,14 +30,14 @@ export default function CookieBanner() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: "100%", opacity: 0 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
-          className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border shadow-lg"
+          className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-full sm:max-w-sm z-50 bg-card border border-border rounded-xl shadow-lg"
           role="dialog"
           aria-label="Cookie consent"
         >
-          <div className="section-padding py-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="p-4">
+            <div className="flex flex-col items-start gap-3">
               {/* Text */}
-              <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 We use cookies to improve your experience. By continuing you
                 agree to our{" "}
                 <Link
@@ -50,7 +50,7 @@ export default function CookieBanner() {
               </p>
 
               {/* Actions */}
-              <div className="flex items-center gap-3 shrink-0">
+              <div className="flex items-center gap-3 w-full">
                 <button
                   onClick={() => accept("essential")}
                   className="text-xs font-medium px-4 py-2 rounded-lg border border-border text-foreground/70 hover:text-foreground hover:border-foreground/30 transition-colors"
@@ -65,7 +65,7 @@ export default function CookieBanner() {
                 </button>
                 <button
                   onClick={() => accept("essential")}
-                  className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                  className="ml-auto p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
                   aria-label="Dismiss"
                 >
                   <X className="w-4 h-4" />
