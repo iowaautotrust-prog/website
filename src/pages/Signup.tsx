@@ -20,11 +20,15 @@ type PasswordStrength = "weak" | "fair" | "strong";
 
 function getPasswordStrength(pw: string): PasswordStrength {
   const hasLength = pw.length >= 8;
+  const hasLower = /[a-z]/.test(pw);
   const hasUpper = /[A-Z]/.test(pw);
   const hasNumber = /[0-9]/.test(pw);
-  const passed = [hasLength, hasUpper, hasNumber].filter(Boolean).length;
-  if (passed === 3) return "strong";
-  if (passed === 2) return "fair";
+  const hasSpecial = /[!@#$%^&*()_+\-=[\]{};':"|<>?,./`~\\]/.test(pw);
+  const passed = [hasLength, hasLower, hasUpper, hasNumber, hasSpecial].filter(Boolean).length;
+  // The server requires all five — only call it "strong" once it actually
+  // will be accepted, so users don't see "Strong" and then get rejected.
+  if (passed === 5) return "strong";
+  if (passed >= 3) return "fair";
   return "weak";
 }
 
@@ -50,8 +54,10 @@ const Signup = () => {
   const requestIdRef = useRef(0);
 
   const hasLength = password.length >= 8;
+  const hasLower = /[a-z]/.test(password);
   const hasUpper = /[A-Z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[!@#$%^&*()_+\-=[\]{};':"|<>?,./`~\\]/.test(password);
   const strength = useMemo(() => getPasswordStrength(password), [password]);
   const { label: strengthLabel, color: strengthColor, bars: strengthBars } = strengthConfig[strength];
   const passwordsMatch = confirmPassword === "" || password === confirmPassword;
@@ -264,9 +270,11 @@ const Signup = () => {
                 {/* Requirements checklist */}
                 <ul className="space-y-1">
                   {[
-                    { met: hasLength, label: "8+ characters" },
-                    { met: hasUpper,  label: "One uppercase letter" },
-                    { met: hasNumber, label: "One number" },
+                    { met: hasLength,  label: "8+ characters" },
+                    { met: hasLower,   label: "One lowercase letter" },
+                    { met: hasUpper,   label: "One uppercase letter" },
+                    { met: hasNumber,  label: "One number" },
+                    { met: hasSpecial, label: "One special character (e.g. !@#$%)" },
                   ].map(({ met, label }) => (
                     <li key={label} className={`flex items-center gap-1.5 text-xs ${met ? "text-green-600" : "text-muted-foreground"}`}>
                       {met

@@ -33,6 +33,17 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+// Supabase's own password-policy error dumps the entire raw character set
+// ("Password should contain at least one character of each: abc...xyz,
+// ABC...XYZ, 0123456789, !@#$%^&*()_+-=[]{};'\:\"|<>?,./`~.") verbatim —
+// technically correct but unreadable as a user-facing message.
+function humanizeAuthError(message: string): string {
+  if (/password should contain at least one character of each/i.test(message)) {
+    return "Password must include at least one lowercase letter, one uppercase letter, one number, and one special character (e.g. !@#$%).";
+  }
+  return message;
+}
+
 function buildAuthUser(supabaseUser: SupabaseUser, profile: Profile | null): AuthUser {
   return {
     id: supabaseUser.id,
@@ -116,7 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
-    if (error) return { error: error.message };
+    if (error) return { error: humanizeAuthError(error.message) };
     // If session is returned directly (email confirmation disabled), set user immediately
     if (data.session?.user) {
       const authUser = await fetchProfile(data.session.user);
@@ -157,7 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updatePassword = async (newPassword: string): Promise<{ error: string | null }> => {
     const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) return { error: error.message };
+    if (error) return { error: humanizeAuthError(error.message) };
     return { error: null };
   };
 
