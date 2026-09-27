@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
@@ -47,6 +47,7 @@ const Signup = () => {
   const [passwordTouched, setPasswordTouched] = useState(false);
   const { signup, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const requestIdRef = useRef(0);
 
   const hasLength = password.length >= 8;
   const hasUpper = /[A-Z]/.test(password);
@@ -71,12 +72,20 @@ const Signup = () => {
     }
 
     setLoading(true);
+    const requestId = ++requestIdRef.current;
+
     const timeout = setTimeout(() => {
-      setLoading(false);
-      setError("Request timed out. Please try again.");
+      if (requestIdRef.current === requestId) {
+        requestIdRef.current++;
+        setLoading(false);
+        setError("Request timed out. Please try again.");
+      }
     }, 15000);
+
     const result = await signup(name, email, password);
     clearTimeout(timeout);
+    if (requestIdRef.current !== requestId) return;
+
     setLoading(false);
     if (result.success) {
       setSuccess(true);

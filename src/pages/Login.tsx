@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
@@ -38,18 +38,31 @@ const Login = () => {
   const [googleLoading, setGoogleLoading] = useState(false);
   const { login, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const requestIdRef = useRef(0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
     setError("");
     setLoading(true);
+    const requestId = ++requestIdRef.current;
+
     const timeout = setTimeout(() => {
-      setLoading(false);
-      setError("Request timed out. Please try again.");
+      if (requestIdRef.current === requestId) {
+        // Invalidate this attempt so its result is ignored if/when it
+        // eventually resolves late (e.g. Supabase auth lock contention
+        // with multiple tabs open) — otherwise it can silently overwrite
+        // this timeout message or navigate the user away unexpectedly.
+        requestIdRef.current++;
+        setLoading(false);
+        setError("Request timed out. Please try again.");
+      }
     }, 15000);
+
     const result = await login(email, password);
     clearTimeout(timeout);
+    if (requestIdRef.current !== requestId) return;
+
     setLoading(false);
     if (result.success) {
       setSuccess(true);

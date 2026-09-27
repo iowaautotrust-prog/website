@@ -99,9 +99,6 @@ const AdminInventory = () => {
   const [bulkStatus, setBulkStatus] = useState<"available" | "pending">("available");
   const [bulkUpdating, setBulkUpdating] = useState(false);
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
-  if (!user?.isAdmin) return <Navigate to="/login" />;
-
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -125,6 +122,9 @@ const AdminInventory = () => {
     if (!isDemoModeReady) return;
     fetchData();
   }, [isDemoModeReady]);
+
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
+  if (!user?.isAdmin) return <Navigate to="/login" />;
 
   const setField = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -171,26 +171,33 @@ const AdminInventory = () => {
   };
 
   const uploadToCloudinary = async (file: File): Promise<string | null> => {
-    const { data, error } = await supabase.functions.invoke("cloudinary-upload-signature", {
-      body: {},
-    });
-    if (error || !data?.signature) return null;
+    try {
+      const { data, error } = await supabase.functions.invoke("cloudinary-upload-signature", {
+        body: {},
+      });
+      if (error || !data?.signature) return null;
 
-    const form = new FormData();
-    form.append("file", file);
-    form.append("api_key", data.apiKey);
-    form.append("timestamp", String(data.timestamp));
-    form.append("signature", data.signature);
-    form.append("folder", data.folder);
+      const form = new FormData();
+      form.append("file", file);
+      form.append("api_key", data.apiKey);
+      form.append("timestamp", String(data.timestamp));
+      form.append("signature", data.signature);
+      form.append("folder", data.folder);
 
-    const uploadRes = await fetch(
-      `https://api.cloudinary.com/v1_1/${data.cloudName}/image/upload`,
-      { method: "POST", body: form }
-    );
-    if (!uploadRes.ok) return null;
+      const uploadRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${data.cloudName}/image/upload`,
+        { method: "POST", body: form }
+      );
+      if (!uploadRes.ok) return null;
 
-    const uploaded = await uploadRes.json();
-    return uploaded.secure_url as string;
+      const uploaded = await uploadRes.json();
+      return uploaded.secure_url as string;
+    } catch (err) {
+      // Network failure, CSP block, etc. — treat as a failed upload rather
+      // than letting the exception bubble up and leave handleSave stuck.
+      console.error("Cloudinary upload failed:", err);
+      return null;
+    }
   };
 
   const uploadImage = async (): Promise<string | null> => {
@@ -215,19 +222,19 @@ const AdminInventory = () => {
     setSaving(true);
     setFormError(null);
 
-    const features = form.features
-      .split(",")
-      .map((f) => f.trim())
-      .filter(Boolean);
+    try {
+      const features = form.features
+        .split(",")
+        .map((f) => f.trim())
+        .filter(Boolean);
 
-    const extraFields = {
-      vin: form.vin.trim() || null,
-      discount_amount: form.discount_amount ? Number(form.discount_amount) : null,
-      discount_label: form.discount_label.trim() || null,
-      discount_expires: form.discount_expires ? new Date(form.discount_expires).toISOString() : null,
-    };
+      const extraFields = {
+        vin: form.vin.trim() || null,
+        discount_amount: form.discount_amount ? Number(form.discount_amount) : null,
+        discount_label: form.discount_label.trim() || null,
+        discount_expires: form.discount_expires ? new Date(form.discount_expires).toISOString() : null,
+      };
 
-    if (editingId) {
       // Get existing real URLs (not blob:)
       const existingUrls = form.image_urls.filter((u) => !u.startsWith("blob:"));
       let newUrls: string[] = [];
@@ -235,14 +242,56 @@ const AdminInventory = () => {
         setImageUploading(true);
         newUrls = await uploadImages();
         setImageUploading(false);
+        if (newUrls.length < imageFiles.length) {
+          setFormError(
+            newUrls.length === 0
+              ? "Photo upload failed. The vehicle was not saved — please try again."
+              : `Only ${newUrls.length} of ${imageFiles.length} photos uploaded. Please try again.`
+          );
+          return;
+        }
       }
       const allUrls = [...existingUrls, ...newUrls];
-      const image_url = allUrls[0] ?? form.image_url ?? null;
-      const image_urls = allUrls.length > 0 ? allUrls : null;
 
-      const { error } = await supabase
-        .from("vehicles")
-        .update({
+      if (editingId) {
+        const image_url = allUrls[0] ?? form.image_url ?? null;
+        const image_urls = allUrls.length > 0 ? allUrls : null;
+
+        const { error } = await supabase
+          .from("vehicles")
+          .update({
+            name: form.name,
+            make: form.make,
+            model: form.model,
+            price: form.price,
+            mileage: form.mileage,
+            year: form.year,
+            fuel: form.fuel,
+            type: form.type,
+            category_id: form.category_id || null,
+            seats: form.seats,
+            engine: form.engine || null,
+            transmission: form.transmission,
+            description: form.description || null,
+            features,
+            status: form.status,
+            in_carousel: form.in_carousel,
+            image_url,
+            image_urls,
+            ...extraFields,
+          })
+          .eq("id", editingId);
+        if (error) {
+          setFormError(error.message);
+          return;
+        }
+      } else {
+        const id = crypto.randomUUID();
+        const image_url = allUrls[0] ?? null;
+        const image_urls = allUrls.length > 0 ? allUrls : null;
+
+        const { error } = await supabase.from("vehicles").insert({
+          id,
           name: form.name,
           make: form.make,
           model: form.model,
@@ -259,68 +308,28 @@ const AdminInventory = () => {
           features,
           status: form.status,
           in_carousel: form.in_carousel,
+          view_count: 0,
           image_url,
           image_urls,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
           ...extraFields,
-        })
-        .eq("id", editingId);
-      if (error) {
-        setFormError(error.message);
-        setSaving(false);
-        return;
+        });
+        if (error) {
+          setFormError(error.message);
+          return;
+        }
       }
-    } else {
-      // Create new vehicle
-      const id = crypto.randomUUID();
 
-      // Get existing real URLs (not blob:)
-      const existingUrls = form.image_urls.filter((u) => !u.startsWith("blob:"));
-      let newUrls: string[] = [];
-      if (imageFiles.length > 0) {
-        setImageUploading(true);
-        newUrls = await uploadImages();
-        setImageUploading(false);
-      }
-      const allUrls = [...existingUrls, ...newUrls];
-      const image_url = allUrls[0] ?? null;
-      const image_urls = allUrls.length > 0 ? allUrls : null;
-
-      const { error } = await supabase.from("vehicles").insert({
-        id,
-        name: form.name,
-        make: form.make,
-        model: form.model,
-        price: form.price,
-        mileage: form.mileage,
-        year: form.year,
-        fuel: form.fuel,
-        type: form.type,
-        category_id: form.category_id || null,
-        seats: form.seats,
-        engine: form.engine || null,
-        transmission: form.transmission,
-        description: form.description || null,
-        features,
-        status: form.status,
-        in_carousel: form.in_carousel,
-        view_count: 0,
-        image_url,
-        image_urls,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        ...extraFields,
-      });
-      if (error) {
-        setFormError(error.message);
-        setSaving(false);
-        return;
-      }
+      bumpVehicleVersion();
+      setShowForm(false);
+      fetchData();
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setSaving(false);
+      setImageUploading(false);
     }
-
-    bumpVehicleVersion();
-    setSaving(false);
-    setShowForm(false);
-    fetchData();
   };
 
   const handleDelete = async () => {
