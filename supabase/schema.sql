@@ -93,6 +93,8 @@ create table if not exists public.vehicles (
   features     text[],
   created_at   timestamptz not null default now()
 );
+alter table public.vehicles add constraint vehicles_status_check
+  check (status = any (array['available'::text, 'pending'::text, 'sold'::text]));
 alter table public.vehicles enable row level security;
 create policy "Anyone can read available vehicles" on public.vehicles for select using (true);
 create policy "Admins can manage vehicles" on public.vehicles for all using (

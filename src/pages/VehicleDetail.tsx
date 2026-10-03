@@ -115,7 +115,6 @@ const VehicleDetail = () => {
       .from("vehicles")
       .select("*, category:categories(id,name)")
       .eq("id", id)
-      .eq("status", "available")
       .single()
       .then(async ({ data }) => {
         if (!data) { setLoading(false); return; }
@@ -339,6 +338,9 @@ const VehicleDetail = () => {
 
               {car.status === "pending" && (
                 <span className="inline-block mb-3 px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">Sale Pending</span>
+              )}
+              {car.status === "sold" && (
+                <span className="inline-block mb-3 px-3 py-1 rounded-full bg-slate-200 text-slate-700 text-xs font-semibold">Sold</span>
               )}
 
               {/* VIN */}

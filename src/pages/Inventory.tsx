@@ -53,7 +53,6 @@ const Inventory = () => {
       supabase
         .from("vehicles")
         .select("*, category:categories(id,name)")
-        .eq("status", "available")
         .order("created_at", { ascending: false })
     )
       .then(({ data }) => { setVehicles((data as Vehicle[]) ?? []); setFetchError(false); })
@@ -400,6 +399,11 @@ const Inventory = () => {
                       {car.status === "pending" && (
                         <span className="absolute top-3 left-3 z-10 bg-amber-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
                           Sale Pending
+                        </span>
+                      )}
+                      {car.status === "sold" && (
+                        <span className="absolute top-3 left-3 z-10 bg-slate-700 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                          Sold
                         </span>
                       )}
 
