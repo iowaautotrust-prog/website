@@ -47,7 +47,7 @@ interface ParsedVehicle {
   transmission: string;
   description: string;
   features: string[];
-  status: "available" | "pending";
+  status: "available" | "pending" | "sold";
 }
 
 interface ImportResult {
@@ -92,8 +92,8 @@ const parseRow = (row: Record<string, unknown>): ParsedVehicle | null => {
     .filter(Boolean);
 
   const rawStatus = String(row.status ?? "available").toLowerCase().trim();
-  const status: "available" | "pending" =
-    rawStatus === "pending" ? "pending" : "available";
+  const status: "available" | "pending" | "sold" =
+    rawStatus === "pending" ? "pending" : rawStatus === "sold" ? "sold" : "available";
 
   return {
     name,
@@ -339,6 +339,8 @@ export default function AdminImport() {
                             className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                               v.status === "available"
                                 ? "bg-green-100 text-green-700"
+                                : v.status === "sold"
+                                ? "bg-slate-200 text-slate-700"
                                 : "bg-amber-100 text-amber-700"
                             }`}
                           >

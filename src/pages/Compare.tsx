@@ -17,7 +17,7 @@ const specRows = [
   { label: "Fuel", key: "fuel", format: (v: Vehicle) => v.fuel },
   { label: "Transmission", key: "transmission", format: (v: Vehicle) => v.transmission ?? "—" },
   { label: "Seats", key: "seats", format: (v: Vehicle) => String(v.seats ?? "—") },
-  { label: "Status", key: "status", format: (v: Vehicle) => v.status === "available" ? "Available" : "Sale Pending" },
+  { label: "Status", key: "status", format: (v: Vehicle) => v.status === "available" ? "Available" : v.status === "sold" ? "Sold" : "Sale Pending" },
 ];
 
 const Compare = () => {
