@@ -397,12 +397,12 @@ const Inventory = () => {
                     <div className="card-cinematic flex flex-col sm:flex-row group relative">
                       {/* Status badge */}
                       {car.status === "pending" && (
-                        <span className="absolute top-3 left-3 z-10 bg-amber-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                        <span className="absolute top-3 left-3 z-10 bg-amber-500 text-white text-sm font-extrabold uppercase tracking-wide px-4 py-1.5 rounded-full shadow-lg ring-2 ring-white/40">
                           Sale Pending
                         </span>
                       )}
                       {car.status === "sold" && (
-                        <span className="absolute top-3 left-3 z-10 bg-slate-700 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                        <span className="absolute top-3 left-3 z-10 bg-red-600 text-white text-sm font-extrabold uppercase tracking-wide px-4 py-1.5 rounded-full shadow-lg ring-2 ring-white/40">
                           Sold
                         </span>
                       )}

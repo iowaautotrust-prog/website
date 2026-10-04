@@ -275,6 +275,16 @@ const VehicleDetail = () => {
               {allImages[selectedImage] ? (
                 <>
                   <img src={allImages[selectedImage]} alt={car.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  {car.status === "pending" && (
+                    <span className="absolute top-4 left-4 z-10 bg-amber-500 text-white text-base font-extrabold uppercase tracking-wide px-5 py-2 rounded-full shadow-lg ring-2 ring-white/40">
+                      Sale Pending
+                    </span>
+                  )}
+                  {car.status === "sold" && (
+                    <span className="absolute top-4 left-4 z-10 bg-red-600 text-white text-base font-extrabold uppercase tracking-wide px-5 py-2 rounded-full shadow-lg ring-2 ring-white/40">
+                      Sold
+                    </span>
+                  )}
                   <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <ZoomIn className="w-4 h-4 text-foreground" />
                   </div>
@@ -336,12 +346,6 @@ const VehicleDetail = () => {
                 )}
               </div>
 
-              {car.status === "pending" && (
-                <span className="inline-block mb-3 px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">Sale Pending</span>
-              )}
-              {car.status === "sold" && (
-                <span className="inline-block mb-3 px-3 py-1 rounded-full bg-slate-200 text-slate-700 text-xs font-semibold">Sold</span>
-              )}
 
               {/* VIN */}
               {car.vin && (
