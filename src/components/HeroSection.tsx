@@ -1,7 +1,8 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useEffect, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Clock, ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react";
+import FinancingLink from "@/components/FinancingLink";
 import heroCar from "@/assets/hero-car.jpg";
 import { supabase } from "@/lib/supabase";
 import { useApp } from "@/contexts/AppContext";
@@ -312,7 +313,7 @@ const HeroSection = () => {
             <motion.p
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-overline text-primary-foreground/70 mb-5"
+              className="text-overline text-primary-foreground/70 mb-5 [@media(max-height:700px)_and_(max-width:639px)]:hidden"
             >
               Iowa Trust Motors · Johnston, Iowa
             </motion.p>
@@ -372,16 +373,22 @@ const HeroSection = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.0 }}
-              className="mt-6 flex gap-4 flex-wrap"
+              className="mt-6 flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4"
             >
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                <Link to="/inventory" className="btn-hero">Browse All Vehicles</Link>
+                <Link to="/inventory" className="btn-hero w-full sm:w-auto border-2 border-transparent [@media(max-height:700px)_and_(max-width:639px)]:py-3">Browse All Vehicles</Link>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <FinancingLink className="btn-hero w-full sm:w-auto gap-2 border-2 border-transparent bg-primary-foreground text-foreground hover:bg-primary-foreground/90 [@media(max-height:700px)_and_(max-width:639px)]:py-3">
+                  Apply for Financing
+                  <ArrowUpRight className="w-4 h-4" />
+                </FinancingLink>
               </motion.div>
               <motion.a
                 href="tel:5158098051" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                 animate={{ boxShadow: ["0 0 0px hsl(var(--primary)/0)", "0 0 16px hsl(var(--primary)/0.4)", "0 0 0px hsl(var(--primary)/0)"] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-                className="btn-hero-outline border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-foreground"
+                className="btn-hero-outline w-full sm:w-auto border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-foreground [@media(max-height:700px)_and_(max-width:639px)]:py-3"
               >
                 Call Now
               </motion.a>
@@ -390,7 +397,7 @@ const HeroSection = () => {
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 1.3 }}
-              className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1"
+              className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 [@media(max-height:700px)_and_(max-width:639px)]:hidden"
             >
               {stats.map((s, i) => (
                 <motion.div key={s} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 1.3 + i * 0.12 }}>

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin } from "lucide-react";
+import FinancingLink from "@/components/FinancingLink";
 
 const Footer = () => (
   <footer className="bg-foreground text-background">
@@ -26,17 +27,24 @@ const Footer = () => (
             {[
               { to: "/", label: "Home" },
               { to: "/inventory", label: "Browse Inventory" },
+              { to: "", label: "Apply for Financing", financing: true },
               { to: "/compare", label: "Compare Vehicles" },
               { to: "/contact", label: "Contact Us" },
               { to: "/login", label: "Sign In" },
-            ].map(({ to, label }) => (
-              <li key={to}>
-                <Link
-                  to={to}
-                  className="text-sm text-background/70 hover:text-background transition-colors"
-                >
-                  {label}
-                </Link>
+            ].map(({ to, label, financing }) => (
+              <li key={label}>
+                {financing ? (
+                  <FinancingLink className="text-sm text-background/70 hover:text-background transition-colors">
+                    {label}
+                  </FinancingLink>
+                ) : (
+                  <Link
+                    to={to}
+                    className="text-sm text-background/70 hover:text-background transition-colors"
+                  >
+                    {label}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>

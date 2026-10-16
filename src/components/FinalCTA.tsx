@@ -1,6 +1,8 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
+import { ArrowUpRight } from "lucide-react";
+import FinancingLink from "@/components/FinancingLink";
 
 const FinalCTA = () => {
   const ref = useRef(null);
@@ -39,10 +41,15 @@ const FinalCTA = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.3 }}
+          className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 max-w-sm sm:max-w-none mx-auto"
         >
-          <Link to="/inventory" className="btn-hero">
+          <Link to="/inventory" className="btn-hero border-2 border-transparent">
             Browse Collection
           </Link>
+          <FinancingLink className="btn-hero-outline gap-2">
+            Apply for Financing
+            <ArrowUpRight className="w-4 h-4" />
+          </FinancingLink>
         </motion.div>
       </div>
     </section>

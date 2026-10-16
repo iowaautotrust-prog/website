@@ -2,9 +2,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
-import { User, LayoutDashboard, GitCompare, Phone, Menu, X, Wrench } from "lucide-react";
+import { User, LayoutDashboard, GitCompare, Phone, Menu, X, Wrench, BadgeDollarSign } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import FinancingLink from "@/components/FinancingLink";
 
 const Navbar = () => {
   const { user } = useAuth();
@@ -80,7 +81,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop nav links */}
-          <div className="hidden md:flex items-center gap-7">
+          <div className="hidden lg:flex items-center gap-5 xl:gap-7">
             <Link to="/" className={linkClass}>Home</Link>
             <Link to="/inventory" className={linkClass}>Inventory</Link>
             {/* Service link — hidden until shop goes live
@@ -100,7 +101,7 @@ const Navbar = () => {
           <div className="flex items-center gap-3">
             <a
               href="tel:5158098051"
-              className={`hidden md:inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 ${
+              className={`hidden lg:inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 ${
                 transparent ? "text-white/90 hover:text-white" : "text-foreground/80 hover:text-foreground"
               }`}
             >
@@ -108,12 +109,24 @@ const Navbar = () => {
               (515) 809-8051
             </a>
 
+            <FinancingLink
+              className={`hidden lg:inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-lg transition-colors duration-200 ${
+                transparent
+                  ? "bg-white text-foreground hover:bg-white/90"
+                  : "bg-primary text-primary-foreground hover:bg-primary/90"
+              }`}
+            >
+              <BadgeDollarSign className="w-3.5 h-3.5" />
+              <span className="xl:hidden">Financing</span>
+              <span className="hidden xl:inline">Apply for Financing</span>
+            </FinancingLink>
+
             {user ? (
               <>
                 {user.isAdmin && (
                   <Link
                     to="/admin"
-                    className={`hidden md:inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 relative ${
+                    className={`hidden lg:inline-flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 relative ${
                       transparent ? "text-white/90 hover:text-white" : "text-foreground/80 hover:text-foreground"
                     }`}
                   >
@@ -142,7 +155,7 @@ const Navbar = () => {
                 className={`text-xs font-semibold px-4 py-2 rounded-lg transition-colors duration-200 ${
                   transparent
                     ? "bg-white/15 text-white border border-white/30 hover:bg-white/25"
-                    : "bg-primary text-primary-foreground hover:bg-primary/90"
+                    : "border border-border text-foreground hover:border-primary hover:text-primary"
                 }`}
               >
                 Sign In
@@ -151,7 +164,7 @@ const Navbar = () => {
 
             {/* Mobile hamburger */}
             <button
-              className={`md:hidden p-1.5 rounded-md transition-colors ${
+              className={`lg:hidden p-1.5 rounded-md transition-colors ${
                 transparent ? "text-white hover:bg-white/10" : "text-foreground hover:bg-secondary"
               }`}
               onClick={() => setMobileOpen((o) => !o)}
@@ -171,7 +184,7 @@ const Navbar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="fixed top-16 left-0 right-0 z-40 bg-background border-b border-border shadow-lg md:hidden"
+            className="fixed top-16 left-0 right-0 z-40 bg-background border-b border-border shadow-lg lg:hidden"
           >
             <div className="flex flex-col px-6 py-3">
               {[
@@ -192,6 +205,12 @@ const Navbar = () => {
                   {label}
                 </Link>
               ))}
+              <FinancingLink
+                onClick={() => setMobileOpen(false)}
+                className="mt-3 mb-1 w-full inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
+              >
+                <BadgeDollarSign className="w-4 h-4" /> Apply for Financing
+              </FinancingLink>
               <a
                 href="tel:5158098051"
                 className="py-3.5 text-sm font-medium text-primary flex items-center gap-2"

@@ -7,8 +7,9 @@ import type { Vehicle } from "@/lib/types";
 import {
   ArrowLeft, Fuel, Users, Calendar, Gauge, Check, Heart, GitCompare,
   Cog, Phone, Mail, Loader2, Share2, Copy, ChevronLeft, ChevronRight,
-  X, Tag, Fingerprint, ZoomIn,
+  X, Tag, Fingerprint, ZoomIn, Landmark, BadgeDollarSign, ArrowUpRight,
 } from "lucide-react";
+import FinancingLink from "@/components/FinancingLink";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import CompareTray from "@/components/CompareTray";
@@ -265,7 +266,7 @@ const VehicleDetail = () => {
       </div>
 
       <div className="section-padding pb-8">
-        <div className="flex flex-col md:flex-row gap-8 md:gap-12 lg:gap-16">
+        <div className="flex flex-col lg:flex-row gap-8 md:gap-12 lg:gap-16">
           {/* Gallery */}
           <motion.div className="lg:w-3/5" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
             <div
@@ -346,6 +347,16 @@ const VehicleDetail = () => {
                 )}
               </div>
 
+              <FinancingLink className="group flex items-center gap-3 mt-3 mb-5 p-3.5 rounded-xl border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary transition-colors">
+                <span className="w-10 h-10 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Landmark className="w-5 h-5 text-primary" />
+                </span>
+                <span className="flex-1 min-w-0">
+                  <span className="block text-sm font-semibold text-foreground">Apply for Financing</span>
+                  <span className="block text-xs text-muted-foreground">Apply online with Marine Credit Union</span>
+                </span>
+                <ArrowUpRight className="w-4 h-4 text-primary shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </FinancingLink>
 
               {/* VIN */}
               {car.vin && (
@@ -438,6 +449,9 @@ const VehicleDetail = () => {
                 <button onClick={() => setShowTestDrive(true)} className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-primary text-primary font-medium hover:bg-primary hover:text-primary-foreground transition-colors">
                   Schedule Test Drive
                 </button>
+                <FinancingLink className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-primary/40 bg-primary/5 text-primary font-medium hover:bg-primary hover:text-primary-foreground transition-colors">
+                  <BadgeDollarSign className="w-4 h-4" /> Apply for Financing
+                </FinancingLink>
                 <div className="grid grid-cols-2 gap-3">
                   <a href="tel:5158098051" className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
                     <Phone className="w-4 h-4" /> Call Now
