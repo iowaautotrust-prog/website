@@ -197,6 +197,14 @@ export const vehicleJsonLd = (v: SeoVehicle): Record<string, unknown> => {
   });
 };
 
+/** Responsive widths for the main photo on a vehicle page, so phones don't download the 1200px version. */
+export const GALLERY_SIZES = "(min-width: 1024px) 60vw, 100vw";
+const GALLERY_WIDTHS = [480, 800, 1200];
+export const gallerySrcSet = (url: string | null | undefined): string => {
+  if (!url || optimizeImage(url, GALLERY_WIDTHS[0]) === url) return "";
+  return GALLERY_WIDTHS.map((w) => `${optimizeImage(url, w)} ${w}w`).join(", ");
+};
+
 /**
  * Cloudinary delivery transform: automatic WebP/AVIF, automatic quality, capped width.
  * Non-Cloudinary URLs and already-transformed URLs are returned unchanged.

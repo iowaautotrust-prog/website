@@ -22,7 +22,7 @@ import { trackEvent } from "@/lib/analytics";
 import { SITE } from "@/lib/siteConfig";
 import {
   parseVehicleParam, shortId, vehiclePath, vehicleTitle, vehicleTitleTag, vehicleMetaDescription,
-  vehicleJsonLd, vehicleAlt, vehicleImages, optimizeImage, normalizeFuel,
+  vehicleJsonLd, vehicleAlt, vehicleImages, optimizeImage, normalizeFuel, gallerySrcSet, GALLERY_SIZES,
 } from "@/lib/vehicleSeo";
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
@@ -353,7 +353,7 @@ const VehicleDetail = () => {
             >
               {allImages[selectedImage] ? (
                 <>
-                  <img src={optimizeImage(allImages[selectedImage], 1200)} alt={vehicleAlt(car, selectedImage)} decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img src={optimizeImage(allImages[selectedImage], 1200)} srcSet={gallerySrcSet(allImages[selectedImage]) || undefined} sizes={GALLERY_SIZES} {...{ fetchpriority: "high" }} alt={vehicleAlt(car, selectedImage)} decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   {car.status === "pending" && (
                     <span className="absolute top-4 left-4 z-10 bg-amber-500 text-white text-base font-extrabold uppercase tracking-wide px-5 py-2 rounded-full shadow-lg ring-2 ring-white/40">
                       Sale Pending

@@ -4,9 +4,11 @@
 import { SITE, dealerJsonLd, fullAddress } from "../../../src/lib/siteConfig.ts";
 import { PAGE_META } from "../../../src/lib/pageMeta.ts";
 import {
+  GALLERY_SIZES,
   currentPrice,
   formatMiles,
   formatUsd,
+  gallerySrcSet,
   normalizeFuel,
   optimizeImage,
   vehicleAlt,
@@ -40,6 +42,8 @@ export interface HeadOptions {
   ogType?: string;
   noindex?: boolean;
   jsonLd?: unknown[];
+  /** First photo of a vehicle page: preloaded so the browser starts fetching it before the app boots. */
+  preloadImage?: { href: string; srcset: string; sizes: string };
 }
 
 const absolute = (pathOrUrl: string): string =>
@@ -75,6 +79,14 @@ export function applyHead(html: string, o: HeadOptions): string {
     `<meta name="twitter:title" content="${esc(o.title)}" />`,
     `<meta name="twitter:description" content="${esc(o.description)}" />`,
     ogImage ? `<meta name="twitter:image" content="${esc(ogImage)}" />` : "",
+    `<link rel="preconnect" href="https://res.cloudinary.com" />`,
+    o.preloadImage
+      ? `<link rel="preload" as="image" href="${esc(o.preloadImage.href)}"${
+          o.preloadImage.srcset
+            ? ` imagesrcset="${esc(o.preloadImage.srcset)}" imagesizes="${esc(o.preloadImage.sizes)}"`
+            : ""
+        } fetchpriority="high" />`
+      : "",
     ...[dealerJsonLd(), ...(o.jsonLd ?? [])].map(jsonLdScript),
   ]
     .filter(Boolean)
@@ -122,7 +134,7 @@ const vehicleLi = (v: SeoVehicle): string => {
   ].filter(Boolean);
   return `<li><a href="${esc(vehiclePath(v))}">${
     img
-      ? `<img src="${esc(optimizeImage(img, 400))}" alt="${esc(vehicleAlt(v, 0))}" loading="lazy" decoding="async" width="200" style="max-width:200px;height:auto;display:block" />`
+      ? `<img src="${esc(optimizeImage(img, 400))}" alt="${esc(vehicleAlt(v, 0))}" loading="lazy" decoding="async" width="200" height="125" style="width:200px;max-width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;display:block" />`
       : ""
   }${esc(vehicleTitle(v))}</a> &ndash; ${esc(bits.join(" \u00b7 "))}</li>`;
 };
@@ -189,7 +201,7 @@ export function vehicleContent(v: SeoVehicle): string {
       ? `<h2>Photos</h2>\n  <div>${photos
           .map(
             (p, i) =>
-              `<img src="${esc(optimizeImage(p, 800))}" alt="${esc(vehicleAlt(v, i))}" loading="lazy" decoding="async" width="400" style="max-width:100%;height:auto" />`
+              `<img src="${esc(optimizeImage(p, 800))}" alt="${esc(vehicleAlt(v, i))}" loading="lazy" decoding="async" width="400" height="250" style="max-width:100%;height:auto;aspect-ratio:16/10;object-fit:cover" />`
           )
           .join("\n")}</div>`
       : ""
@@ -253,6 +265,9 @@ export function renderVehiclePage(indexHtml: string, v: SeoVehicle): Page {
     image: first ? optimizeImage(first, 1200, { jpg: true, height: 630 }) : undefined,
     noindex: v.status === "sold" && SITE.noindexSold,
     jsonLd: [vehicleJsonLd(v)],
+    preloadImage: first
+      ? { href: optimizeImage(first, 1200), srcset: gallerySrcSet(first), sizes: GALLERY_SIZES }
+      : undefined,
   });
   return { html: injectBody(head, vehicleContent(v)), status: 200 };
 }
