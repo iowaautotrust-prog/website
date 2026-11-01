@@ -90,6 +90,12 @@ const AdminLeads = () => {
                       <p className="text-xs text-muted-foreground">
                         {new Date(l.created_at).toLocaleString()}
                       </p>
+                      {l.lead_source && (
+                        <p className="text-xs text-muted-foreground">
+                          Source: <span className="font-medium text-foreground">{l.lead_source}</span>
+                          {l.utm_campaign && ` · ${l.utm_campaign}`}
+                        </p>
+                      )}
                       <span
                         className={`inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${statusColors[l.status] ?? ""}`}
                       >

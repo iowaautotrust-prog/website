@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
-import { Phone, Mail, MapPin } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, Instagram, Star } from "lucide-react";
 import FinancingLink from "@/components/FinancingLink";
+import { fullAddress, socialLinks } from "@/lib/siteConfig";
+import { trackEvent } from "@/lib/analytics";
 
 const Footer = () => (
   <footer className="bg-foreground text-background">
@@ -59,6 +61,7 @@ const Footer = () => (
             <li>
               <a
                 href="tel:5158098051"
+                onClick={() => trackEvent("call_click", { location: "footer" })}
                 className="flex items-start gap-3 text-sm text-background/70 hover:text-background transition-colors group"
               >
                 <Phone className="w-4 h-4 mt-0.5 shrink-0 group-hover:text-primary transition-colors" />
@@ -68,6 +71,7 @@ const Footer = () => (
             <li>
               <a
                 href="mailto:sales@iowatrustmotors.com"
+                onClick={() => trackEvent("email_click", { location: "footer" })}
                 className="flex items-start gap-3 text-sm text-background/70 hover:text-background transition-colors group"
               >
                 <Mail className="w-4 h-4 mt-0.5 shrink-0 group-hover:text-primary transition-colors" />
@@ -82,9 +86,29 @@ const Footer = () => (
                 className="flex items-start gap-3 text-sm text-background/70 hover:text-background transition-colors group"
               >
                 <MapPin className="w-4 h-4 mt-0.5 shrink-0 group-hover:text-primary transition-colors" />
-                <span>IOWA</span>
+                <span>{fullAddress()}</span>
               </a>
             </li>
+            {socialLinks().map(({ label, href }) => (
+              <li key={label}>
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-3 text-sm text-background/70 hover:text-background transition-colors group"
+                >
+                  {label === "Facebook" ? (
+                    <Facebook className="w-4 h-4 mt-0.5 shrink-0 group-hover:text-primary transition-colors" />
+                  ) : label === "Instagram" ? (
+                    <Instagram className="w-4 h-4 mt-0.5 shrink-0 group-hover:text-primary transition-colors" />
+                  ) : (
+                    // lucide has no Yelp logo, so a star stands in for it
+                    <Star className="w-4 h-4 mt-0.5 shrink-0 group-hover:text-primary transition-colors" />
+                  )}
+                  <span>{label}</span>
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

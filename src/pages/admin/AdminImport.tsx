@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { normalizeFuel } from "@/lib/vehicleSeo";
 import * as XLSX from "xlsx";
 
 // CSV template columns
@@ -31,6 +32,14 @@ const TEMPLATE_COLUMNS = [
   "description",
   "features",
   "status",
+  "vin",
+  "trim",
+  "drivetrain",
+  "stock_no",
+  "title_status",
+  "exterior_color",
+  "interior_color",
+  "carfax_url",
 ];
 
 interface ParsedVehicle {
@@ -48,6 +57,14 @@ interface ParsedVehicle {
   description: string;
   features: string[];
   status: "available" | "pending" | "sold";
+  vin: string;
+  trim: string | null;
+  drivetrain: string | null;
+  stock_no: string | null;
+  title_status: "Clean" | "Rebuilt" | null;
+  exterior_color: string | null;
+  interior_color: string | null;
+  carfax_url: string | null;
 }
 
 interface ImportResult {
@@ -66,7 +83,7 @@ const downloadTemplate = () => {
       2021,
       18500,
       34000,
-      "Petrol",
+      "Gasoline",
       "Sedan",
       5,
       "1.5L Turbo",
@@ -74,6 +91,14 @@ const downloadTemplate = () => {
       "Clean one-owner vehicle with full service records.",
       "Backup Camera, Apple CarPlay, Lane Assist",
       "available",
+      "2HGFC2F69MH000000",
+      "LX",
+      "FWD",
+      "A1042",
+      "Clean",
+      "Pearl White",
+      "Black",
+      "",
     ],
   ]);
   const wb = XLSX.utils.book_new();
@@ -85,6 +110,13 @@ const parseRow = (row: Record<string, unknown>): ParsedVehicle | null => {
   const name = String(row.name ?? "").trim();
   const make = String(row.make ?? "").trim();
   if (!name || !make) return null;
+
+  // VIN is required for every vehicle (buyers ask for it; it drives the Carfax link).
+  const vin = String(row.vin ?? "").trim().toUpperCase();
+  if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) return null;
+
+  const optional = (v: unknown): string | null => String(v ?? "").trim() || null;
+  const titleRaw = String(row.title_status ?? "").trim().toLowerCase();
 
   const features = String(row.features ?? "")
     .split(",")
@@ -102,7 +134,7 @@ const parseRow = (row: Record<string, unknown>): ParsedVehicle | null => {
     year: Number(row.year) || new Date().getFullYear(),
     price: Number(row.price) || 0,
     mileage: Number(row.mileage) || 0,
-    fuel: String(row.fuel ?? "Petrol").trim(),
+    fuel: normalizeFuel(String(row.fuel ?? "").trim()) || "Gasoline",
     type: String(row.type ?? "Sedan").trim(),
     seats: Number(row.seats) || 5,
     engine: String(row.engine ?? "").trim(),
@@ -110,6 +142,14 @@ const parseRow = (row: Record<string, unknown>): ParsedVehicle | null => {
     description: String(row.description ?? "").trim(),
     features,
     status,
+    vin,
+    trim: optional(row.trim),
+    drivetrain: optional(row.drivetrain),
+    stock_no: optional(row.stock_no),
+    title_status: titleRaw === "clean" ? "Clean" : titleRaw === "rebuilt" ? "Rebuilt" : null,
+    exterior_color: optional(row.exterior_color),
+    interior_color: optional(row.interior_color),
+    carfax_url: optional(row.carfax_url),
   };
 };
 
@@ -118,6 +158,7 @@ export default function AdminImport() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [parsed, setParsed] = useState<ParsedVehicle[]>([]);
   const [parseError, setParseError] = useState<string | null>(null);
+  const [skippedNote, setSkippedNote] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -126,6 +167,7 @@ export default function AdminImport() {
 
   const handleFile = (file: File) => {
     setParseError(null);
+    setSkippedNote(null);
     setResult(null);
     setFileName(file.name);
     const reader = new FileReader();
@@ -142,11 +184,17 @@ export default function AdminImport() {
           .filter((v): v is ParsedVehicle => v !== null);
         if (vehicles.length === 0) {
           setParseError(
-            "No valid rows found. Make sure your file has the correct columns."
+            "No valid rows found. Each row needs a name, make and a valid 17-character VIN. Make sure your file has the correct columns."
           );
           setParsed([]);
           return;
         }
+        const skipped = rows.length - vehicles.length;
+        setSkippedNote(
+          skipped > 0
+            ? `${skipped} row${skipped !== 1 ? "s were" : " was"} skipped because of a missing name, make or valid 17-character VIN.`
+            : null
+        );
         setParsed(vehicles);
       } catch {
         setParseError("Could not read file. Please use the provided template.");
@@ -220,7 +268,7 @@ export default function AdminImport() {
               <p className="font-semibold mb-1">Download Template</p>
               <p className="text-sm text-muted-foreground mb-3">
                 Use our Excel template to format your data correctly. Required
-                columns: name, make, price. All others are optional.
+                columns: name, make, vin. All others are optional.
               </p>
               <Button
                 variant="outline"
@@ -283,6 +331,13 @@ export default function AdminImport() {
             <div className="flex items-start gap-3 mt-4 p-4 rounded-xl bg-destructive/10 text-destructive">
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
               <p className="text-sm">{parseError}</p>
+            </div>
+          )}
+
+          {skippedNote && parsed.length > 0 && (
+            <div className="flex items-start gap-3 mt-4 p-4 rounded-xl bg-amber-50 text-amber-700">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+              <p className="text-sm">{skippedNote}</p>
             </div>
           )}
 

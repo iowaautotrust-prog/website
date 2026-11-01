@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { supabase } from "@/lib/supabase";
+import { submitLead } from "@/lib/leads";
 import type { Vehicle, Lead, Transaction } from "@/lib/types";
 import { useAuth } from "./AuthContext";
 
@@ -322,27 +323,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const addLead = useCallback(
     async (lead: Omit<Lead, "id" | "created_at">) => {
-      await supabase.from("leads").insert({
-        ...lead,
-        user_id: user?.id ?? null,
-        created_at: new Date().toISOString(),
-      });
-
-      // Fire-and-forget email notification to admin
-      supabase.functions
-        .invoke("send-lead-notification", {
-          body: {
-            name: lead.name,
-            email: lead.email,
-            phone: lead.phone ?? null,
-            vehicleName: lead.vehicle_name ?? null,
-            message: lead.message ?? null,
-            leadType: lead.lead_type,
-          },
-        })
-        .catch(() => {
-          // Silent fail — email is best-effort, lead is already saved
-        });
+      // Saves the lead (with referrer / UTM source) and emails the dealership.
+      await submitLead(lead, user?.id ?? null);
     },
     [user]
   );

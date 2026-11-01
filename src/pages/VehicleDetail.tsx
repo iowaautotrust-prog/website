@@ -1,4 +1,4 @@
-import { useParams, Link, useLocation } from "react-router-dom";
+import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
@@ -8,6 +8,7 @@ import {
   ArrowLeft, Fuel, Users, Calendar, Gauge, Check, Heart, GitCompare,
   Cog, Phone, Mail, Loader2, Share2, Copy, ChevronLeft, ChevronRight,
   X, Tag, Fingerprint, ZoomIn, Landmark, BadgeDollarSign, ArrowUpRight,
+  Palette, ShieldCheck, Hash, Car as CarIcon,
 } from "lucide-react";
 import FinancingLink from "@/components/FinancingLink";
 import Footer from "@/components/Footer";
@@ -15,9 +16,17 @@ import Navbar from "@/components/Navbar";
 import CompareTray from "@/components/CompareTray";
 import { useState, useEffect, useCallback } from "react";
 import type { Lead } from "@/lib/types";
+import { useSeo } from "@/hooks/useSeo";
+import { submitLead } from "@/lib/leads";
+import { trackEvent } from "@/lib/analytics";
+import { SITE } from "@/lib/siteConfig";
+import {
+  parseVehicleParam, shortId, vehiclePath, vehicleTitle, vehicleTitleTag, vehicleMetaDescription,
+  vehicleJsonLd, vehicleAlt, vehicleImages, optimizeImage, normalizeFuel,
+} from "@/lib/vehicleSeo";
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
-function Lightbox({ images, index, onClose }: { images: string[]; index: number; onClose: () => void }) {
+function Lightbox({ images, index, onClose, altFor }: { images: string[]; index: number; onClose: () => void; altFor: (i: number) => string }) {
   const [current, setCurrent] = useState(index);
 
   const prev = useCallback(() => setCurrent((c) => (c - 1 + images.length) % images.length), [images.length]);
@@ -70,8 +79,8 @@ function Lightbox({ images, index, onClose }: { images: string[]; index: number;
         initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.2 }}
-        src={images[current]}
-        alt=""
+        src={optimizeImage(images[current], 1800)}
+        alt={altFor(current)}
         className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg"
         onClick={(e) => e.stopPropagation()}
       />
@@ -84,8 +93,10 @@ function Lightbox({ images, index, onClose }: { images: string[]; index: number;
 }
 
 const VehicleDetail = () => {
-  const { id } = useParams<{ id: string }>();
+  // The URL segment is either a readable slug ("2017-nissan-rogue-sv-awd-a148fbd4") or an old full id.
+  const { id: param } = useParams<{ id: string }>();
   const location = useLocation();
+  const navigate = useNavigate();
   const [car, setCar] = useState<Vehicle | null>(null);
   const [similarCars, setSimilarCars] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,40 +115,79 @@ const VehicleDetail = () => {
   const [tdDone, setTdDone] = useState(false);
   const [couponStatus, setCouponStatus] = useState<{ valid: boolean; label: string } | null>(null);
   const [checkingCoupon, setCheckingCoupon] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const { user } = useAuth();
   const { toggleFavorite, isFavorite, toggleCompare, isInCompare, addRecentView } = useApp();
 
+  // Title, description, canonical, Open Graph and Car + Offer JSON-LD for this vehicle.
+  useSeo(
+    car
+      ? {
+          title: vehicleTitleTag(car),
+          description: vehicleMetaDescription(car),
+          canonical: vehiclePath(car),
+          image: vehicleImages(car)[0]
+            ? optimizeImage(vehicleImages(car)[0], 1200, { jpg: true, height: 630 })
+            : undefined,
+          noindex: car.status === "sold" && SITE.noindexSold,
+          jsonLd: vehicleJsonLd(car),
+        }
+      : {
+          title: loading ? "Iowa Trust Motors" : "Vehicle Not Found | Iowa Trust Motors",
+          description: SITE.tagline,
+          canonical: "/inventory",
+          noindex: !loading,
+        }
+  );
+
   useEffect(() => {
-    if (!id) return;
+    if (!param) return;
+    const parsed = parseVehicleParam(param);
+    // Already showing this vehicle (we just rewrote the URL to its readable form): don't refetch.
+    if (
+      car &&
+      parsed &&
+      (parsed.kind === "uuid" ? parsed.id === car.id : parsed.prefix === shortId(car.id))
+    ) {
+      return;
+    }
+    if (!parsed) { setCar(null); setLoading(false); return; }
     setLoading(true);
 
-    supabase
-      .from("vehicles")
-      .select("*, category:categories(id,name)")
-      .eq("id", id)
-      .single()
+    let q = supabase.from("vehicles").select("*, category:categories(id,name)");
+    q = parsed.kind === "uuid"
+      ? q.eq("id", parsed.id)
+      : q.gte("id", `${parsed.prefix}-0000-0000-0000-000000000000`).lte("id", `${parsed.prefix}-ffff-ffff-ffff-ffffffffffff`);
+
+    q.limit(1)
+      .maybeSingle()
       .then(async ({ data }) => {
-        if (!data) { setLoading(false); return; }
+        if (!data) { setCar(null); setLoading(false); return; }
         const vehicle = data as Vehicle;
         setCar(vehicle);
         setLoading(false);
+        // Old /vehicle/<uuid> links (and stale slugs) move to the readable URL.
+        const canonicalPath = vehiclePath(vehicle);
+        if (location.pathname !== canonicalPath) {
+          navigate(canonicalPath + location.search, { replace: true });
+        }
         addRecentView(vehicle);
         const { data: similar } = await supabase
           .from("vehicles")
-          .select("id, name, price, mileage, year, type, image_url")
+          .select("*")
           .eq("type", vehicle.type)
           .eq("status", "available")
-          .neq("id", id)
+          .neq("id", vehicle.id)
           .gte("price", Math.max(0, vehicle.price - 15000))
           .lte("price", vehicle.price + 15000)
           .limit(4);
         setSimilarCars((similar as Vehicle[]) ?? []);
       });
-  }, [id]);
+  }, [param]);
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/vehicle/${id}`;
+    const url = `${window.location.origin}${car ? vehiclePath(car) : location.pathname}`;
     if (navigator.share) {
       await navigator.share({ title: car?.name, text: `Check out this ${car?.name} at Iowa Trust Motors`, url });
     } else {
@@ -178,6 +228,7 @@ const VehicleDetail = () => {
     e.preventDefault();
     if (inquirySubmitting) return;
     setInquirySubmitting(true);
+    setFormError(null);
     const lead: Omit<Lead, "id" | "created_at"> = {
       user_id: user?.id ?? null,
       name: inquiryForm.name,
@@ -191,7 +242,14 @@ const VehicleDetail = () => {
       lead_type: "inquiry",
       status: "new",
     };
-    await supabase.from("leads").insert({ ...lead, created_at: new Date().toISOString() });
+    try {
+      // Saves the lead with its source and emails the dealership.
+      await submitLead(lead, user?.id ?? null);
+    } catch {
+      setInquirySubmitting(false);
+      setFormError("Something went wrong. Please try again or call us.");
+      return;
+    }
     // Increment coupon used_count
     if (inquiryForm.coupon && couponStatus?.valid) {
       await supabase.rpc("increment_coupon_uses" as never, { coupon_code: inquiryForm.coupon.trim().toUpperCase() }).catch(() => null);
@@ -204,20 +262,40 @@ const VehicleDetail = () => {
     e.preventDefault();
     if (tdSubmitting) return;
     setTdSubmitting(true);
-    await supabase.from("leads").insert({
-      user_id: user?.id ?? null,
-      name: tdForm.name,
-      email: tdForm.email,
-      phone: tdForm.phone || null,
-      vehicle_id: car?.id ?? null,
-      vehicle_name: car?.name ?? null,
-      message: tdForm.preferred_date ? `Preferred date: ${tdForm.preferred_date}` : "Test drive requested.",
-      lead_type: "test_drive",
-      status: "new",
-      created_at: new Date().toISOString(),
-    });
+    setFormError(null);
+    try {
+      await submitLead(
+        {
+          user_id: user?.id ?? null,
+          name: tdForm.name,
+          email: tdForm.email,
+          phone: tdForm.phone || null,
+          vehicle_id: car?.id ?? null,
+          vehicle_name: car?.name ?? null,
+          message: tdForm.preferred_date ? `Preferred date: ${tdForm.preferred_date}` : "Test drive requested.",
+          lead_type: "test_drive",
+          status: "new",
+        },
+        user?.id ?? null
+      );
+    } catch {
+      setTdSubmitting(false);
+      setFormError("Something went wrong. Please try again or call us.");
+      return;
+    }
     setTdSubmitting(false);
     setTdDone(true);
+  };
+
+  const openInquiry = (event: "request_information_click" | "inquire_click") => {
+    trackEvent(event, { vehicle: car?.name });
+    setFormError(null);
+    setShowInquiry(true);
+  };
+  const openTestDrive = () => {
+    trackEvent("schedule_test_drive_click", { vehicle: car?.name });
+    setFormError(null);
+    setShowTestDrive(true);
   };
 
   if (loading) {
@@ -255,7 +333,7 @@ const VehicleDetail = () => {
 
       <AnimatePresence>
         {lightboxOpen && allImages.length > 0 && (
-          <Lightbox images={allImages} index={selectedImage} onClose={() => setLightboxOpen(false)} />
+          <Lightbox images={allImages} index={selectedImage} onClose={() => setLightboxOpen(false)} altFor={(i) => vehicleAlt(car, i)} />
         )}
       </AnimatePresence>
 
@@ -275,7 +353,7 @@ const VehicleDetail = () => {
             >
               {allImages[selectedImage] ? (
                 <>
-                  <img src={allImages[selectedImage]} alt={car.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img src={optimizeImage(allImages[selectedImage], 1200)} alt={vehicleAlt(car, selectedImage)} decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   {car.status === "pending" && (
                     <span className="absolute top-4 left-4 z-10 bg-amber-500 text-white text-base font-extrabold uppercase tracking-wide px-5 py-2 rounded-full shadow-lg ring-2 ring-white/40">
                       Sale Pending
@@ -311,7 +389,7 @@ const VehicleDetail = () => {
                       selectedImage === i ? "border-primary scale-105" : "border-transparent opacity-50 hover:opacity-80"
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={optimizeImage(img, 240)} alt={vehicleAlt(car, i)} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -358,16 +436,16 @@ const VehicleDetail = () => {
                 <ArrowUpRight className="w-4 h-4 text-primary shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </FinancingLink>
 
-              {/* VIN */}
-              {car.vin && (
+              {/* VIN + Carfax (a per-vehicle Carfax link, when set, replaces the default VIN lookup) */}
+              {(car.vin || car.carfax_url) && (
                 <div className="flex items-center gap-2 mb-4 p-3 rounded-xl bg-secondary/60 border border-border">
                   <Fingerprint className="w-4 h-4 text-muted-foreground shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-muted-foreground">VIN</p>
-                    <p className="text-sm font-mono font-semibold text-foreground">{car.vin}</p>
+                    <p className="text-xs text-muted-foreground">{car.vin ? "VIN" : "Vehicle history"}</p>
+                    {car.vin && <p className="text-sm font-mono font-semibold text-foreground">{car.vin}</p>}
                   </div>
                   <a
-                    href={`https://www.carfax.com/VehicleHistory/ar20/p=N6LSE0BR|${car.vin}`}
+                    href={car.carfax_url || `https://www.carfax.com/VehicleHistory/ar20/p=N6LSE0BR|${car.vin}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs font-semibold text-primary hover:underline shrink-0"
@@ -410,11 +488,17 @@ const VehicleDetail = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
                 {[
                   { icon: Gauge, label: "Mileage", value: `${car.mileage.toLocaleString()} mi` },
-                  { icon: Fuel, label: "Fuel", value: car.fuel },
+                  { icon: Fuel, label: "Fuel", value: normalizeFuel(car.fuel) },
                   { icon: Calendar, label: "Year", value: String(car.year) },
                   { icon: Users, label: "Seats", value: String(car.seats ?? "—") },
                   { icon: Cog, label: "Engine", value: car.engine ?? "—" },
                   { icon: Cog, label: "Transmission", value: car.transmission ?? "—" },
+                  // Newer fields only appear once they have a value, so older listings look the same as before.
+                  ...(car.drivetrain ? [{ icon: CarIcon, label: "Drivetrain", value: car.drivetrain }] : []),
+                  ...(car.title_status ? [{ icon: ShieldCheck, label: "Title Status", value: car.title_status }] : []),
+                  ...(car.exterior_color ? [{ icon: Palette, label: "Exterior Color", value: car.exterior_color }] : []),
+                  ...(car.interior_color ? [{ icon: Palette, label: "Interior Color", value: car.interior_color }] : []),
+                  ...(car.stock_no ? [{ icon: Hash, label: "Stock #", value: car.stock_no }] : []),
                 ].map(({ icon: Icon, label, value }) => (
                   <div key={label} className="flex items-center gap-3 p-4 rounded-xl bg-secondary">
                     <Icon className="w-5 h-5 text-primary shrink-0" />
@@ -443,20 +527,20 @@ const VehicleDetail = () => {
 
               {/* CTA */}
               <div className="space-y-3">
-                <button onClick={() => setShowInquiry(true)} className="btn-hero w-full justify-center">
+                <button onClick={() => openInquiry("request_information_click")} className="btn-hero w-full justify-center">
                   Request Information
                 </button>
-                <button onClick={() => setShowTestDrive(true)} className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-primary text-primary font-medium hover:bg-primary hover:text-primary-foreground transition-colors">
+                <button onClick={openTestDrive} className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-primary text-primary font-medium hover:bg-primary hover:text-primary-foreground transition-colors">
                   Schedule Test Drive
                 </button>
                 <FinancingLink className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-primary/40 bg-primary/5 text-primary font-medium hover:bg-primary hover:text-primary-foreground transition-colors">
                   <BadgeDollarSign className="w-4 h-4" /> Apply for Financing
                 </FinancingLink>
                 <div className="grid grid-cols-2 gap-3">
-                  <a href="tel:5158098051" className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
+                  <a href="tel:5158098051" onClick={() => trackEvent("call_click", { vehicle: car.name })} className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
                     <Phone className="w-4 h-4" /> Call Now
                   </a>
-                  <a href="mailto:sales@iowatrustmotors.com" className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
+                  <a href="mailto:sales@iowatrustmotors.com" onClick={() => trackEvent("email_click", { vehicle: car.name })} className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
                     <Mail className="w-4 h-4" /> Email Us
                   </a>
                 </div>
@@ -512,6 +596,7 @@ const VehicleDetail = () => {
                       </p>
                     )}
                   </div>
+                  {formError && <p className="text-xs text-destructive">{formError}</p>}
                   <div className="flex gap-3 pt-1">
                     <button type="button" onClick={() => setShowInquiry(false)} className="flex-1 px-4 py-2 border border-border rounded-lg text-sm">Cancel</button>
                     <button type="submit" disabled={inquirySubmitting} className="btn-hero flex-1 flex items-center justify-center gap-2">
@@ -555,6 +640,7 @@ const VehicleDetail = () => {
                     <label className="text-xs text-muted-foreground mb-1 block">Preferred Date</label>
                     <input type="date" value={tdForm.preferred_date} onChange={(e) => setTdForm((f) => ({ ...f, preferred_date: e.target.value }))} min={new Date().toISOString().split("T")[0]} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
                   </div>
+                  {formError && <p className="text-xs text-destructive">{formError}</p>}
                   <div className="flex gap-3 pt-1">
                     <button type="button" onClick={() => setShowTestDrive(false)} className="flex-1 px-4 py-2 border border-border rounded-lg text-sm">Cancel</button>
                     <button type="submit" disabled={tdSubmitting} className="btn-hero flex-1 flex items-center justify-center gap-2">
@@ -574,10 +660,10 @@ const VehicleDetail = () => {
           <h2 className="text-2xl font-bold mb-8">Similar Vehicles</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {similarCars.map((v) => (
-              <Link key={v.id} to={`/vehicle/${v.id}`} className="card-cinematic group block">
+              <Link key={v.id} to={vehiclePath(v)} className="card-cinematic group block">
                 <div className="aspect-[4/3] overflow-hidden rounded-t-xl">
                   {v.image_url ? (
-                    <img src={v.image_url} alt={v.name} className="card-image w-full h-full object-cover" loading="lazy" />
+                    <img src={optimizeImage(v.image_url, 600)} alt={vehicleAlt(v, 0)} className="card-image w-full h-full object-cover" loading="lazy" decoding="async" />
                   ) : (
                     <div className="w-full h-full bg-secondary" />
                   )}
@@ -595,10 +681,10 @@ const VehicleDetail = () => {
 
       {/* Sticky mobile CTA */}
       <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-background border-t border-border px-4 py-3 flex gap-3">
-        <a href="tel:5158098051" className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold">
+        <a href="tel:5158098051" onClick={() => trackEvent("call_click", { vehicle: car.name, location: "mobile_bar" })} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold">
           <Phone className="w-4 h-4" /> Call
         </a>
-        <button onClick={() => setShowInquiry(true)} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border border-primary text-primary text-sm font-semibold">
+        <button onClick={() => openInquiry("inquire_click")} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border border-primary text-primary text-sm font-semibold">
           <Mail className="w-4 h-4" /> Inquire
         </button>
       </div>

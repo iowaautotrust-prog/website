@@ -19,6 +19,7 @@ import {
   Eye,
 } from "lucide-react";
 import Footer from "@/components/Footer";
+import { DRIVETRAINS, FUEL_TYPES, TITLE_STATUSES, normalizeFuel } from "@/lib/vehicleSeo";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,10 +46,17 @@ type FormState = {
   transmission: string;
   description: string;
   features: string;
-  status: "available" | "pending";
+  status: "available" | "pending" | "sold";
   in_carousel: boolean;
   image_url: string;
   vin: string;
+  trim: string;
+  drivetrain: string;
+  stock_no: string;
+  title_status: string;
+  exterior_color: string;
+  interior_color: string;
+  carfax_url: string;
   discount_amount: string;
   discount_label: string;
   discount_expires: string;
@@ -62,7 +70,7 @@ const emptyForm = (): FormState => ({
   price: 0,
   mileage: 0,
   year: new Date().getFullYear(),
-  fuel: "Petrol",
+  fuel: "Gasoline",
   type: "Sedan",
   category_id: "",
   seats: 5,
@@ -74,6 +82,13 @@ const emptyForm = (): FormState => ({
   in_carousel: false,
   image_url: "",
   vin: "",
+  trim: "",
+  drivetrain: "",
+  stock_no: "",
+  title_status: "",
+  exterior_color: "",
+  interior_color: "",
+  carfax_url: "",
   discount_amount: "",
   discount_label: "",
   discount_expires: "",
@@ -148,7 +163,7 @@ const AdminInventory = () => {
       price: v.price,
       mileage: v.mileage,
       year: v.year,
-      fuel: v.fuel,
+      fuel: normalizeFuel(v.fuel) || "Gasoline",
       type: v.type,
       category_id: v.category_id ?? "",
       seats: v.seats ?? 5,
@@ -160,6 +175,13 @@ const AdminInventory = () => {
       in_carousel: v.in_carousel,
       image_url: v.image_url ?? "",
       vin: v.vin ?? "",
+      trim: v.trim ?? "",
+      drivetrain: v.drivetrain ?? "",
+      stock_no: v.stock_no ?? "",
+      title_status: v.title_status ?? "",
+      exterior_color: v.exterior_color ?? "",
+      interior_color: v.interior_color ?? "",
+      carfax_url: v.carfax_url ?? "",
       discount_amount: v.discount_amount ? String(v.discount_amount) : "",
       discount_label: v.discount_label ?? "",
       discount_expires: v.discount_expires ? v.discount_expires.split("T")[0] : "",
@@ -221,6 +243,19 @@ const AdminInventory = () => {
       setFormError("Name, Make, and Price are required.");
       return;
     }
+    const vin = form.vin.trim().toUpperCase();
+    if (!vin) {
+      setFormError("VIN is required. Buyers ask for it and it is needed for the Carfax report.");
+      return;
+    }
+    if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) {
+      setFormError("VIN must be exactly 17 characters (letters and numbers; no I, O or Q).");
+      return;
+    }
+    if (form.carfax_url.trim() && !/^https?:\/\//i.test(form.carfax_url.trim())) {
+      setFormError("Carfax link must start with https://");
+      return;
+    }
     setSaving(true);
     setFormError(null);
 
@@ -231,7 +266,14 @@ const AdminInventory = () => {
         .filter(Boolean);
 
       const extraFields = {
-        vin: form.vin.trim() || null,
+        vin,
+        trim: form.trim.trim() || null,
+        drivetrain: form.drivetrain || null,
+        stock_no: form.stock_no.trim() || null,
+        title_status: form.title_status || null,
+        exterior_color: form.exterior_color.trim() || null,
+        interior_color: form.interior_color.trim() || null,
+        carfax_url: form.carfax_url.trim() || null,
         discount_amount: form.discount_amount ? Number(form.discount_amount) : null,
         discount_label: form.discount_label.trim() || null,
         discount_expires: form.discount_expires ? new Date(form.discount_expires).toISOString() : null,
@@ -447,6 +489,18 @@ const AdminInventory = () => {
                     className="mt-1"
                   />
                 </div>
+                <div className="col-span-2">
+                  <Label>Trim</Label>
+                  <Input
+                    value={form.trim}
+                    onChange={(e) => setField("trim", e.target.value)}
+                    placeholder="SV AWD"
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Used for the page title: "{form.year} {form.make || "Make"} {form.model || "Model"} {form.trim}".
+                  </p>
+                </div>
                 <div>
                   <Label>Price ($) *</Label>
                   <Input
@@ -490,7 +544,7 @@ const AdminInventory = () => {
                     onChange={(e) => setField("fuel", e.target.value)}
                     className={`${selectClass} mt-1`}
                   >
-                    {["Petrol", "Diesel", "Hybrid", "Electric"].map((f) => (
+                    {FUEL_TYPES.map((f) => (
                       <option key={f}>{f}</option>
                     ))}
                   </select>
@@ -557,6 +611,44 @@ const AdminInventory = () => {
                     ))}
                   </select>
                 </div>
+                <div>
+                  <Label>Drivetrain</Label>
+                  <select
+                    value={form.drivetrain}
+                    onChange={(e) => setField("drivetrain", e.target.value)}
+                    className={`${selectClass} mt-1`}
+                  >
+                    <option value="">Not specified</option>
+                    {DRIVETRAINS.map((d) => (
+                      <option key={d}>{d}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <Label>Title Status</Label>
+                  <select
+                    value={form.title_status}
+                    onChange={(e) => setField("title_status", e.target.value)}
+                    className={`${selectClass} mt-1`}
+                  >
+                    <option value="">Not specified</option>
+                    {TITLE_STATUSES.map((t) => (
+                      <option key={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <Label>Exterior Color</Label>
+                  <Input value={form.exterior_color} onChange={(e) => setField("exterior_color", e.target.value)} placeholder="Pearl White" className="mt-1" />
+                </div>
+                <div>
+                  <Label>Interior Color</Label>
+                  <Input value={form.interior_color} onChange={(e) => setField("interior_color", e.target.value)} placeholder="Charcoal" className="mt-1" />
+                </div>
+                <div className="col-span-2">
+                  <Label>Stock #</Label>
+                  <Input value={form.stock_no} onChange={(e) => setField("stock_no", e.target.value)} placeholder="A1042" className="mt-1" />
+                </div>
                 <div className="col-span-2">
                   <Label>Description</Label>
                   <textarea
@@ -578,8 +670,15 @@ const AdminInventory = () => {
 
                 {/* VIN */}
                 <div className="col-span-2">
-                  <Label>VIN (Vehicle Identification Number)</Label>
+                  <Label>VIN (Vehicle Identification Number) *</Label>
                   <Input value={form.vin} onChange={(e) => setField("vin", e.target.value)} placeholder="1HGBH41JXMN109186" className="mt-1 font-mono" maxLength={17} />
+                </div>
+                <div className="col-span-2">
+                  <Label>Carfax Report Link (optional)</Label>
+                  <Input value={form.carfax_url} onChange={(e) => setField("carfax_url", e.target.value)} placeholder="https://www.carfax.com/..." className="mt-1" />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    When filled, the Carfax button on the vehicle page opens this link. When empty, it uses the VIN lookup as before.
+                  </p>
                 </div>
 
                 {/* Discount */}

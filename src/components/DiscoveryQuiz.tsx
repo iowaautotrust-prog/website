@@ -4,18 +4,16 @@ import { supabase } from "@/lib/supabase";
 import type { Vehicle } from "@/lib/types";
 import { Link } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Fuel, Users, Car, DollarSign } from "lucide-react";
+import { DEFAULT_BUDGET_OPTIONS, loadBudgetOptions, type BudgetOption } from "@/lib/quizBudget";
+import { vehiclePath, optimizeImage, normalizeFuel } from "@/lib/vehicleSeo";
 
 const steps = [
   {
     title: "What's your budget?",
     key: "budget" as const,
     icon: DollarSign,
-    options: [
-      { label: "Under $30K", value: "under30" },
-      { label: "$30K – $50K", value: "30to50" },
-      { label: "$50K – $75K", value: "50to75" },
-      { label: "$75K+", value: "over75" },
-    ],
+    // Options come from Admin → Quiz Budgets (settings table); the value is the option's index.
+    options: [] as { label: string; value: string }[],
   },
   {
     title: "What type of car?",
@@ -33,7 +31,7 @@ const steps = [
     key: "fuel" as const,
     icon: Fuel,
     options: [
-      { label: "Petrol", value: "Petrol" },
+      { label: "Gasoline", value: "Gasoline" },
       { label: "Diesel", value: "Diesel" },
       { label: "Hybrid", value: "Hybrid" },
       { label: "Any", value: "any" },
@@ -72,16 +70,28 @@ const DiscoveryQuiz = () => {
   const [answers, setAnswers] = useState<Answers>({});
   const [showResults, setShowResults] = useState(false);
   const [recommendations, setRecommendations] = useState<Vehicle[]>([]);
+  const [budgetOptions, setBudgetOptions] = useState<BudgetOption[]>(DEFAULT_BUDGET_OPTIONS);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  useEffect(() => {
+    loadBudgetOptions().then(setBudgetOptions);
+  }, []);
+
+  // Plug the editable budget options into the first step.
+  const quizSteps = steps.map((s) =>
+    s.key === "budget"
+      ? { ...s, options: budgetOptions.map((o, i) => ({ label: o.label, value: String(i) })) }
+      : s
+  );
+
   useEffect(() => {
     if (!showResults) return;
     let query = supabase.from("vehicles").select("*").eq("status", "available");
-    if (answers.budget) {
-      if (answers.budget === "under30")  query = query.lt("price", 30000);
-      if (answers.budget === "30to50")   query = query.gte("price", 30000).lte("price", 50000);
-      if (answers.budget === "50to75")   query = query.gte("price", 50000).lte("price", 75000);
-      if (answers.budget === "over75")   query = query.gt("price", 75000);
+    const budget = answers.budget !== undefined ? budgetOptions[Number(answers.budget)] : undefined;
+    if (budget) {
+      if (budget.min !== null) query = query.gte("price", budget.min);
+      if (budget.max !== null) query = query.lt("price", budget.max);
     }
     if (answers.type && answers.type !== "any") query = query.eq("type", answers.type);
     if (answers.fuel && answers.fuel !== "any") query = query.eq("fuel", answers.fuel);
@@ -95,7 +105,7 @@ const DiscoveryQuiz = () => {
   const handleSelect = (key: string, value: string) => {
     const newAnswers = { ...answers, [key]: value };
     setAnswers(newAnswers);
-    if (currentStep < steps.length - 1) {
+    if (currentStep < quizSteps.length - 1) {
       setTimeout(() => setCurrentStep(currentStep + 1), 300);
     } else {
       setTimeout(() => setShowResults(true), 300);
@@ -109,7 +119,7 @@ const DiscoveryQuiz = () => {
     setRecommendations([]);
   };
 
-  const step = steps[currentStep];
+  const step = quizSteps[currentStep];
 
   return (
     <section id="quiz" ref={ref} className="section-spacing section-padding">
@@ -127,7 +137,7 @@ const DiscoveryQuiz = () => {
       <div className="max-w-2xl mx-auto">
         {/* Progress */}
         <div className="flex gap-2 mb-12">
-          {steps.map((_, i) => (
+          {quizSteps.map((_, i) => (
             <div
               key={i}
               className={`h-1 flex-1 rounded-full transition-all duration-500 ${
@@ -188,18 +198,18 @@ const DiscoveryQuiz = () => {
                   {recommendations.map((car) => (
                     <Link
                       key={car.id}
-                      to={`/vehicle/${car.id}`}
+                      to={vehiclePath(car)}
                       className="card-cinematic flex flex-col sm:flex-row overflow-hidden group"
                     >
                       <div className="sm:w-2/5 aspect-video sm:aspect-auto overflow-hidden">
                         {car.image_url ? (
-                          <img src={car.image_url} alt={car.name} className="card-image w-full h-full object-cover" />
+                          <img src={optimizeImage(car.image_url, 800)} alt={car.name} loading="lazy" decoding="async" className="card-image w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full bg-secondary min-h-[160px]" />
                         )}
                       </div>
                       <div className="sm:w-3/5 p-6 flex flex-col justify-center">
-                        <p className="text-overline mb-2">{car.year} · {car.fuel}</p>
+                        <p className="text-overline mb-2">{car.year} · {normalizeFuel(car.fuel)}</p>
                         <h4 className="text-xl font-bold text-foreground">{car.name}</h4>
                         <p className="text-2xl font-bold text-primary mt-2">${car.price.toLocaleString()}</p>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground mt-3 group-hover:text-primary transition-colors">

@@ -1,1 +1,3 @@
+# Only the production *.netlify.app address redirects (deploy previews use other hostnames).
+https://iowaautotrust.netlify.app/* https://iowatrustmotors.com/:splat 301!
 /* /index.html 200

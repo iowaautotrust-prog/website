@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import type { Vehicle } from "@/lib/types";
 import { ArrowRight } from "lucide-react";
+import { vehiclePath, optimizeImage } from "@/lib/vehicleSeo";
 
 const InventoryPreview = () => {
   const ref = useRef(null);
@@ -43,10 +44,10 @@ const InventoryPreview = () => {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5, delay: 0.1 * i }}
           >
-            <Link to={`/vehicle/${car.id}`} className="card-cinematic block group">
+            <Link to={vehiclePath(car)} className="card-cinematic block group">
               <div className="aspect-[4/3] overflow-hidden">
                 {car.image_url ? (
-                  <img src={car.image_url} alt={car.name} className="card-image w-full h-full object-cover" />
+                  <img src={optimizeImage(car.image_url, 800)} alt={car.name} loading="lazy" decoding="async" className="card-image w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full bg-secondary/60 min-h-[200px]" />
                 )}

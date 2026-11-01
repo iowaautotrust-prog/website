@@ -7,6 +7,9 @@ import { ArrowLeft, X, Loader2, TrendingDown } from "lucide-react";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { useMemo, useState, useEffect } from "react";
+import { useSeo } from "@/hooks/useSeo";
+import { PAGE_META } from "@/lib/pageMeta";
+import { normalizeFuel, optimizeImage, vehicleAlt, vehiclePath } from "@/lib/vehicleSeo";
 
 const specRows = [
   { label: "Price", key: "price", format: (v: Vehicle) => `$${v.price.toLocaleString()}` },
@@ -14,13 +17,14 @@ const specRows = [
   { label: "Mileage", key: "mileage", format: (v: Vehicle) => `${v.mileage.toLocaleString()} mi` },
   { label: "Type", key: "type", format: (v: Vehicle) => v.type },
   { label: "Engine", key: "engine", format: (v: Vehicle) => v.engine ?? "—" },
-  { label: "Fuel", key: "fuel", format: (v: Vehicle) => v.fuel },
+  { label: "Fuel", key: "fuel", format: (v: Vehicle) => normalizeFuel(v.fuel) },
   { label: "Transmission", key: "transmission", format: (v: Vehicle) => v.transmission ?? "—" },
   { label: "Seats", key: "seats", format: (v: Vehicle) => String(v.seats ?? "—") },
   { label: "Status", key: "status", format: (v: Vehicle) => v.status === "available" ? "Available" : v.status === "sold" ? "Sold" : "Sale Pending" },
 ];
 
 const Compare = () => {
+  useSeo({ ...PAGE_META["/compare"], canonical: "/compare" });
   const { compareList, toggleCompare, clearCompare } = useApp();
   const [cars, setCars] = useState<Vehicle[]>([]);
   const [allVehicles, setAllVehicles] = useState<Vehicle[]>([]);
@@ -172,8 +176,10 @@ const Compare = () => {
                   <div className="rounded-xl overflow-hidden aspect-[4/3] mb-3">
                     {car.image_url ? (
                       <img
-                        src={car.image_url}
-                        alt={car.name}
+                        src={optimizeImage(car.image_url, 800)}
+                        alt={vehicleAlt(car, 0)}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -198,7 +204,7 @@ const Compare = () => {
                     )}
                   </p>
                   <Link
-                    to={`/vehicle/${car.id}`}
+                    to={vehiclePath(car)}
                     className="inline-block mt-3 text-xs font-medium text-primary hover:underline"
                   >
                     View Details →

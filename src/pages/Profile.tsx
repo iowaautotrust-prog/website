@@ -19,6 +19,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { vehiclePath } from "@/lib/vehicleSeo";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { RecentlyViewedStrip } from "@/components/HeroSection";
@@ -219,7 +220,7 @@ const Profile = () => {
                       className="card-cinematic flex flex-col sm:flex-row group"
                     >
                       <Link
-                        to={`/vehicle/${car.id}`}
+                        to={vehiclePath(car)}
                         className="sm:w-1/3 aspect-video sm:aspect-auto overflow-hidden"
                       >
                         {car.image_url ? (
@@ -233,7 +234,7 @@ const Profile = () => {
                         )}
                       </Link>
                       <div className="sm:w-2/3 p-6 flex items-center justify-between">
-                        <Link to={`/vehicle/${car.id}`}>
+                        <Link to={vehiclePath(car)}>
                           <p className="text-xs text-muted-foreground mb-1">
                             {car.year} · {car.type}
                           </p>
@@ -253,7 +254,7 @@ const Profile = () => {
                             <Heart className="w-5 h-5 text-destructive fill-destructive" />
                           </button>
                           <Link
-                            to={`/vehicle/${car.id}`}
+                            to={vehiclePath(car)}
                             className="flex items-center gap-1 text-sm text-primary font-medium"
                           >
                             View <ArrowRight className="w-4 h-4" />
@@ -277,7 +278,7 @@ const Profile = () => {
                 recentViews.slice(0, 10).map((car) => (
                   <Link
                     key={car.id}
-                    to={`/vehicle/${car.id}`}
+                    to={vehiclePath(car)}
                     className="card-cinematic flex flex-col sm:flex-row group"
                   >
                     <div className="sm:w-1/3 aspect-video sm:aspect-auto overflow-hidden">

@@ -15,6 +15,7 @@ import {
   UploadCloud,
   Eye,
   Loader2,
+  SlidersHorizontal,
 } from "lucide-react";
 import Footer from "@/components/Footer";
 import {
@@ -168,6 +169,7 @@ const AdminDashboard = () => {
         { label: "Leads", to: "/admin/leads", icon: MessageSquare },
         { label: "Transactions", to: "/admin/transactions", icon: DollarSign },
         { label: "Users", to: "/admin/users", icon: Users },
+        { label: "Quiz Budgets", to: "/admin/quiz", icon: SlidersHorizontal },
       ]
     : [];
 
