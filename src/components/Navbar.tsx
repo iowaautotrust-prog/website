@@ -71,12 +71,21 @@ const Navbar = () => {
         <div className="max-w-screen-2xl mx-auto px-6 md:px-12 flex items-center justify-between h-16">
 
           {/* Logo */}
-          <Link to="/" className="flex flex-col leading-none shrink-0">
-            <span className={`text-base font-bold tracking-tight transition-colors duration-200 ${transparent ? "text-white" : "text-foreground"}`}>
-              IOWA TRUST MOTORS
-            </span>
-            <span className={`text-[9px] font-medium tracking-[0.2em] uppercase transition-colors duration-200 ${transparent ? "text-white/60" : "text-muted-foreground"}`}>
-              Johnston, Iowa
+          <Link to="/" className="flex items-center gap-2 sm:gap-3 leading-none shrink-0">
+            <img
+              src="/iowa_logo_128.jpg"
+              alt="Iowa Trust Motors logo"
+              width={40}
+              height={40}
+              className="h-8 w-8 sm:h-10 sm:w-10 rounded-full object-cover"
+            />
+            <span className="flex flex-col leading-none">
+              <span className={`text-sm sm:text-base font-bold tracking-tight transition-colors duration-200 ${transparent ? "text-white" : "text-foreground"}`}>
+                IOWA TRUST MOTORS
+              </span>
+              <span className={`text-[9px] font-medium tracking-[0.2em] uppercase transition-colors duration-200 ${transparent ? "text-white/60" : "text-muted-foreground"}`}>
+                Johnston, Iowa
+              </span>
             </span>
           </Link>
 
@@ -152,7 +161,7 @@ const Navbar = () => {
             ) : (
               <Link
                 to="/login"
-                className={`text-xs font-semibold px-4 py-2 rounded-lg transition-colors duration-200 ${
+                className={`text-xs font-semibold whitespace-nowrap px-4 py-2 rounded-lg transition-colors duration-200 ${
                   transparent
                     ? "bg-white/15 text-white border border-white/30 hover:bg-white/25"
                     : "border border-border text-foreground hover:border-primary hover:text-primary"
