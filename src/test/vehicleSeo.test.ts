@@ -12,6 +12,7 @@ import {
   optimizeImage,
   currentPrice,
   vehicleAlt,
+  gallerySrcSet,
   type SeoVehicle,
 } from "@/lib/vehicleSeo";
 import { dealerJsonLd, fullAddress, socialLinks } from "@/lib/siteConfig";
@@ -117,7 +118,7 @@ describe("structured data", () => {
       "https://www.instagram.com/iowatrustmotors.ia/",
       "https://yelp.to/2z_OPRyT7B",
     ]);
-    expect(ld.geo).toBeUndefined(); // until the exact Google Maps pin is added
+    expect(ld.geo).toEqual({ "@type": "GeoCoordinates", latitude: 41.65871668274264, longitude: -93.6841880730135 });
     expect(fullAddress()).toBe("5421 NW Beaver Dr Unit 2, Johnston, IA 50131");
   });
   it("footer links skip networks without a URL (Facebook is not ready yet)", () => {
@@ -140,5 +141,14 @@ describe("misc", () => {
     expect(optimizeImage(o, 640)).toBe(o);
     expect(optimizeImage("https://example.com/a.jpg", 640)).toBe("https://example.com/a.jpg");
     expect(optimizeImage(u, 1200, { jpg: true, height: 630 })).toContain("f_jpg,q_auto,c_fill,h_630,w_1200");
+  });
+  it("gallerySrcSet offers phone-sized widths for Cloudinary photos only", () => {
+    const u = "https://res.cloudinary.com/x/image/upload/v1/a.jpg";
+    expect(gallerySrcSet(u)).toBe(
+      "https://res.cloudinary.com/x/image/upload/f_auto,q_auto,c_limit,w_480/v1/a.jpg 480w, " +
+        "https://res.cloudinary.com/x/image/upload/f_auto,q_auto,c_limit,w_800/v1/a.jpg 800w, " +
+        "https://res.cloudinary.com/x/image/upload/f_auto,q_auto,c_limit,w_1200/v1/a.jpg 1200w"
+    );
+    expect(gallerySrcSet("https://example.com/a.jpg")).toBe("");
   });
 });
