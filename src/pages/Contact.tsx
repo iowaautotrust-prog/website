@@ -10,6 +10,10 @@ import Footer from "@/components/Footer";
 import { useApp } from "@/contexts/AppContext";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Lead } from "@/lib/types";
+import { SITE, fullAddress } from "@/lib/siteConfig";
+import { useSeo } from "@/hooks/useSeo";
+import { PAGE_META } from "@/lib/pageMeta";
+import { trackEvent } from "@/lib/analytics";
 
 const contactInfo = [
   {
@@ -27,8 +31,8 @@ const contactInfo = [
   {
     icon: MapPin,
     label: "Address",
-    value: "IOWA",
-    href: "https://maps.google.com/?q=5421+NW+Beaver+Dr+Unit+2+Johnston+IA",
+    value: fullAddress(),
+    href: SITE.mapsUrl,
   },
   {
     icon: Clock,
@@ -39,6 +43,7 @@ const contactInfo = [
 ];
 
 export default function Contact() {
+  useSeo({ ...PAGE_META["/contact"], canonical: "/contact" });
   const { user } = useAuth();
   const { addLead } = useApp();
   const [form, setForm] = useState({
@@ -120,6 +125,10 @@ export default function Contact() {
                     {href ? (
                       <a
                         href={href}
+                        onClick={() => {
+                          if (href.startsWith("tel:")) trackEvent("call_click", { location: "contact" });
+                          if (href.startsWith("mailto:")) trackEvent("email_click", { location: "contact" });
+                        }}
                         target={href.startsWith("http") ? "_blank" : undefined}
                         rel="noopener noreferrer"
                         className="text-foreground hover:text-primary transition-colors font-medium whitespace-pre-line"

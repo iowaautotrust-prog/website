@@ -7,6 +7,7 @@ import heroCar from "@/assets/hero-car.jpg";
 import { supabase } from "@/lib/supabase";
 import { useApp } from "@/contexts/AppContext";
 import type { Vehicle } from "@/lib/types";
+import { vehiclePath, optimizeImage } from "@/lib/vehicleSeo";
 
 // ─── Floating Orbs ────────────────────────────────────────────────────────────
 function FloatingOrbs() {
@@ -130,7 +131,7 @@ function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
               onClick={() => isSide && goTo(i)}
             >
               {v.image_url ? (
-                <img src={v.image_url} alt={v.name} className="w-full h-full object-cover" />
+                <img src={optimizeImage(v.image_url, 1200)} alt={v.name} decoding="async" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-secondary" />
               )}
@@ -141,7 +142,7 @@ function HeroCarousel({ vehicles }: { vehicles: Vehicle[] }) {
               )}
 
               {isCenter ? (
-                <Link to={`/vehicle/${v.id}`} className="absolute inset-0 flex flex-col justify-end">
+                <Link to={vehiclePath(v)} className="absolute inset-0 flex flex-col justify-end">
                   <div className="bg-black/85 backdrop-blur-sm px-4 md:px-6 py-3 md:py-4 flex items-center justify-between gap-4">
                     <div className="min-w-0">
                       <p className="text-white/50 text-xs mb-0.5">{v.year} · {v.type}</p>
@@ -236,11 +237,11 @@ export function RecentlyViewedStrip() {
               {displayViews.map((v) => (
                 <Link
                   key={v.id}
-                  to={`/vehicle/${v.id}`}
+                  to={vehiclePath(v)}
                   className="flex-none w-44 bg-background border border-border rounded-xl overflow-hidden hover:border-primary hover:shadow-md transition-all group"
                 >
                   {v.image_url ? (
-                    <img src={v.image_url} alt={v.name} className="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <img src={optimizeImage(v.image_url, 400)} alt={v.name} loading="lazy" decoding="async" className="w-full h-24 object-cover group-hover:scale-105 transition-transform duration-300" />
                   ) : (
                     <div className="w-full h-24 bg-secondary" />
                   )}
@@ -276,7 +277,7 @@ const HeroSection = () => {
   useEffect(() => {
     supabase
       .from("vehicles")
-      .select("id, name, price, year, type, image_url")
+      .select("*")
       .eq("in_carousel", true)
       .eq("status", "available")
       .limit(7)

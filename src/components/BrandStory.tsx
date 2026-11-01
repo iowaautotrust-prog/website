@@ -120,7 +120,7 @@ const BrandStory = () => {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="heading-section mb-6"
             >
-              Luxury Meets
+              Quality Meets
               <br />Transparency
             </motion.h2>
             <motion.p
@@ -130,7 +130,7 @@ const BrandStory = () => {
               transition={{ duration: 0.5, delay: 0.4 }}
               className="text-body"
             >
-              Full vehicle history reports, transparent pricing with no hidden fees, and a seamless digital buying experience. From first click to first drive, we make every moment count.
+              Vehicle history reports available on request, transparent pricing with no hidden fees, and a seamless digital buying experience. From first click to first drive, we make every moment count.
             </motion.p>
           </div>
         </div>

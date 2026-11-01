@@ -1,6 +1,9 @@
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { fullAddress } from "@/lib/siteConfig";
+import { useSeo } from "@/hooks/useSeo";
+import { PAGE_META } from "@/lib/pageMeta";
 
 const Section = ({
   title,
@@ -25,6 +28,7 @@ const Section = ({
 );
 
 export default function Terms() {
+  useSeo({ ...PAGE_META["/terms"], canonical: "/terms" });
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -291,7 +295,7 @@ export default function Terms() {
               <p className="mt-2">
                 <strong className="text-foreground">Iowa Trust Motors</strong>
                 <br />
-                IOWA
+                {fullAddress()}
                 <br />
                 <a
                   href="mailto:sales@iowatrustmotors.com"

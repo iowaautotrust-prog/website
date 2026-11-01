@@ -19,11 +19,15 @@ import { Input } from "@/components/ui/input";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import CompareTray from "@/components/CompareTray";
+import { useSeo } from "@/hooks/useSeo";
+import { PAGE_META } from "@/lib/pageMeta";
+import { FUEL_TYPES, normalizeFuel, optimizeImage, vehicleAlt, vehiclePath } from "@/lib/vehicleSeo";
 
-const fuels = ["All", "Petrol", "Diesel", "Hybrid", "Electric"];
+const fuels = ["All", ...FUEL_TYPES];
 const transmissions = ["All", "Automatic", "Manual", "CVT", "Single-Speed"];
 
 const Inventory = () => {
+  useSeo({ ...PAGE_META["/inventory"], canonical: "/inventory" });
   const [searchParams] = useSearchParams();
   const initialSearch = searchParams.get("search") || "";
 
@@ -84,7 +88,7 @@ const Inventory = () => {
   const filtered = useMemo(() => {
     return vehicles.filter((v) => {
       if (typeFilter !== "All" && v.type !== typeFilter) return false;
-      if (fuelFilter !== "All" && v.fuel !== fuelFilter) return false;
+      if (fuelFilter !== "All" && normalizeFuel(v.fuel) !== fuelFilter) return false;
       if (yearFilter !== "All" && v.year !== parseInt(yearFilter)) return false;
       if (transFilter !== "All" && v.transmission !== transFilter) return false;
       if (makeFilter !== "All" && v.make !== makeFilter) return false;
@@ -442,13 +446,14 @@ const Inventory = () => {
                       </div>
 
                       <Link
-                        to={`/vehicle/${car.id}`}
+                        to={vehiclePath(car)}
                         className="sm:w-2/5 aspect-video sm:aspect-auto overflow-hidden"
                       >
                         {car.image_url ? (
                           <img
-                            src={car.image_url}
-                            alt={car.name}
+                            src={optimizeImage(car.image_url, 800)}
+                            alt={vehicleAlt(car, 0)}
+                            decoding="async"
                             className="card-image w-full h-full object-cover sm:h-64"
                             loading="lazy"
                           />
@@ -462,12 +467,12 @@ const Inventory = () => {
                       </Link>
 
                       <Link
-                        to={`/vehicle/${car.id}`}
+                        to={vehiclePath(car)}
                         className="sm:w-3/5 p-6 md:p-8 flex flex-col justify-between"
                       >
                         <div>
                           <p className="text-overline mb-2">
-                            {car.year} · {car.type} · {car.fuel} ·{" "}
+                            {car.year} · {car.type} · {normalizeFuel(car.fuel)} ·{" "}
                             {car.transmission}
                           </p>
                           <h3 className="text-xl md:text-2xl font-bold text-foreground">

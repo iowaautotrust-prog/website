@@ -4,8 +4,11 @@ import BrandStory from "@/components/BrandStory";
 import DiscoveryQuiz from "@/components/DiscoveryQuiz";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
+import { useSeo } from "@/hooks/useSeo";
+import { PAGE_META } from "@/lib/pageMeta";
 
 const Index = () => {
+  useSeo({ ...PAGE_META["/"], canonical: "/" });
   return (
     <div className="bg-background min-h-screen">
       <Navbar />

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import type { Vehicle } from "@/lib/types";
 import { ArrowRight, Gauge } from "lucide-react";
+import { vehiclePath, optimizeImage } from "@/lib/vehicleSeo";
 
 const FeaturedCars = () => {
   const ref = useRef(null);
@@ -45,13 +46,15 @@ const FeaturedCars = () => {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.55, delay: 0.1 * i, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
-            <Link to={`/vehicle/${car.id}`} className="block card-cinematic group h-full">
+            <Link to={vehiclePath(car)} className="block card-cinematic group h-full">
               {/* Image */}
               <div className="aspect-[4/3] overflow-hidden">
                 {car.image_url ? (
                   <img
-                    src={car.image_url}
+                    src={optimizeImage(car.image_url, 800)}
                     alt={car.name}
+                    loading="lazy"
+                    decoding="async"
                     className="card-image w-full h-full object-cover"
                   />
                 ) : (

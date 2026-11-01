@@ -1,6 +1,9 @@
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { fullAddress } from "@/lib/siteConfig";
+import { useSeo } from "@/hooks/useSeo";
+import { PAGE_META } from "@/lib/pageMeta";
 
 const Section = ({
   title,
@@ -25,6 +28,7 @@ const Section = ({
 );
 
 export default function Privacy() {
+  useSeo({ ...PAGE_META["/privacy"], canonical: "/privacy" });
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -58,7 +62,7 @@ export default function Privacy() {
               <p>
                 <strong className="text-foreground">Iowa Trust Motors</strong>
                 <br />
-                IOWA
+                {fullAddress()}
                 <br />
                 Phone: (515) 809-8051
                 <br />
@@ -293,7 +297,7 @@ export default function Privacy() {
               <p className="mt-2">
                 <strong className="text-foreground">Iowa Trust Motors</strong>
                 <br />
-                IOWA
+                {fullAddress()}
                 <br />
                 <a
                   href="mailto:sales@iowatrustmotors.com"

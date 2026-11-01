@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
+import { initAnalytics } from "@/lib/analytics";
 
 const CONSENT_KEY = "iat_cookie_consent";
 
@@ -19,6 +20,7 @@ export default function CookieBanner() {
 
   const accept = (type: "all" | "essential") => {
     localStorage.setItem(CONSENT_KEY, type);
+    if (type === "all") initAnalytics();
     setVisible(false);
   };
 

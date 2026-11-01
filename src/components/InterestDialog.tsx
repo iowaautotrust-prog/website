@@ -33,7 +33,7 @@ const InterestDialog = ({ vehicle, open, onClose }: Props) => {
       message,
       lead_type: "inquiry",
       status: "new",
-    });
+    }).catch(() => {});
     setSubmitted(true);
     setTimeout(() => { setSubmitted(false); onClose(); }, 2000);
   };

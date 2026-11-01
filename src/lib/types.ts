@@ -78,12 +78,19 @@ export interface Vehicle {
   transmission: string | null;
   description: string | null;
   features: string[] | null;
-  status: "available" | "pending";
+  status: "available" | "pending" | "sold";
   in_carousel: boolean;
   view_count: number;
   image_url: string | null;
   image_urls: string[] | null;
   vin: string | null;
+  trim?: string | null;
+  drivetrain?: string | null;
+  stock_no?: string | null;
+  title_status?: "Clean" | "Rebuilt" | null;
+  exterior_color?: string | null;
+  interior_color?: string | null;
+  carfax_url?: string | null;
   discount_amount: number | null;
   discount_label: string | null;
   discount_expires: string | null;
@@ -129,7 +136,13 @@ export interface Lead {
   lead_type: "inquiry" | "contact" | "test_drive";
   status: "new" | "contacted" | "closed";
   created_at: string;
+  lead_source?: LeadSource | null;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_campaign?: string | null;
 }
+
+export type LeadSource = "Google" | "Facebook" | "Direct" | "Other";
 
 export interface Transaction {
   id: string;
