@@ -32,7 +32,7 @@ export const SITE = {
   // Used for the dealer "image" and as the default share image. Swap for a storefront photo when there is one.
   image: "https://iowatrustmotors.com/iowa_logo.jpeg",
   // Exact pin from Google Maps (right-click the building -> first line "41.xxxx, -93.xxxx").
-  geo: null as null | { lat: number; lng: number },
+  geo: { lat: 41.65871668274264, lng: -93.6841880730135 } as null | { lat: number; lng: number },
 
   // Sold vehicle pages stay reachable (JSON-LD: SoldOut) but are kept out of
   // search results and the sitemap/feed.

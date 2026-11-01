@@ -117,7 +117,7 @@ describe("structured data", () => {
       "https://www.instagram.com/iowatrustmotors.ia/",
       "https://yelp.to/2z_OPRyT7B",
     ]);
-    expect(ld.geo).toBeUndefined(); // until the exact Google Maps pin is added
+    expect(ld.geo).toEqual({ "@type": "GeoCoordinates", latitude: 41.65871668274264, longitude: -93.6841880730135 });
     expect(fullAddress()).toBe("5421 NW Beaver Dr Unit 2, Johnston, IA 50131");
   });
   it("footer links skip networks without a URL (Facebook is not ready yet)", () => {
