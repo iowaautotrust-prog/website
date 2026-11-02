@@ -118,33 +118,19 @@ export const vehicleAlt = (v: SeoVehicle, index: number): string =>
 export const vehicleTitleTag = (v: SeoVehicle): string =>
   `${vehicleTitle(v)} for Sale in ${SITE.address.city}, ${SITE.address.region} | ${SITE.name}`;
 
-/** "$12,200 · 55,890 miles · AWD, Backup Camera, Heated Seats. Available at Iowa Trust Motors in Johnston, IA." */
+/** "2017 Nissan Rogue SV AWD - $12,200 - 55,890 miles. Inspected, financing available. Iowa Trust Motors, Johnston, IA." */
 export const vehicleMetaDescription = (v: SeoVehicle): string => {
-  const where = `${SITE.name} in ${SITE.address.city}, ${SITE.address.region}`;
-  const tail =
-    v.status === "sold"
-      ? `Sold. See our current inventory at ${where}.`
-      : v.status === "pending"
-        ? `Sale pending at ${where}.`
-        : `Available at ${where}.`;
-  const lead = [formatUsd(currentPrice(v))];
-  if (v.mileage != null) lead.push(formatMiles(v.mileage));
-  // The drivetrain is often also listed as a feature ("AWD"): say it once.
-  const seen = new Set<string>();
-  const feats = [...(v.drivetrain ? [v.drivetrain] : []), ...(v.features ?? [])].filter((f) => {
-    const k = f.trim().toLowerCase();
-    return k !== "" && !seen.has(k) && !!seen.add(k);
-  });
+  const where = `${SITE.name}, ${SITE.address.city}, ${SITE.address.region}.`;
+  const title = vehicleTitle(v);
+  if (v.status === "sold") return `${title} - Sold. See our current inventory at ${where}`;
 
-  let chosen = feats.slice(0, 3);
-  const build = () => `${[...lead, ...(chosen.length ? [chosen.join(", ")] : [])].join(" · ")}. ${tail}`;
-  let text = build();
+  const facts = [title, formatUsd(currentPrice(v))];
+  if (v.mileage != null) facts.push(formatMiles(v.mileage));
+  const head = facts.join(" - ");
+  const extra = v.status === "pending" ? "Sale pending." : "Inspected, financing available.";
+  const text = `${head}. ${extra} ${where}`;
   // Keep within ~160 characters so Google doesn't cut it off.
-  while (text.length > 160 && chosen.length > 0) {
-    chosen = chosen.slice(0, -1);
-    text = build();
-  }
-  return text;
+  return text.length <= 160 ? text : `${head}. ${where}`;
 };
 
 export const availabilityUrl = (status?: string | null): string => {

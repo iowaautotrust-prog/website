@@ -71,23 +71,26 @@ describe("meta text", () => {
   it("title tag", () => {
     expect(vehicleTitleTag(rogue)).toBe("2017 Nissan Rogue SV AWD for Sale in Johnston, IA | Iowa Trust Motors");
   });
-  it("description matches the requested pattern", () => {
-    expect(vehicleMetaDescription({ ...rogue, features: ["Backup Camera", "Heated Seats"], drivetrain: "AWD" })).toBe(
-      "$12,200 · 55,890 miles · AWD, Backup Camera, Heated Seats. Available at Iowa Trust Motors in Johnston, IA."
+  it("description matches the requested pattern: year make model, price, mileage", () => {
+    expect(vehicleMetaDescription(rogue)).toBe(
+      "2017 Nissan Rogue SV AWD - $12,200 - 55,890 miles. Inspected, financing available. Iowa Trust Motors, Johnston, IA."
     );
   });
-  it("does not repeat the drivetrain when it is also a feature", () => {
-    expect(vehicleMetaDescription({ ...rogue, drivetrain: "AWD", features: ["awd", "Backup Camera", "Heated Seats"] })).toBe(
-      "$12,200 · 55,890 miles · AWD, Backup Camera, Heated Seats. Available at Iowa Trust Motors in Johnston, IA."
+  it("leaves out mileage when unknown", () => {
+    expect(vehicleMetaDescription({ ...rogue, mileage: null })).toBe(
+      "2017 Nissan Rogue SV AWD - $12,200. Inspected, financing available. Iowa Trust Motors, Johnston, IA."
     );
   });
   it("stays under ~160 chars", () => {
-    const long = vehicleMetaDescription({ ...rogue, features: ["A very long feature name here", "Another long feature name", "Third long feature"] });
+    const long = vehicleMetaDescription({ ...rogue, model: "Rogue Sport Platinum Reserve Edition", trim: "Premium Technology Package" });
     expect(long.length).toBeLessThanOrEqual(160);
+    expect(long).toContain("$12,200");
   });
   it("reflects pending / sold", () => {
-    expect(vehicleMetaDescription({ ...rogue, status: "pending" })).toContain("Sale pending");
-    expect(vehicleMetaDescription({ ...rogue, status: "sold" })).toContain("Sold.");
+    expect(vehicleMetaDescription({ ...rogue, status: "pending" })).toContain("Sale pending.");
+    const sold = vehicleMetaDescription({ ...rogue, status: "sold" });
+    expect(sold).toContain("Sold.");
+    expect(sold).not.toContain("financing");
   });
 });
 
