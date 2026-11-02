@@ -17,6 +17,7 @@ import {
 } from "@/lib/vehicleSeo";
 import { dealerJsonLd, fullAddress, socialLinks } from "@/lib/siteConfig";
 import { renderVehiclePage } from "../../netlify/edge-functions/_lib/html.ts";
+import { matchesParam } from "@/lib/vehicleBootstrap";
 
 const rogue: SeoVehicle = {
   id: "a148fbd4-1111-4222-8333-444455556666",
@@ -72,6 +73,11 @@ describe("meta text", () => {
   });
   it("description matches the requested pattern", () => {
     expect(vehicleMetaDescription({ ...rogue, features: ["Backup Camera", "Heated Seats"], drivetrain: "AWD" })).toBe(
+      "$12,200 · 55,890 miles · AWD, Backup Camera, Heated Seats. Available at Iowa Trust Motors in Johnston, IA."
+    );
+  });
+  it("does not repeat the drivetrain when it is also a feature", () => {
+    expect(vehicleMetaDescription({ ...rogue, drivetrain: "AWD", features: ["awd", "Backup Camera", "Heated Seats"] })).toBe(
       "$12,200 · 55,890 miles · AWD, Backup Camera, Heated Seats. Available at Iowa Trust Motors in Johnston, IA."
     );
   });
@@ -132,6 +138,24 @@ describe("server-rendered vehicle page", () => {
   it("carries the as-is notice, in the HTML before any JavaScript runs", () => {
     const { html } = renderVehiclePage(shell, rogue);
     expect(html).toContain("Sold AS-IS – No dealer warranty.");
+  });
+  it("embeds the vehicle for the page's first render, safely", () => {
+    const nasty = { ...rogue, description: 'try </script><script>alert(1)</script> & "quotes"' };
+    const { html } = renderVehiclePage(shell, nasty);
+    const m = /<script type="application\/json" id="vehicle-bootstrap">([\s\S]*?)<\/script>/.exec(html);
+    expect(m).not.toBeNull();
+    expect(m![1]).not.toContain("</script>");
+    expect(JSON.parse(m![1])).toEqual(nasty);
+    expect(html.indexOf("vehicle-bootstrap")).toBeGreaterThan(html.indexOf('id="root"'));
+  });
+});
+
+describe("vehicle bootstrap matching", () => {
+  it("matches the slug and the old uuid of the same vehicle, and nothing else", () => {
+    expect(matchesParam(rogue, "2017-nissan-rogue-sv-awd-a148fbd4")).toBe(true);
+    expect(matchesParam(rogue, rogue.id)).toBe(true);
+    expect(matchesParam(rogue, "2020-ford-fusion-se-1aa948ec")).toBe(false);
+    expect(matchesParam(rogue, undefined)).toBe(false);
   });
 });
 

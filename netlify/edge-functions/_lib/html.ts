@@ -270,7 +270,11 @@ export function renderVehiclePage(indexHtml: string, v: SeoVehicle): Page {
       ? { href: optimizeImage(first, 1200), srcset: gallerySrcSet(first), sizes: GALLERY_SIZES }
       : undefined,
   });
-  return { html: injectBody(head, vehicleContent(v)), status: 200 };
+  const html = injectBody(head, vehicleContent(v)).replace(
+    /<\/body>/i,
+    () => `<script type="application/json" id="vehicle-bootstrap">${JSON.stringify(v).replace(/</g, "\\u003c")}</script>\n  </body>`
+  );
+  return { html, status: 200 };
 }
 
 export function renderNotFound(indexHtml: string): Page {

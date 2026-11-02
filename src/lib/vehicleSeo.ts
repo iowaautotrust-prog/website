@@ -129,7 +129,12 @@ export const vehicleMetaDescription = (v: SeoVehicle): string => {
         : `Available at ${where}.`;
   const lead = [formatUsd(currentPrice(v))];
   if (v.mileage != null) lead.push(formatMiles(v.mileage));
-  const feats = [...(v.drivetrain ? [v.drivetrain] : []), ...(v.features ?? [])];
+  // The drivetrain is often also listed as a feature ("AWD"): say it once.
+  const seen = new Set<string>();
+  const feats = [...(v.drivetrain ? [v.drivetrain] : []), ...(v.features ?? [])].filter((f) => {
+    const k = f.trim().toLowerCase();
+    return k !== "" && !seen.has(k) && !!seen.add(k);
+  });
 
   let chosen = feats.slice(0, 3);
   const build = () => `${[...lead, ...(chosen.length ? [chosen.join(", ")] : [])].join(" · ")}. ${tail}`;

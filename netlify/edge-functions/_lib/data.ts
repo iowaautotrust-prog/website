@@ -43,10 +43,12 @@ export async function listVehicles(): Promise<SeoVehicle[]> {
 export async function findVehicle(segment: string): Promise<SeoVehicle | null> {
   const parsed = parseVehicleParam(segment);
   if (!parsed) return null;
+  // Same select as the vehicle page itself (category join included), so the row can be embedded as-is.
+  const select = "*,category:categories(id,name)";
   const q =
     parsed.kind === "uuid"
-      ? `vehicles?select=*&id=eq.${parsed.id}&limit=1`
-      : `vehicles?select=*&${shortIdFilter(parsed.prefix)}&limit=1`;
+      ? `vehicles?select=${select}&id=eq.${parsed.id}&limit=1`
+      : `vehicles?select=${select}&${shortIdFilter(parsed.prefix)}&limit=1`;
   const rows = await rest<SeoVehicle[]>(q);
   return rows[0] ?? null;
 }
