@@ -185,6 +185,7 @@ export function vehicleContent(v: SeoVehicle): string {
   <p><a href="/inventory">&larr; Back to Inventory</a></p>
   <h1>${esc(vehicleTitle(v))}</h1>
   <p><strong>${esc(formatUsd(currentPrice(v)))}</strong> &middot; ${esc(statusLabel(v))}</p>
+  <p>${esc(SITE.asIsNotice)}</p>
   <h2>Vehicle details</h2>
   <ul>${specs
     .filter(([, val]) => val !== null && val !== undefined && val !== "")

@@ -11,6 +11,11 @@ const ADMIN_EMAILS = (Deno.env.get("LEAD_NOTIFY_EMAILS") ?? "sales@iowatrustmoto
   .split(",")
   .map((e) => e.trim())
   .filter(Boolean);
+// The sender must be on a domain that is verified in Resend, otherwise Resend refuses to send.
+// Set the LEAD_FROM_EMAIL secret to change it without a code change,
+// e.g. LEAD_FROM_EMAIL="Iowa Trust Motors <notifications@your-verified-domain.com>"
+const FROM_EMAIL =
+  Deno.env.get("LEAD_FROM_EMAIL") ?? "Iowa Trust Motors <notifications@iowatrustmotors.com>";
 const SITE_URL = "https://iowatrustmotors.com";
 
 const corsHeaders = {
@@ -104,7 +109,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Iowa Trust Motors <notifications@iowatrustmotors.com>",
+        from: FROM_EMAIL,
         to: ADMIN_EMAILS,
         reply_to: typeof email === "string" && email.includes("@") ? email : undefined,
         subject: `New ${typeLabel} from ${String(name ?? "").replace(/[\r\n]+/g, " ").slice(0, 80)}`,

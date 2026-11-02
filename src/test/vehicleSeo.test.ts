@@ -16,6 +16,7 @@ import {
   type SeoVehicle,
 } from "@/lib/vehicleSeo";
 import { dealerJsonLd, fullAddress, socialLinks } from "@/lib/siteConfig";
+import { renderVehiclePage } from "../../netlify/edge-functions/_lib/html.ts";
 
 const rogue: SeoVehicle = {
   id: "a148fbd4-1111-4222-8333-444455556666",
@@ -123,6 +124,14 @@ describe("structured data", () => {
   });
   it("footer links skip networks without a URL (Facebook is not ready yet)", () => {
     expect(socialLinks().map((s) => s.label)).toEqual(["Instagram", "Yelp"]);
+  });
+});
+
+describe("server-rendered vehicle page", () => {
+  const shell = '<html><head><title>x</title></head><body><div id="root"></div></body></html>';
+  it("carries the as-is notice, in the HTML before any JavaScript runs", () => {
+    const { html } = renderVehiclePage(shell, rogue);
+    expect(html).toContain("Sold AS-IS – No dealer warranty.");
   });
 });
 

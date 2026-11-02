@@ -423,6 +423,7 @@ const VehicleDetail = () => {
                 ) : (
                   <p className="text-4xl font-bold text-primary">${car.price.toLocaleString()}</p>
                 )}
+                <p className="mt-2 text-sm font-medium text-muted-foreground">{SITE.asIsNotice}</p>
               </div>
 
               <FinancingLink className="group flex items-center gap-3 mt-3 mb-5 p-3.5 rounded-xl border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary transition-colors">
