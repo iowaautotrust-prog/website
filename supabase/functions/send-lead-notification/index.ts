@@ -1,16 +1,23 @@
 // Supabase Edge Function: send-lead-notification
 // Sends an email to the admin whenever a new lead is submitted (contact form, request
 // information, test drive, interest dialog).
-// Requires RESEND_API_KEY set via: supabase secrets set RESEND_API_KEY=re_...
+// Requires LEAD_RESEND_API_KEY (or RESEND_API_KEY) set via: supabase secrets set LEAD_RESEND_API_KEY=re_...
 // Optional: LEAD_NOTIFY_EMAILS="a@x.com,b@y.com" to change/add recipients without a code change.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+// LEAD_RESEND_API_KEY lets lead alerts use their own Resend account without touching the key
+// the other functions (invoices, appointments) use. Falls back to the shared RESEND_API_KEY.
+const RESEND_API_KEY = Deno.env.get("LEAD_RESEND_API_KEY") ?? Deno.env.get("RESEND_API_KEY");
 const ADMIN_EMAILS = (Deno.env.get("LEAD_NOTIFY_EMAILS") ?? "sales@iowatrustmotors.com")
   .split(",")
   .map((e) => e.trim())
   .filter(Boolean);
+// The sender must be on a domain that is verified in Resend, otherwise Resend refuses to send.
+// Set the LEAD_FROM_EMAIL secret to change it without a code change,
+// e.g. LEAD_FROM_EMAIL="Iowa Trust Motors <notifications@your-verified-domain.com>"
+const FROM_EMAIL =
+  Deno.env.get("LEAD_FROM_EMAIL") ?? "Iowa Trust Motors <notifications@iowatrustmotors.com>";
 const SITE_URL = "https://iowatrustmotors.com";
 
 const corsHeaders = {
@@ -104,7 +111,7 @@ serve(async (req) => {
         Authorization: `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Iowa Trust Motors <notifications@iowatrustmotors.com>",
+        from: FROM_EMAIL,
         to: ADMIN_EMAILS,
         reply_to: typeof email === "string" && email.includes("@") ? email : undefined,
         subject: `New ${typeLabel} from ${String(name ?? "").replace(/[\r\n]+/g, " ").slice(0, 80)}`,

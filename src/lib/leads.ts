@@ -36,5 +36,8 @@ export async function submitLead(lead: NewLead, userId?: string | null): Promise
         leadSource: attribution.lead_source,
       },
     })
+    .then(({ error }) => {
+      if (error) console.warn("Lead saved, but the notification email failed:", error.message);
+    })
     .catch(() => {});
 }

@@ -20,6 +20,8 @@ export const SITE = {
   mapsUrl: "https://maps.google.com/?q=5421+NW+Beaver+Dr+Unit+2+Johnston+IA",
   hoursLabel: "Mon-Sat: 9am - 5pm",
   tagline: "Curated pre-owned vehicles in Johnston, Iowa. Every car inspected, priced right, and ready to drive.",
+  // Shown on every vehicle page, right under the price.
+  asIsNotice: "Sold AS-IS – No dealer warranty.",
 
   // Empty values are simply left out of the footer and the structured data.
   social: {

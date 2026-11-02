@@ -14,7 +14,8 @@ import FinancingLink from "@/components/FinancingLink";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import CompareTray from "@/components/CompareTray";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { peekVehicleBootstrap, clearVehicleBootstrap, matchesParam } from "@/lib/vehicleBootstrap";
 import type { Lead } from "@/lib/types";
 import { useSeo } from "@/hooks/useSeo";
 import { submitLead } from "@/lib/leads";
@@ -97,9 +98,11 @@ const VehicleDetail = () => {
   const { id: param } = useParams<{ id: string }>();
   const location = useLocation();
   const navigate = useNavigate();
-  const [car, setCar] = useState<Vehicle | null>(null);
+  // First visit straight onto this page: the server embedded the vehicle in the HTML, so show it immediately.
+  const [car, setCar] = useState<Vehicle | null>(() => peekVehicleBootstrap(param));
   const [similarCars, setSimilarCars] = useState<Vehicle[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(car === null);
+  const afterLoadDone = useRef<string | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -144,12 +147,32 @@ const VehicleDetail = () => {
   useEffect(() => {
     if (!param) return;
     const parsed = parseVehicleParam(param);
-    // Already showing this vehicle (we just rewrote the URL to its readable form): don't refetch.
-    if (
-      car &&
-      parsed &&
-      (parsed.kind === "uuid" ? parsed.id === car.id : parsed.prefix === shortId(car.id))
-    ) {
+
+    // Everything that follows a successful load: canonical URL, recently viewed, similar vehicles.
+    const afterLoad = async (vehicle: Vehicle) => {
+      afterLoadDone.current = vehicle.id;
+      clearVehicleBootstrap();
+      // Old /vehicle/<uuid> links (and stale slugs) move to the readable URL.
+      const canonicalPath = vehiclePath(vehicle);
+      if (location.pathname !== canonicalPath) {
+        navigate(canonicalPath + location.search, { replace: true });
+      }
+      addRecentView(vehicle);
+      const { data: similar } = await supabase
+        .from("vehicles")
+        .select("*")
+        .eq("type", vehicle.type)
+        .eq("status", "available")
+        .neq("id", vehicle.id)
+        .gte("price", Math.max(0, vehicle.price - 15000))
+        .lte("price", vehicle.price + 15000)
+        .limit(4);
+      setSimilarCars((similar as Vehicle[]) ?? []);
+    };
+
+    // Already showing this vehicle (from the server-embedded copy, or we just rewrote the URL): don't refetch.
+    if (car && matchesParam(car, param)) {
+      if (afterLoadDone.current !== car.id) void afterLoad(car);
       return;
     }
     if (!parsed) { setCar(null); setLoading(false); return; }
@@ -167,22 +190,7 @@ const VehicleDetail = () => {
         const vehicle = data as Vehicle;
         setCar(vehicle);
         setLoading(false);
-        // Old /vehicle/<uuid> links (and stale slugs) move to the readable URL.
-        const canonicalPath = vehiclePath(vehicle);
-        if (location.pathname !== canonicalPath) {
-          navigate(canonicalPath + location.search, { replace: true });
-        }
-        addRecentView(vehicle);
-        const { data: similar } = await supabase
-          .from("vehicles")
-          .select("*")
-          .eq("type", vehicle.type)
-          .eq("status", "available")
-          .neq("id", vehicle.id)
-          .gte("price", Math.max(0, vehicle.price - 15000))
-          .lte("price", vehicle.price + 15000)
-          .limit(4);
-        setSimilarCars((similar as Vehicle[]) ?? []);
+        await afterLoad(vehicle);
       });
   }, [param]);
 
@@ -423,6 +431,7 @@ const VehicleDetail = () => {
                 ) : (
                   <p className="text-4xl font-bold text-primary">${car.price.toLocaleString()}</p>
                 )}
+                <p className="mt-2 text-sm font-medium text-muted-foreground">{SITE.asIsNotice}</p>
               </div>
 
               <FinancingLink className="group flex items-center gap-3 mt-3 mb-5 p-3.5 rounded-xl border border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary transition-colors">

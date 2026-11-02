@@ -16,6 +16,8 @@ import {
   type SeoVehicle,
 } from "@/lib/vehicleSeo";
 import { dealerJsonLd, fullAddress, socialLinks } from "@/lib/siteConfig";
+import { renderVehiclePage } from "../../netlify/edge-functions/_lib/html.ts";
+import { matchesParam } from "@/lib/vehicleBootstrap";
 
 const rogue: SeoVehicle = {
   id: "a148fbd4-1111-4222-8333-444455556666",
@@ -69,18 +71,26 @@ describe("meta text", () => {
   it("title tag", () => {
     expect(vehicleTitleTag(rogue)).toBe("2017 Nissan Rogue SV AWD for Sale in Johnston, IA | Iowa Trust Motors");
   });
-  it("description matches the requested pattern", () => {
-    expect(vehicleMetaDescription({ ...rogue, features: ["Backup Camera", "Heated Seats"], drivetrain: "AWD" })).toBe(
-      "$12,200 · 55,890 miles · AWD, Backup Camera, Heated Seats. Available at Iowa Trust Motors in Johnston, IA."
+  it("description matches the requested pattern: year make model, price, mileage", () => {
+    expect(vehicleMetaDescription(rogue)).toBe(
+      "2017 Nissan Rogue SV AWD - $12,200 - 55,890 miles. Inspected, financing available. Iowa Trust Motors, Johnston, IA."
+    );
+  });
+  it("leaves out mileage when unknown", () => {
+    expect(vehicleMetaDescription({ ...rogue, mileage: null })).toBe(
+      "2017 Nissan Rogue SV AWD - $12,200. Inspected, financing available. Iowa Trust Motors, Johnston, IA."
     );
   });
   it("stays under ~160 chars", () => {
-    const long = vehicleMetaDescription({ ...rogue, features: ["A very long feature name here", "Another long feature name", "Third long feature"] });
+    const long = vehicleMetaDescription({ ...rogue, model: "Rogue Sport Platinum Reserve Edition", trim: "Premium Technology Package" });
     expect(long.length).toBeLessThanOrEqual(160);
+    expect(long).toContain("$12,200");
   });
   it("reflects pending / sold", () => {
-    expect(vehicleMetaDescription({ ...rogue, status: "pending" })).toContain("Sale pending");
-    expect(vehicleMetaDescription({ ...rogue, status: "sold" })).toContain("Sold.");
+    expect(vehicleMetaDescription({ ...rogue, status: "pending" })).toContain("Sale pending.");
+    const sold = vehicleMetaDescription({ ...rogue, status: "sold" });
+    expect(sold).toContain("Sold.");
+    expect(sold).not.toContain("financing");
   });
 });
 
@@ -123,6 +133,32 @@ describe("structured data", () => {
   });
   it("footer links skip networks without a URL (Facebook is not ready yet)", () => {
     expect(socialLinks().map((s) => s.label)).toEqual(["Instagram", "Yelp"]);
+  });
+});
+
+describe("server-rendered vehicle page", () => {
+  const shell = '<html><head><title>x</title></head><body><div id="root"></div></body></html>';
+  it("carries the as-is notice, in the HTML before any JavaScript runs", () => {
+    const { html } = renderVehiclePage(shell, rogue);
+    expect(html).toContain("Sold AS-IS – No dealer warranty.");
+  });
+  it("embeds the vehicle for the page's first render, safely", () => {
+    const nasty = { ...rogue, description: 'try </script><script>alert(1)</script> & "quotes"' };
+    const { html } = renderVehiclePage(shell, nasty);
+    const m = /<script type="application\/json" id="vehicle-bootstrap">([\s\S]*?)<\/script>/.exec(html);
+    expect(m).not.toBeNull();
+    expect(m![1]).not.toContain("</script>");
+    expect(JSON.parse(m![1])).toEqual(nasty);
+    expect(html.indexOf("vehicle-bootstrap")).toBeGreaterThan(html.indexOf('id="root"'));
+  });
+});
+
+describe("vehicle bootstrap matching", () => {
+  it("matches the slug and the old uuid of the same vehicle, and nothing else", () => {
+    expect(matchesParam(rogue, "2017-nissan-rogue-sv-awd-a148fbd4")).toBe(true);
+    expect(matchesParam(rogue, rogue.id)).toBe(true);
+    expect(matchesParam(rogue, "2020-ford-fusion-se-1aa948ec")).toBe(false);
+    expect(matchesParam(rogue, undefined)).toBe(false);
   });
 });
 

@@ -25,6 +25,7 @@ import { FUEL_TYPES, normalizeFuel, optimizeImage, vehicleAlt, vehiclePath } fro
 
 const fuels = ["All", ...FUEL_TYPES];
 const transmissions = ["All", "Automatic", "Manual", "CVT", "Single-Speed"];
+const statusRank = (s: Vehicle["status"]) => (s === "sold" ? 2 : s === "pending" ? 1 : 0);
 
 const Inventory = () => {
   useSeo({ ...PAGE_META["/inventory"], canonical: "/inventory" });
@@ -105,7 +106,9 @@ const Inventory = () => {
           return false;
       }
       return true;
-    });
+    })
+      // Available first, then sale pending, then sold (the sort is stable: newest stays first within each group).
+      .sort((a, b) => statusRank(a.status) - statusRank(b.status));
   }, [
     vehicles,
     typeFilter,
