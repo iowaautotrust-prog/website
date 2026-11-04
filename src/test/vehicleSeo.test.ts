@@ -142,6 +142,14 @@ describe("server-rendered vehicle page", () => {
     const { html } = renderVehiclePage(shell, rogue);
     expect(html).toContain("Sold AS-IS – No dealer warranty.");
   });
+  it("keeps the crawler text visually hidden, so visitors never see an unstyled flash", () => {
+    const { html } = renderVehiclePage(shell, rogue);
+    const tag = /<div id="ssr-content" style="([^"]*)">/.exec(html);
+    expect(tag).not.toBeNull();
+    expect(tag![1]).toContain("clip:rect(0,0,0,0)");
+    expect(tag![1]).toContain("width:1px");
+    expect(tag![1]).not.toContain("display:none");
+  });
   it("embeds the vehicle for the page's first render, safely", () => {
     const nasty = { ...rogue, description: 'try </script><script>alert(1)</script> & "quotes"' };
     const { html } = renderVehiclePage(shell, nasty);

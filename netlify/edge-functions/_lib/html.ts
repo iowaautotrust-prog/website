@@ -102,7 +102,10 @@ export function injectBody(html: string, content: string): string {
 
 // ─── Body content ───────────────────────────────────────────────────────────────
 
-const WRAP_STYLE = "max-width:72rem;margin:0 auto;padding:6rem 1.5rem 3rem;line-height:1.6";
+// This markup is for crawlers and screen readers. Visitors must never see it, otherwise the unstyled
+// text flashes on screen until the app loads and replaces it. Visually hidden, not display:none.
+const WRAP_STYLE =
+  "position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap";
 
 const statusLabel = (v: SeoVehicle): string =>
   v.status === "sold" ? "Sold" : v.status === "pending" ? "Sale Pending" : "Available";
