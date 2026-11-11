@@ -2,12 +2,24 @@ import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Facebook, Instagram, Star, Clock } from "lucide-react";
 import FinancingLink from "@/components/FinancingLink";
 import { SITE, fullAddress, socialLinks } from "@/lib/siteConfig";
+import { ABOUT_LINKS, BROWSE_LINKS } from "@/lib/pageContent";
 import { trackEvent } from "@/lib/analytics";
+
+const QUICK_LINKS: { to: string; label: string; financing?: boolean }[] = [
+  { to: "/", label: "Home" },
+  { to: "/inventory", label: "Browse Inventory" },
+  { to: "", label: "Apply for Financing", financing: true },
+  { to: "/compare", label: "Compare Vehicles" },
+  ...ABOUT_LINKS,
+  { to: "/faq", label: "FAQ" },
+  { to: "/contact", label: "Contact Us" },
+  { to: "/login", label: "Sign In" },
+];
 
 const Footer = () => (
   <footer className="bg-foreground text-background">
     <div className="section-padding py-16">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         {/* Brand */}
         <div>
           <p className="text-xl font-bold tracking-tight mb-1">IOWA TRUST MOTORS</p>
@@ -26,14 +38,7 @@ const Footer = () => (
             Quick Links
           </p>
           <ul className="space-y-3">
-            {[
-              { to: "/", label: "Home" },
-              { to: "/inventory", label: "Browse Inventory" },
-              { to: "", label: "Apply for Financing", financing: true },
-              { to: "/compare", label: "Compare Vehicles" },
-              { to: "/contact", label: "Contact Us" },
-              { to: "/login", label: "Sign In" },
-            ].map(({ to, label, financing }) => (
+            {QUICK_LINKS.map(({ to, label, financing }) => (
               <li key={label}>
                 {financing ? (
                   <FinancingLink className="text-sm text-background/70 hover:text-background transition-colors">
@@ -47,6 +52,22 @@ const Footer = () => (
                     {label}
                   </Link>
                 )}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Browse by category / city */}
+        <div>
+          <p className="text-xs font-semibold tracking-[0.15em] uppercase text-background/65 mb-5">
+            Browse By
+          </p>
+          <ul className="space-y-3">
+            {BROWSE_LINKS.map(({ to, label }) => (
+              <li key={to}>
+                <Link to={to} className="text-sm text-background/70 hover:text-background transition-colors">
+                  {label}
+                </Link>
               </li>
             ))}
           </ul>

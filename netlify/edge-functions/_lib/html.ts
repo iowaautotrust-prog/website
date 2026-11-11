@@ -3,6 +3,7 @@
 
 import { SITE, dealerJsonLd, fullAddress, HOMEPAGE_FAQ, faqJsonLd } from "../../../src/lib/siteConfig.ts";
 import { PAGE_META } from "../../../src/lib/pageMeta.ts";
+import { ABOUT_PARAGRAPHS, AREAS, AREAS_INTRO, HOW_WE_WORK_STEPS } from "../../../src/lib/pageContent.ts";
 import {
   GALLERY_SIZES,
   currentPrice,
@@ -110,7 +111,7 @@ const WRAP_STYLE =
   "position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap";
 
 const siteNav = (): string =>
-  `<nav aria-label="Main"><a href="/">Home</a> | <a href="/inventory">Browse Inventory</a> | <a href="/compare">Compare Vehicles</a> | <a href="/contact">Contact Us</a></nav>`;
+  `<nav aria-label="Main"><a href="/">Home</a> | <a href="/inventory">Browse Inventory</a> | <a href="/about">About Iowa Trust Motors</a> | <a href="/how-we-work">How We Work</a> | <a href="/areas-we-serve">Areas We Serve</a> | <a href="/faq">FAQ</a> | <a href="/compare">Compare Vehicles</a> | <a href="/contact">Contact Us</a></nav>`;
 
 const siteFooter = (): string => {
   const a = SITE.address;
@@ -228,6 +229,35 @@ export function contactContent(): string {
   </ul>`);
 }
 
+export function aboutContent(): string {
+  return shell(`
+  <h1>About ${esc(SITE.name)}</h1>
+  ${ABOUT_PARAGRAPHS.map((p) => `<p>${esc(p)}</p>`).join("\n  ")}
+  <p><a href="/how-we-work">How we work</a> | <a href="/areas-we-serve">Areas we serve</a> | <a href="/rebuilt-title-cars">Rebuilt title cars</a> | <a href="/faq">FAQ</a></p>`);
+}
+
+export function howWeWorkContent(): string {
+  return shell(`
+  <h1>How We Work</h1>
+  <ol>${HOW_WE_WORK_STEPS.map((s) => `<li><strong>${esc(s.title)}</strong> &ndash; ${esc(s.body)}</li>`).join("\n")}</ol>
+  <p><a href="/financing">Financing</a> | <a href="/about">About us</a> | <a href="/inventory">Browse inventory</a></p>`);
+}
+
+export function areasContent(): string {
+  return shell(`
+  <h1>Serving Johnston and the Des Moines Metro</h1>
+  <p>${esc(AREAS_INTRO)}</p>
+  <ul>${AREAS.map((a) => `<li>${a.to ? `<a href="${esc(a.to)}">${esc(a.name)}</a>` : esc(a.name)}</li>`).join("")}</ul>
+  <p>Hours: ${esc(SITE.hoursLabel)}. Call or text: <a href="${esc(SITE.phoneTel)}">${esc(SITE.phone)}</a>.</p>`);
+}
+
+export function faqContent(): string {
+  return shell(`
+  <h1>Frequently Asked Questions</h1>
+  ${HOMEPAGE_FAQ.map((f) => `<h2>${esc(f.q)}</h2>\n  <p>${esc(f.a)}</p>`).join("\n  ")}
+  <p><a href="/inventory">Browse inventory</a> | <a href="/contact">Contact us</a></p>`);
+}
+
 export function simpleContent(path: string): string {
   const meta = PAGE_META[path];
   const heading = meta ? meta.title.split("|")[0].trim() : SITE.name;
@@ -257,9 +287,13 @@ export function renderStaticPage(indexHtml: string, path: string, vehicles: SeoV
     path === "/" ? homeContent(vehicles)
     : path === "/inventory" ? inventoryContent(vehicles)
     : path === "/contact" ? contactContent()
+    : path === "/about" ? aboutContent()
+    : path === "/how-we-work" ? howWeWorkContent()
+    : path === "/areas-we-serve" ? areasContent()
+    : path === "/faq" ? faqContent()
     : simpleContent(path);
   const html = injectBody(
-    applyHead(indexHtml, { ...meta, canonical: path, jsonLd: path === "/" ? [faqJsonLd(HOMEPAGE_FAQ)] : undefined }),
+    applyHead(indexHtml, { ...meta, canonical: path, jsonLd: path === "/faq" ? [faqJsonLd(HOMEPAGE_FAQ)] : undefined }),
     content
   );
   return { html, status: 200 };

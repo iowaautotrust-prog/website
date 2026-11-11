@@ -74,4 +74,21 @@ export const PAGE_META: Record<string, PageMeta> = {
     title: "Used Cars Near Urbandale, IA | Iowa Trust Motors",
     description: "Used cars for Urbandale drivers, just next door to Johnston, IA. Inspected vehicles, financing and same-day test drives at Iowa Trust Motors.",
   },
+  // Header "About" menu pages and the FAQ page (the text itself is the client's, in pageContent.ts / siteConfig.ts).
+  "/about": {
+    title: "About Iowa Trust Motors | Used Cars in Johnston, IA",
+    description: "Iowa Trust Motors is a locally owned used car dealership in Johnston, Iowa. We buy, repair, inspect and sell quality vehicles at fair, clearly listed prices.",
+  },
+  "/how-we-work": {
+    title: "How We Work | Iowa Trust Motors, Johnston IA",
+    description: "How we select, repair, inspect and list every vehicle, from the Iowa state inspection to a same-day test drive. Iowa Trust Motors, Johnston, IA.",
+  },
+  "/areas-we-serve": {
+    title: "Areas We Serve | Used Cars Near Des Moines | Iowa Trust Motors",
+    description: "Iowa Trust Motors in Johnston, IA welcomes drivers from Des Moines, Urbandale, West Des Moines, Clive, Grimes, Waukee and Ankeny.",
+  },
+  "/faq": {
+    title: "Frequently Asked Questions | Iowa Trust Motors",
+    description: "Answers about financing, rebuilt titles, repairs, warranty, insurance and test drives at Iowa Trust Motors in Johnston, IA.",
+  },
 };

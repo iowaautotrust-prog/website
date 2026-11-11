@@ -50,6 +50,9 @@ const FinalCTA = () => {
             Apply for Financing
             <ArrowUpRight className="w-4 h-4" />
           </FinancingLink>
+          <Link to="/faq" className="btn-hero-outline">
+            FAQ
+          </Link>
         </motion.div>
       </div>
     </section>

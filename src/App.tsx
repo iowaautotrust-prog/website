@@ -24,6 +24,10 @@ import UsedCarsUnder10000 from "./pages/UsedCarsUnder10000";
 import UsedCarsWestDesMoines from "./pages/UsedCarsWestDesMoines";
 import UsedCarsWaukee from "./pages/UsedCarsWaukee";
 import UsedCarsUrbandale from "./pages/UsedCarsUrbandale";
+import About from "./pages/About";
+import HowWeWork from "./pages/HowWeWork";
+import AreasWeServe from "./pages/AreasWeServe";
+import Faq from "./pages/Faq";
 import NotFound from "./pages/NotFound";
 import CookieBanner from "@/components/CookieBanner";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -111,6 +115,10 @@ const App = () => (
               <Route path="/used-cars-west-des-moines" element={<UsedCarsWestDesMoines />} />
               <Route path="/used-cars-waukee" element={<UsedCarsWaukee />} />
               <Route path="/used-cars-urbandale" element={<UsedCarsUrbandale />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/how-we-work" element={<HowWeWork />} />
+              <Route path="/areas-we-serve" element={<AreasWeServe />} />
+              <Route path="/faq" element={<Faq />} />
 
               {/* Auth */}
               <Route path="/login" element={<Login />} />
