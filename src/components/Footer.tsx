@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import { Phone, Mail, MapPin, Facebook, Instagram, Star } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, Instagram, Star, Clock } from "lucide-react";
 import FinancingLink from "@/components/FinancingLink";
-import { fullAddress, socialLinks } from "@/lib/siteConfig";
+import { SITE, fullAddress, socialLinks } from "@/lib/siteConfig";
 import { trackEvent } from "@/lib/analytics";
 
 const Footer = () => (
@@ -11,7 +11,7 @@ const Footer = () => (
         {/* Brand */}
         <div>
           <p className="text-xl font-bold tracking-tight mb-1">IOWA TRUST MOTORS</p>
-          <p className="text-xs tracking-[0.2em] text-background/50 uppercase mb-4">
+          <p className="text-xs tracking-[0.2em] text-background/65 uppercase mb-4">
             Premium Pre-Owned Vehicles
           </p>
           <p className="text-sm text-background/70 leading-relaxed max-w-xs">
@@ -22,7 +22,7 @@ const Footer = () => (
 
         {/* Quick Links */}
         <div>
-          <p className="text-xs font-semibold tracking-[0.15em] uppercase text-background/50 mb-5">
+          <p className="text-xs font-semibold tracking-[0.15em] uppercase text-background/65 mb-5">
             Quick Links
           </p>
           <ul className="space-y-3">
@@ -54,7 +54,7 @@ const Footer = () => (
 
         {/* Contact */}
         <div>
-          <p className="text-xs font-semibold tracking-[0.15em] uppercase text-background/50 mb-5">
+          <p className="text-xs font-semibold tracking-[0.15em] uppercase text-background/65 mb-5">
             Contact Us
           </p>
           <ul className="space-y-4">
@@ -89,6 +89,21 @@ const Footer = () => (
                 <span>{fullAddress()}</span>
               </a>
             </li>
+            <li className="flex items-start gap-3 text-sm text-background/70">
+              <Clock className="w-4 h-4 mt-0.5 shrink-0" />
+              <span>{SITE.hoursLabel}</span>
+            </li>
+            <li>
+              <a
+                href={SITE.reviewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-3 text-sm text-background/70 hover:text-background transition-colors group"
+              >
+                <Star className="w-4 h-4 mt-0.5 shrink-0 group-hover:text-primary transition-colors" />
+                <span>Leave us a Google review</span>
+              </a>
+            </li>
             {socialLinks().map(({ label, href }) => (
               <li key={label}>
                 <a
@@ -117,14 +132,14 @@ const Footer = () => (
     {/* Bottom bar */}
     <div className="section-padding py-5 border-t border-background/10">
       <div className="flex flex-col md:flex-row justify-between items-center gap-2">
-        <p className="text-xs text-background/40">
+        <p className="text-xs text-background/65">
           © {new Date().getFullYear()} Iowa Trust Motors. All rights reserved.
         </p>
         <div className="flex items-center gap-4">
-          <Link to="/privacy" className="text-xs text-background/40 hover:text-background/70 transition-colors">
+          <Link to="/privacy" className="text-xs text-background/65 hover:text-background transition-colors">
             Privacy Policy
           </Link>
-          <Link to="/terms" className="text-xs text-background/40 hover:text-background/70 transition-colors">
+          <Link to="/terms" className="text-xs text-background/65 hover:text-background transition-colors">
             Terms of Service
           </Link>
         </div>

@@ -10,7 +10,7 @@ export interface SeoVehicle {
   model?: string | null;
   trim?: string | null;
   year?: number | null;
-  price: number;
+  price: number | null;
   mileage?: number | null;
   fuel?: string | null;
   type?: string | null;
@@ -33,6 +33,20 @@ export interface SeoVehicle {
   updated_at?: string | null;
   created_at?: string | null;
 }
+
+export type VehicleStatus = "available" | "coming_soon" | "pending" | "sold";
+
+/** Order cars are listed in: available first, then coming soon, then sale pending, then sold. */
+export const statusRank = (s?: string | null): number =>
+  s === "sold" ? 3 : s === "pending" ? 2 : s === "coming_soon" ? 1 : 0;
+
+export const statusLabel = (s?: string | null): string =>
+  s === "sold" ? "Sold" : s === "pending" ? "Sale Pending" : s === "coming_soon" ? "Coming Soon" : "Available";
+
+/** A Coming Soon car may have no price yet: it is stored as 0 / empty and shown as "Call for Price". */
+export const hasPrice = (v: { price?: number | null }): boolean => typeof v.price === "number" && v.price > 0;
+export const priceText = (n?: number | null): string =>
+  typeof n === "number" && n > 0 ? `$${Math.round(n).toLocaleString("en-US")}` : "Call for Price";
 
 export const FUEL_TYPES = ["Gasoline", "Diesel", "Hybrid", "Plug-in Hybrid", "Electric", "Flex Fuel"];
 export const TITLE_STATUSES = ["Clean", "Rebuilt"];
@@ -104,7 +118,7 @@ export const hasActiveDiscount = (v: SeoVehicle): boolean =>
 
 /** Price the customer actually sees (discount applied). */
 export const currentPrice = (v: SeoVehicle): number =>
-  hasActiveDiscount(v) ? v.price - (v.discount_amount as number) : v.price;
+  hasActiveDiscount(v) && hasPrice(v) ? (v.price as number) - (v.discount_amount as number) : (v.price ?? 0);
 
 export const formatUsd = (n: number): string => `$${Math.round(n).toLocaleString("en-US")}`;
 export const formatMiles = (n: number): string => `${Math.round(n).toLocaleString("en-US")} miles`;
@@ -124,10 +138,15 @@ export const vehicleMetaDescription = (v: SeoVehicle): string => {
   const title = vehicleTitle(v);
   if (v.status === "sold") return `${title} - Sold. See our current inventory at ${where}`;
 
-  const facts = [title, formatUsd(currentPrice(v))];
+  const facts = [title, hasPrice(v) ? formatUsd(currentPrice(v)) : "Call for price"];
   if (v.mileage != null) facts.push(formatMiles(v.mileage));
   const head = facts.join(" - ");
-  const extra = v.status === "pending" ? "Sale pending." : "Inspected, financing available.";
+  const extra =
+    v.status === "pending"
+      ? "Sale pending."
+      : v.status === "coming_soon"
+        ? "Coming soon, request info to be notified."
+        : "Inspected, financing available.";
   const text = `${head}. ${extra} ${where}`;
   // Keep within ~160 characters so Google doesn't cut it off.
   return text.length <= 160 ? text : `${head}. ${where}`;
@@ -136,7 +155,18 @@ export const vehicleMetaDescription = (v: SeoVehicle): string => {
 export const availabilityUrl = (status?: string | null): string => {
   if (status === "sold") return "https://schema.org/SoldOut";
   if (status === "pending") return "https://schema.org/LimitedAvailability";
+  if (status === "coming_soon") return "https://schema.org/PreOrder";
   return "https://schema.org/InStock";
+};
+
+/** schema.org wants the drive type as a URL, not as the text "AWD". Unknown values are left out. */
+export const driveWheelUrl = (drivetrain?: string | null): string | undefined => {
+  const d = (drivetrain ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  if (d === "awd" || d === "allwheeldrive") return "https://schema.org/AllWheelDriveConfiguration";
+  if (d === "fwd" || d === "frontwheeldrive") return "https://schema.org/FrontWheelDriveConfiguration";
+  if (d === "rwd" || d === "rearwheeldrive") return "https://schema.org/RearWheelDriveConfiguration";
+  if (d === "4wd" || d === "4x4" || d === "fourwheeldrive") return "https://schema.org/FourWheelDriveConfiguration";
+  return undefined;
 };
 
 const clean = (obj: Record<string, unknown>): Record<string, unknown> => {
@@ -168,7 +198,7 @@ export const vehicleJsonLd = (v: SeoVehicle): Record<string, unknown> => {
     fuelType: normalizeFuel(v.fuel) || undefined,
     color: v.exterior_color || undefined,
     vehicleInteriorColor: v.interior_color || undefined,
-    driveWheelConfiguration: v.drivetrain || undefined,
+    driveWheelConfiguration: driveWheelUrl(v.drivetrain),
     vehicleTransmission: v.transmission || undefined,
     bodyType: v.type || undefined,
     sku: v.stock_no || undefined,
@@ -178,7 +208,8 @@ export const vehicleJsonLd = (v: SeoVehicle): Record<string, unknown> => {
     itemCondition: "https://schema.org/UsedCondition",
     offers: clean({
       "@type": "Offer",
-      price: currentPrice(v),
+      // A Coming Soon car without a price yet has no price in its Offer rather than a false "0".
+      price: hasPrice(v) ? currentPrice(v) : undefined,
       priceCurrency: "USD",
       availability: availabilityUrl(v.status),
       itemCondition: "https://schema.org/UsedCondition",

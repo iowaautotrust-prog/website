@@ -20,6 +20,7 @@ import NotFound from "./pages/NotFound";
 import CookieBanner from "@/components/CookieBanner";
 import ScrollToTop from "@/components/ScrollToTop";
 import RouteAnalytics from "@/components/RouteAnalytics";
+import RobotsGuard from "@/components/RobotsGuard";
 
 // Everything below is loaded on demand so the public pages ship a much smaller JS bundle.
 // Auth
@@ -40,6 +41,7 @@ const AdminTransactions = lazy(() => import("./pages/admin/AdminTransactions"));
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
 const AdminDiscounts = lazy(() => import("./pages/admin/AdminDiscounts"));
 const AdminQuiz = lazy(() => import("./pages/admin/AdminQuiz"));
+const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
 
 // Shop pages
 const ShopDashboard = lazy(() => import("./pages/shop/ShopDashboard"));
@@ -82,6 +84,7 @@ const App = () => (
           <BrowserRouter>
             <ScrollToTop />
             <RouteAnalytics />
+            <RobotsGuard />
             <Suspense fallback={<PageLoader />}>
             <Routes>
               {/* Public */}
@@ -111,6 +114,7 @@ const App = () => (
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/discounts" element={<AdminDiscounts />} />
               <Route path="/admin/quiz" element={<AdminQuiz />} />
+              <Route path="/admin/reviews" element={<AdminReviews />} />
 
               {/* Shop */}
               <Route path="/shop" element={<ShopDashboard />} />

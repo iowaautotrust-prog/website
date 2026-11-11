@@ -12,6 +12,7 @@
 
 import { findVehicle, listVehicles } from "./_lib/data.ts";
 import { renderNotFound, renderStaticPage, renderVehiclePage, type Page } from "./_lib/html.ts";
+import { normalizePath } from "./_lib/routes.ts";
 import { vehiclePath } from "../../src/lib/vehicleSeo.ts";
 
 type Ctx = { next: () => Promise<Response> };
@@ -20,7 +21,7 @@ export const config = {
   path: ["/", "/inventory", "/vehicle/*", "/contact", "/compare", "/privacy", "/terms"],
 };
 
-const normalize = (pathname: string): string => pathname.replace(/\/+$/, "") || "/";
+const normalize = normalizePath;
 
 export default async function handler(request: Request, context: Ctx): Promise<Response | undefined> {
   if (request.method !== "GET" && request.method !== "HEAD") return undefined;

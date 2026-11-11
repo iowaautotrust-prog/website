@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,6 +6,8 @@ import { supabase } from "@/lib/supabase";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { CheckCircle, ChevronRight, Eye, EyeOff, Loader2 } from "lucide-react";
+import Turnstile, { type TurnstileHandle } from "@/components/Turnstile";
+import { TURNSTILE_SITE_KEY } from "@/lib/turnstile";
 
 const SERVICE_TYPES = [
   "Oil Change",
@@ -79,6 +81,8 @@ const ServiceBooking = () => {
   const [appointmentRef, setAppointmentRef] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileHandle>(null);
 
   const [personal, setPersonal] = useState({ name: "", phone: "", email: "" });
   const [vehicle, setVehicle] = useState({ make: "", model: "", year: "", plate: "", color: "" });
@@ -109,7 +113,7 @@ const ServiceBooking = () => {
     setLoading(true);
     try {
       // Create auth account
-      const { error: authErr } = await signUp(personal.email, account.password, personal.name);
+      const { error: authErr } = await signUp(personal.email, account.password, personal.name, captchaToken ?? undefined);
       if (authErr) throw new Error(authErr);
 
       // Insert shop_customer
@@ -159,6 +163,7 @@ const ServiceBooking = () => {
       setSuccess(true);
     } catch (e: any) {
       setError(e.message ?? "Something went wrong. Please try again.");
+      turnstileRef.current?.reset(); // a token is single-use; get a fresh one for the retry
     } finally {
       setLoading(false);
     }
@@ -407,6 +412,7 @@ const ServiceBooking = () => {
                       <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
                     )}
                   </div>
+                  <Turnstile ref={turnstileRef} siteKey={TURNSTILE_SITE_KEY} onVerify={setCaptchaToken} className="flex justify-center" />
                 </div>
               )}
 
@@ -437,7 +443,7 @@ const ServiceBooking = () => {
                 ) : (
                   <button
                     onClick={handleSubmit}
-                    disabled={loading}
+                    disabled={loading || (!!TURNSTILE_SITE_KEY && !captchaToken)}
                     className="bg-primary text-primary-foreground rounded-lg px-5 py-2 text-sm font-medium hover:bg-primary/90 transition-colors flex items-center gap-2 disabled:opacity-60"
                   >
                     {loading && <Loader2 className="w-4 h-4 animate-spin" />}

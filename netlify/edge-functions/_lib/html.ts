@@ -7,10 +7,12 @@ import {
   GALLERY_SIZES,
   currentPrice,
   formatMiles,
-  formatUsd,
   gallerySrcSet,
   normalizeFuel,
   optimizeImage,
+  priceText,
+  statusLabel,
+  statusRank,
   vehicleAlt,
   vehicleImages,
   vehicleJsonLd,
@@ -54,7 +56,7 @@ export function applyHead(html: string, o: HeadOptions): string {
   const url = o.canonical === "/" ? `${SITE.url}/` : absolute(o.canonical);
   const ogImage = o.image || SITE.image || "";
 
-  let out = html
+  const out = html
     .replace(/<title>[\s\S]*?<\/title>\s*/i, "")
     .replace(/<meta\s+name="description"[^>]*>\s*/gi, "")
     .replace(/<meta\s+property="og:[^"]*"[^>]*>\s*/gi, "")
@@ -107,9 +109,6 @@ export function injectBody(html: string, content: string): string {
 const WRAP_STYLE =
   "position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap";
 
-const statusLabel = (v: SeoVehicle): string =>
-  v.status === "sold" ? "Sold" : v.status === "pending" ? "Sale Pending" : "Available";
-
 const siteNav = (): string =>
   `<nav aria-label="Main"><a href="/">Home</a> | <a href="/inventory">Browse Inventory</a> | <a href="/compare">Compare Vehicles</a> | <a href="/contact">Contact Us</a></nav>`;
 
@@ -130,10 +129,10 @@ const shell = (inner: string): string =>
 const vehicleLi = (v: SeoVehicle): string => {
   const img = vehicleImages(v)[0];
   const bits = [
-    formatUsd(currentPrice(v)),
+    priceText(currentPrice(v)),
     v.mileage != null ? formatMiles(v.mileage) : "",
     normalizeFuel(v.fuel),
-    statusLabel(v),
+    statusLabel(v.status),
   ].filter(Boolean);
   return `<li><a href="${esc(vehiclePath(v))}">${
     img
@@ -143,7 +142,10 @@ const vehicleLi = (v: SeoVehicle): string => {
 };
 
 export function homeContent(vehicles: SeoVehicle[]): string {
-  const live = vehicles.filter((v) => v.status !== "sold").slice(0, 12);
+  const live = [...vehicles]
+    .filter((v) => v.status !== "sold")
+    .sort((a, b) => statusRank(a.status) - statusRank(b.status))
+    .slice(0, 12);
   return shell(`
   <h1>Used Cars for Sale in ${esc(SITE.address.city)}, ${esc(SITE.address.region)}</h1>
   <p>${esc(SITE.tagline)}</p>
@@ -155,8 +157,8 @@ export function homeContent(vehicles: SeoVehicle[]): string {
 }
 
 export function inventoryContent(vehicles: SeoVehicle[]): string {
-  const order = (v: SeoVehicle) => (v.status === "sold" ? 2 : v.status === "pending" ? 1 : 0);
-  const sorted = [...vehicles].sort((a, b) => order(a) - order(b));
+  // Same order as the page itself: available, coming soon, sale pending, sold.
+  const sorted = [...vehicles].sort((a, b) => statusRank(a.status) - statusRank(b.status));
   return shell(`
   <h1>Used Car Inventory in ${esc(SITE.address.city)}, ${esc(SITE.address.region)}</h1>
   <p>${esc(vehicles.filter((v) => v.status !== "sold").length)} vehicles available at ${esc(SITE.name)}.</p>
@@ -165,8 +167,8 @@ export function inventoryContent(vehicles: SeoVehicle[]): string {
 
 export function vehicleContent(v: SeoVehicle): string {
   const specs: [string, string | number | null | undefined][] = [
-    ["Price", formatUsd(currentPrice(v))],
-    ["Status", statusLabel(v)],
+    ["Price", priceText(currentPrice(v))],
+    ["Status", statusLabel(v.status)],
     ["Year", v.year],
     ["Make", v.make],
     ["Model", v.model],
@@ -187,7 +189,7 @@ export function vehicleContent(v: SeoVehicle): string {
   return shell(`
   <p><a href="/inventory">&larr; Back to Inventory</a></p>
   <h1>${esc(vehicleTitle(v))}</h1>
-  <p><strong>${esc(formatUsd(currentPrice(v)))}</strong> &middot; ${esc(statusLabel(v))}</p>
+  <p><strong>${esc(priceText(currentPrice(v)))}</strong> &middot; ${esc(statusLabel(v.status))}</p>
   <p>${esc(SITE.asIsNotice)}</p>
   <h2>Vehicle details</h2>
   <ul>${specs
@@ -268,6 +270,7 @@ export function renderVehiclePage(indexHtml: string, v: SeoVehicle): Page {
     canonical: vehiclePath(v),
     image: first ? optimizeImage(first, 1200, { jpg: true, height: 630 }) : undefined,
     noindex: v.status === "sold" && SITE.noindexSold,
+    ogType: "product",
     jsonLd: [vehicleJsonLd(v)],
     preloadImage: first
       ? { href: optimizeImage(first, 1200), srcset: gallerySrcSet(first), sizes: GALLERY_SIZES }
@@ -278,6 +281,21 @@ export function renderVehiclePage(indexHtml: string, v: SeoVehicle): Page {
     () => `<script type="application/json" id="vehicle-bootstrap">${JSON.stringify(v).replace(/</g, "\\u003c")}</script>\n  </body>`
   );
   return { html, status: 200 };
+}
+
+/** Any address that is not a page of the site (e.g. /abc-xyz, /llms.txt): a real 404, never the home page. */
+export function renderPageNotFound(indexHtml: string): Page {
+  const head = applyHead(indexHtml, {
+    title: `Page Not Found | ${SITE.name}`,
+    description: "This page could not be found. Browse our current inventory or contact Iowa Trust Motors in Johnston, IA.",
+    canonical: "/",
+    noindex: true,
+  });
+  const content = shell(`
+  <h1>Page not found</h1>
+  <p>We couldn't find the page you were looking for.</p>
+  <p><a href="/">Go to the home page</a> or <a href="/inventory">browse our current inventory</a>.</p>`);
+  return { html: injectBody(head, content), status: 404 };
 }
 
 export function renderNotFound(indexHtml: string): Page {

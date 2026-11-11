@@ -19,7 +19,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { vehiclePath } from "@/lib/vehicleSeo";
+import { vehiclePath, priceText } from "@/lib/vehicleSeo";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
 import { RecentlyViewedStrip } from "@/components/HeroSection";
@@ -242,7 +242,7 @@ const Profile = () => {
                             {car.name}
                           </h3>
                           <p className="text-xl font-bold text-primary mt-1">
-                            ${car.price.toLocaleString()}
+                            {priceText(car.price)}
                           </p>
                         </Link>
                         <div className="flex gap-3 items-center">
@@ -301,7 +301,7 @@ const Profile = () => {
                           {car.name}
                         </h3>
                         <p className="text-xl font-bold text-primary mt-1">
-                          ${car.price.toLocaleString()}
+                          {priceText(car.price)}
                         </p>
                       </div>
                       <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />

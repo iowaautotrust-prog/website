@@ -18,6 +18,14 @@ export const SITE = {
     country: "US",
   },
   mapsUrl: "https://maps.google.com/?q=5421+NW+Beaver+Dr+Unit+2+Johnston+IA",
+  // Opens the Maps app / site with the route to the lot already filled in.
+  directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=5421+NW+Beaver+Dr+Unit+2%2C+Johnston%2C+IA+50131",
+  // Key-free Google Maps embed (allowed by frame-src in public/_headers).
+  mapsEmbedUrl: "https://www.google.com/maps?q=5421+NW+Beaver+Dr+Unit+2%2C+Johnston%2C+IA+50131&output=embed",
+  // "Text Us" buttons.
+  smsTel: "sms:+15158098051",
+  // Opens the Google review box for the business (the Business Profile short link + /review).
+  reviewUrl: "https://g.page/r/CWckIMJKiLqiEBM/review",
   hoursLabel: "Mon-Sat: 9am - 5pm",
   tagline: "Curated pre-owned vehicles in Johnston, Iowa. Every car inspected, priced right, and ready to drive.",
   // Shown on every vehicle page, right under the price.

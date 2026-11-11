@@ -12,6 +12,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { Lead } from "@/lib/types";
 import { SITE, fullAddress } from "@/lib/siteConfig";
 import { useSeo } from "@/hooks/useSeo";
+import { useSpamGuard } from "@/hooks/useSpamGuard";
 import { PAGE_META } from "@/lib/pageMeta";
 import { trackEvent } from "@/lib/analytics";
 
@@ -37,7 +38,7 @@ const contactInfo = [
   {
     icon: Clock,
     label: "Hours",
-    value: "Mon-Sat: 9am - 5pm",
+    value: SITE.hoursLabel,
     href: null,
   },
 ];
@@ -55,10 +56,13 @@ export default function Contact() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const spam = useSpamGuard();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
+    // A bot gets the normal thank-you but nothing is saved.
+    if (spam.looksLikeBot()) { setSubmitted(true); return; }
     setSubmitting(true);
     setError(null);
 
@@ -142,11 +146,11 @@ export default function Contact() {
                 </div>
               ))}
 
-              {/* Map embed placeholder */}
-              <div className="rounded-xl overflow-hidden border border-border h-40 sm:h-56 mt-8">
+              {/* Google Map + directions */}
+              <div className="rounded-xl overflow-hidden border border-border h-64 sm:h-80 mt-8">
                 <iframe
                   title="Iowa Trust Motors location"
-                  src="https://maps.google.com/maps?q=5421+NW+Beaver+Dr+Unit+2%2C+Johnston%2C+IA&output=embed"
+                  src={SITE.mapsEmbedUrl}
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
@@ -155,6 +159,15 @@ export default function Contact() {
                   referrerPolicy="no-referrer-when-downgrade"
                 />
               </div>
+              <a
+                href={SITE.directionsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackEvent("directions_click", { location: "contact" })}
+                className="btn-hero inline-flex items-center justify-center gap-2 w-full sm:w-auto"
+              >
+                <MapPin className="w-4 h-4" /> Get Directions
+              </a>
             </motion.div>
 
             {/* Contact Form */}
@@ -182,6 +195,7 @@ export default function Contact() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {spam.field}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div className="space-y-2">
                       <Label htmlFor="name">Full Name *</Label>

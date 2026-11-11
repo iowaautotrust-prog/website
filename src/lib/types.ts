@@ -67,6 +67,7 @@ export interface Vehicle {
   name: string;
   make: string;
   model: string;
+  /** 0 / empty = "Call for Price" (only meant for Coming Soon cars). */
   price: number;
   mileage: number;
   year: number;
@@ -78,7 +79,7 @@ export interface Vehicle {
   transmission: string | null;
   description: string | null;
   features: string[] | null;
-  status: "available" | "pending" | "sold";
+  status: "available" | "coming_soon" | "pending" | "sold";
   in_carousel: boolean;
   view_count: number;
   image_url: string | null;
@@ -106,6 +107,7 @@ export interface Profile {
   phone: string | null;
   location: string | null;
   is_admin: boolean;
+  is_manager?: boolean;
   created_at: string;
   email?: string | null;
 }
@@ -134,7 +136,9 @@ export interface Lead {
   vehicle_name: string | null;
   message: string | null;
   lead_type: "inquiry" | "contact" | "test_drive";
-  status: "new" | "contacted" | "closed";
+  status: LeadStatus;
+  /** Private notes for the dealership, e.g. "Called, coming Saturday." Never shown to the customer. */
+  internal_notes?: string | null;
   created_at: string;
   lead_source?: LeadSource | null;
   utm_source?: string | null;
@@ -143,6 +147,18 @@ export interface Lead {
 }
 
 export type LeadSource = "Google" | "Facebook" | "Direct" | "Other";
+export type LeadStatus = "new" | "contacted" | "closed" | "spam";
+
+/** One email the dealership sent to a customer from the Leads page. */
+export interface LeadReply {
+  id: string;
+  lead_id: string;
+  subject: string;
+  body: string;
+  sent_to: string;
+  sent_by: string | null;
+  created_at: string;
+}
 
 export interface Transaction {
   id: string;

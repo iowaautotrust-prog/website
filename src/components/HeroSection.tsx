@@ -2,6 +2,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useEffect, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Clock, ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react";
+import { SITE } from "@/lib/siteConfig";
 import FinancingLink from "@/components/FinancingLink";
 import heroCar from "@/assets/hero-car.jpg";
 import { supabase } from "@/lib/supabase";
@@ -311,15 +312,16 @@ const HeroSection = () => {
         >
           {/* Top: Headline */}
           <div>
-            <motion.p
+            {/* The page's one H1: the keywords people search for. The slogan below stays as the big styled line. */}
+            <motion.h1
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-overline text-primary-foreground/70 mb-5 [@media(max-height:700px)_and_(max-width:639px)]:hidden"
+              className="text-overline text-primary-foreground/70 mb-5 [@media(max-height:700px)_and_(max-width:639px)]:sr-only"
             >
-              Iowa Trust Motors · Johnston, Iowa
-            </motion.p>
+              Used Cars for Sale in Johnston, IA
+            </motion.h1>
 
-            <motion.h1
+            <motion.p
               initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
               className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tight leading-[0.9] text-primary-foreground max-w-5xl"
@@ -335,7 +337,7 @@ const HeroSection = () => {
               </motion.span>
               <br />
               Ordinary
-            </motion.h1>
+            </motion.p>
           </div>
 
           {/* Bottom: Search, CTAs, stats */}
@@ -385,14 +387,23 @@ const HeroSection = () => {
                   <ArrowUpRight className="w-4 h-4" />
                 </FinancingLink>
               </motion.div>
-              <motion.a
-                href="tel:5158098051" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                animate={{ boxShadow: ["0 0 0px hsl(var(--primary)/0)", "0 0 16px hsl(var(--primary)/0.4)", "0 0 0px hsl(var(--primary)/0)"] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-                className="btn-hero-outline w-full sm:w-auto border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-foreground [@media(max-height:700px)_and_(max-width:639px)]:py-3"
-              >
-                Call Now
-              </motion.a>
+              {/* On phones "Text Us" sits right next to "Call Now" (texting does not work from a desktop) */}
+              <div className="flex gap-3 w-full sm:w-auto">
+                <motion.a
+                  href="tel:5158098051" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                  animate={{ boxShadow: ["0 0 0px hsl(var(--primary)/0)", "0 0 16px hsl(var(--primary)/0.4)", "0 0 0px hsl(var(--primary)/0)"] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                  className="btn-hero-outline flex-1 sm:flex-none sm:w-auto border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-foreground [@media(max-height:700px)_and_(max-width:639px)]:py-3"
+                >
+                  Call Now
+                </motion.a>
+                <motion.a
+                  href={SITE.smsTel} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                  className="sm:hidden btn-hero-outline flex-1 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-foreground [@media(max-height:700px)_and_(max-width:639px)]:py-3"
+                >
+                  Text Us
+                </motion.a>
+              </div>
             </motion.div>
 
             <motion.div

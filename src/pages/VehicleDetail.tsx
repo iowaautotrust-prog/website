@@ -8,7 +8,7 @@ import {
   ArrowLeft, Fuel, Users, Calendar, Gauge, Check, Heart, GitCompare,
   Cog, Phone, Mail, Loader2, Share2, Copy, ChevronLeft, ChevronRight,
   X, Tag, Fingerprint, ZoomIn, Landmark, BadgeDollarSign, ArrowUpRight,
-  Palette, ShieldCheck, Hash, Car as CarIcon,
+  Palette, ShieldCheck, Hash, Car as CarIcon, MessageSquare,
 } from "lucide-react";
 import FinancingLink from "@/components/FinancingLink";
 import Footer from "@/components/Footer";
@@ -18,12 +18,15 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { peekVehicleBootstrap, clearVehicleBootstrap, matchesParam } from "@/lib/vehicleBootstrap";
 import type { Lead } from "@/lib/types";
 import { useSeo } from "@/hooks/useSeo";
+import { useSpamGuard } from "@/hooks/useSpamGuard";
+import TitleStatusBadge from "@/components/TitleStatusBadge";
 import { submitLead } from "@/lib/leads";
 import { trackEvent } from "@/lib/analytics";
 import { SITE } from "@/lib/siteConfig";
 import {
   parseVehicleParam, shortId, vehiclePath, vehicleTitle, vehicleTitleTag, vehicleMetaDescription,
   vehicleJsonLd, vehicleAlt, vehicleImages, optimizeImage, normalizeFuel, gallerySrcSet, GALLERY_SIZES,
+  hasPrice, priceText,
 } from "@/lib/vehicleSeo";
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
@@ -122,6 +125,7 @@ const VehicleDetail = () => {
 
   const { user } = useAuth();
   const { toggleFavorite, isFavorite, toggleCompare, isInCompare, addRecentView } = useApp();
+  const spam = useSpamGuard();
 
   // Title, description, canonical, Open Graph and Car + Offer JSON-LD for this vehicle.
   useSeo(
@@ -158,15 +162,17 @@ const VehicleDetail = () => {
         navigate(canonicalPath + location.search, { replace: true });
       }
       addRecentView(vehicle);
-      const { data: similar } = await supabase
+      let similarQuery = supabase
         .from("vehicles")
         .select("*")
         .eq("type", vehicle.type)
         .eq("status", "available")
-        .neq("id", vehicle.id)
-        .gte("price", Math.max(0, vehicle.price - 15000))
-        .lte("price", vehicle.price + 15000)
-        .limit(4);
+        .neq("id", vehicle.id);
+      // A Coming Soon car may have no price yet: then match on body type only.
+      if (hasPrice(vehicle)) {
+        similarQuery = similarQuery.gte("price", Math.max(0, vehicle.price - 15000)).lte("price", vehicle.price + 15000);
+      }
+      const { data: similar } = await similarQuery.limit(4);
       setSimilarCars((similar as Vehicle[]) ?? []);
     };
 
@@ -235,6 +241,7 @@ const VehicleDetail = () => {
   const handleInquiry = async (e: React.FormEvent) => {
     e.preventDefault();
     if (inquirySubmitting) return;
+    if (spam.looksLikeBot()) { setInquiryDone(true); return; }
     setInquirySubmitting(true);
     setFormError(null);
     const lead: Omit<Lead, "id" | "created_at"> = {
@@ -269,6 +276,7 @@ const VehicleDetail = () => {
   const handleTestDrive = async (e: React.FormEvent) => {
     e.preventDefault();
     if (tdSubmitting) return;
+    if (spam.looksLikeBot()) { setTdDone(true); return; }
     setTdSubmitting(true);
     setFormError(null);
     try {
@@ -298,6 +306,9 @@ const VehicleDetail = () => {
   const openInquiry = (event: "request_information_click" | "inquire_click") => {
     trackEvent(event, { vehicle: car?.name });
     setFormError(null);
+    if (car?.status === "coming_soon" && !inquiryForm.message) {
+      setInquiryForm((f) => ({ ...f, message: `Please notify me when the ${car.name} is available.` }));
+    }
     setShowInquiry(true);
   };
   const openTestDrive = () => {
@@ -331,7 +342,9 @@ const VehicleDetail = () => {
   // Compute discounted price
   const activeDiscount = car.discount_amount && car.discount_amount > 0 &&
     (!car.discount_expires || new Date(car.discount_expires) > new Date());
-  const displayPrice = activeDiscount
+  const comingSoon = car.status === "coming_soon";
+  const showPrice = hasPrice(car);
+  const displayPrice = activeDiscount && showPrice
     ? car.price - car.discount_amount!
     : car.price;
 
@@ -353,8 +366,12 @@ const VehicleDetail = () => {
 
       <div className="section-padding pb-8">
         <div className="flex flex-col lg:flex-row gap-8 md:gap-12 lg:gap-16">
-          {/* Gallery */}
-          <motion.div className="lg:w-3/5" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
+          {/* Gallery. No opacity fade here on purpose: the main photo is the page's Largest
+              Contentful Paint element, and a browser doesn't count a 0-opacity element as painted
+              until the fade finishes — Framer Motion skips animating a property that isn't in
+              `initial`, so this keeps the slide-in feel but lets the photo register as painted as
+              soon as it decodes, which is what actually moved mobile LCP on the vehicle page. */}
+          <motion.div className="lg:w-3/5" initial={{ x: -30 }} animate={{ x: 0 }} transition={{ duration: 0.6 }}>
             <div
               className="rounded-2xl overflow-hidden aspect-[16/10] mb-4 cursor-zoom-in group relative"
               onClick={() => allImages.length > 0 && setLightboxOpen(true)}
@@ -365,6 +382,11 @@ const VehicleDetail = () => {
                   {car.status === "pending" && (
                     <span className="absolute top-4 left-4 z-10 bg-amber-500 text-white text-base font-extrabold uppercase tracking-wide px-5 py-2 rounded-full shadow-lg ring-2 ring-white/40">
                       Sale Pending
+                    </span>
+                  )}
+                  {car.status === "coming_soon" && (
+                    <span className="absolute top-4 left-4 z-10 bg-orange-600 text-white text-base font-extrabold uppercase tracking-wide px-5 py-2 rounded-full shadow-lg ring-2 ring-white/40">
+                      Coming Soon
                     </span>
                   )}
                   {car.status === "sold" && (
@@ -416,10 +438,13 @@ const VehicleDetail = () => {
                 )}
               </p>
               <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-2">{car.name}</h1>
+              {car.title_status && <TitleStatusBadge value={car.title_status} className="mb-3" />}
 
               {/* Price with discount */}
               <div className="mb-2">
-                {activeDiscount ? (
+                {!showPrice ? (
+                  <p className="text-4xl font-bold text-primary">{priceText(car.price)}</p>
+                ) : activeDiscount ? (
                   <div className="flex items-baseline gap-3">
                     <p className="text-4xl font-bold text-primary">${displayPrice.toLocaleString()}</p>
                     <p className="text-xl font-medium text-muted-foreground line-through">${car.price.toLocaleString()}</p>
@@ -445,22 +470,14 @@ const VehicleDetail = () => {
                 <ArrowUpRight className="w-4 h-4 text-primary shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </FinancingLink>
 
-              {/* VIN + Carfax (a per-vehicle Carfax link, when set, replaces the default VIN lookup) */}
-              {(car.vin || car.carfax_url) && (
+              {/* VIN */}
+              {car.vin && (
                 <div className="flex items-center gap-2 mb-4 p-3 rounded-xl bg-secondary/60 border border-border">
                   <Fingerprint className="w-4 h-4 text-muted-foreground shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs text-muted-foreground">{car.vin ? "VIN" : "Vehicle history"}</p>
-                    {car.vin && <p className="text-sm font-mono font-semibold text-foreground">{car.vin}</p>}
+                    <p className="text-xs text-muted-foreground">VIN</p>
+                    <p className="text-sm font-mono font-semibold text-foreground">{car.vin}</p>
                   </div>
-                  <a
-                    href={car.carfax_url || `https://www.carfax.com/VehicleHistory/ar20/p=N6LSE0BR|${car.vin}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs font-semibold text-primary hover:underline shrink-0"
-                  >
-                    Carfax →
-                  </a>
                 </div>
               )}
 
@@ -523,7 +540,7 @@ const VehicleDetail = () => {
 
               {car.features && car.features.length > 0 && (
                 <div className="mb-8">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider mb-3">Features</h3>
+                  <h2 className="text-sm font-semibold uppercase tracking-wider mb-3">Features</h2>
                   <div className="grid grid-cols-2 gap-y-2">
                     {car.features.map((f) => (
                       <div key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -537,11 +554,13 @@ const VehicleDetail = () => {
               {/* CTA */}
               <div className="space-y-3">
                 <button onClick={() => openInquiry("request_information_click")} className="btn-hero w-full justify-center">
-                  Request Information
+                  {comingSoon ? "Notify Me / Request Info" : "Request Information"}
                 </button>
-                <button onClick={openTestDrive} className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-primary text-primary font-medium hover:bg-primary hover:text-primary-foreground transition-colors">
-                  Schedule Test Drive
-                </button>
+                {!comingSoon && (
+                  <button onClick={openTestDrive} className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-primary text-primary font-medium hover:bg-primary hover:text-primary-foreground transition-colors">
+                    Schedule Test Drive
+                  </button>
+                )}
                 <FinancingLink className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-primary/40 bg-primary/5 text-primary font-medium hover:bg-primary hover:text-primary-foreground transition-colors">
                   <BadgeDollarSign className="w-4 h-4" /> Apply for Financing
                 </FinancingLink>
@@ -549,7 +568,11 @@ const VehicleDetail = () => {
                   <a href="tel:5158098051" onClick={() => trackEvent("call_click", { vehicle: car.name })} className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
                     <Phone className="w-4 h-4" /> Call Now
                   </a>
-                  <a href="mailto:sales@iowatrustmotors.com" onClick={() => trackEvent("email_click", { vehicle: car.name })} className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
+                  {/* Texting only works on phones, so this button is only shown on small screens */}
+                  <a href={SITE.smsTel} onClick={() => trackEvent("text_click", { vehicle: car.name })} className="md:hidden flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
+                    <MessageSquare className="w-4 h-4" /> Text Us
+                  </a>
+                  <a href="mailto:sales@iowatrustmotors.com" onClick={() => trackEvent("email_click", { vehicle: car.name })} className="col-span-2 md:col-span-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-border text-sm font-medium hover:border-primary hover:text-primary transition-colors">
                     <Mail className="w-4 h-4" /> Email Us
                   </a>
                 </div>
@@ -574,14 +597,17 @@ const VehicleDetail = () => {
                   <Check className="w-7 h-7 text-green-600" />
                 </div>
                 <h3 className="text-xl font-semibold">Message Sent!</h3>
-                <p className="text-muted-foreground text-sm">We'll be in touch shortly about the {car.name}.</p>
+                <p className="text-muted-foreground text-sm">
+                  {comingSoon ? `We'll let you know as soon as the ${car.name} is available.` : `We'll be in touch shortly about the ${car.name}.`}
+                </p>
                 <button onClick={() => setShowInquiry(false)} className="btn-hero mt-2">Close</button>
               </div>
             ) : (
               <>
-                <h3 className="text-xl font-bold mb-1">Request Information</h3>
+                <h3 className="text-xl font-bold mb-1">{comingSoon ? "Notify Me" : "Request Information"}</h3>
                 <p className="text-sm text-muted-foreground mb-5">About: <span className="font-medium text-foreground">{car.name}</span></p>
                 <form onSubmit={handleInquiry} className="space-y-3">
+                  {spam.field}
                   <input placeholder="Your Name *" value={inquiryForm.name} onChange={(e) => setInquiryForm((f) => ({ ...f, name: e.target.value }))} required className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
                   <input type="email" placeholder="Email Address *" value={inquiryForm.email} onChange={(e) => setInquiryForm((f) => ({ ...f, email: e.target.value }))} required className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
                   <input type="tel" placeholder="Phone Number" value={inquiryForm.phone} onChange={(e) => setInquiryForm((f) => ({ ...f, phone: e.target.value }))} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
@@ -680,7 +706,7 @@ const VehicleDetail = () => {
                 <div className="p-4">
                   <p className="text-xs text-muted-foreground mb-1">{v.year} · {v.type}</p>
                   <p className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors line-clamp-1">{v.name}</p>
-                  <p className="text-primary font-bold mt-1">${v.price.toLocaleString()}</p>
+                  <p className="text-primary font-bold mt-1">{priceText(v.price)}</p>
                 </div>
               </Link>
             ))}
@@ -693,8 +719,11 @@ const VehicleDetail = () => {
         <a href="tel:5158098051" onClick={() => trackEvent("call_click", { vehicle: car.name, location: "mobile_bar" })} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg bg-primary text-primary-foreground text-sm font-semibold">
           <Phone className="w-4 h-4" /> Call
         </a>
+        <a href={SITE.smsTel} onClick={() => trackEvent("text_click", { vehicle: car.name, location: "mobile_bar" })} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border border-primary text-primary text-sm font-semibold">
+          <MessageSquare className="w-4 h-4" /> Text
+        </a>
         <button onClick={() => openInquiry("inquire_click")} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border border-primary text-primary text-sm font-semibold">
-          <Mail className="w-4 h-4" /> Inquire
+          <Mail className="w-4 h-4" /> {comingSoon ? "Notify Me" : "Inquire"}
         </button>
       </div>
 

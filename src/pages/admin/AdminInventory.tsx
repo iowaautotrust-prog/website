@@ -19,7 +19,7 @@ import {
   Eye,
 } from "lucide-react";
 import Footer from "@/components/Footer";
-import { DRIVETRAINS, FUEL_TYPES, TITLE_STATUSES, normalizeFuel } from "@/lib/vehicleSeo";
+import { DRIVETRAINS, FUEL_TYPES, TITLE_STATUSES, normalizeFuel, priceText, statusLabel } from "@/lib/vehicleSeo";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,7 +46,7 @@ type FormState = {
   transmission: string;
   description: string;
   features: string;
-  status: "available" | "pending" | "sold";
+  status: "available" | "coming_soon" | "pending" | "sold";
   in_carousel: boolean;
   image_url: string;
   vin: string;
@@ -56,7 +56,6 @@ type FormState = {
   title_status: string;
   exterior_color: string;
   interior_color: string;
-  carfax_url: string;
   discount_amount: string;
   discount_label: string;
   discount_expires: string;
@@ -88,7 +87,6 @@ const emptyForm = (): FormState => ({
   title_status: "",
   exterior_color: "",
   interior_color: "",
-  carfax_url: "",
   discount_amount: "",
   discount_label: "",
   discount_expires: "",
@@ -111,7 +109,7 @@ const AdminInventory = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
-  const [bulkStatus, setBulkStatus] = useState<"available" | "pending">("available");
+  const [bulkStatus, setBulkStatus] = useState<"available" | "coming_soon" | "pending">("available");
   const [bulkUpdating, setBulkUpdating] = useState(false);
 
   const fetchData = async () => {
@@ -181,7 +179,6 @@ const AdminInventory = () => {
       title_status: v.title_status ?? "",
       exterior_color: v.exterior_color ?? "",
       interior_color: v.interior_color ?? "",
-      carfax_url: v.carfax_url ?? "",
       discount_amount: v.discount_amount ? String(v.discount_amount) : "",
       discount_label: v.discount_label ?? "",
       discount_expires: v.discount_expires ? v.discount_expires.split("T")[0] : "",
@@ -239,21 +236,20 @@ const AdminInventory = () => {
   };
 
   const handleSave = async () => {
-    if (!form.name.trim() || !form.make.trim() || !form.price) {
-      setFormError("Name, Make, and Price are required.");
+    // Only a Coming Soon car may be saved without a price (the website then shows "Call for Price").
+    if (!form.name.trim() || !form.make.trim() || (!form.price && form.status !== "coming_soon")) {
+      setFormError(
+        form.status === "coming_soon" ? "Name and Make are required." : "Name, Make, and Price are required. (Only Coming Soon cars can be saved without a price.)"
+      );
       return;
     }
     const vin = form.vin.trim().toUpperCase();
     if (!vin) {
-      setFormError("VIN is required. Buyers ask for it and it is needed for the Carfax report.");
+      setFormError("VIN is required. Buyers ask for it.");
       return;
     }
     if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) {
       setFormError("VIN must be exactly 17 characters (letters and numbers; no I, O or Q).");
-      return;
-    }
-    if (form.carfax_url.trim() && !/^https?:\/\//i.test(form.carfax_url.trim())) {
-      setFormError("Carfax link must start with https://");
       return;
     }
     setSaving(true);
@@ -273,7 +269,6 @@ const AdminInventory = () => {
         title_status: form.title_status || null,
         exterior_color: form.exterior_color.trim() || null,
         interior_color: form.interior_color.trim() || null,
-        carfax_url: form.carfax_url.trim() || null,
         discount_amount: form.discount_amount ? Number(form.discount_amount) : null,
         discount_label: form.discount_label.trim() || null,
         discount_expires: form.discount_expires ? new Date(form.discount_expires).toISOString() : null,
@@ -502,7 +497,7 @@ const AdminInventory = () => {
                   </p>
                 </div>
                 <div>
-                  <Label>Price ($) *</Label>
+                  <Label>Price ($) {form.status === "coming_soon" ? "(optional: empty shows Call for Price)" : "*"}</Label>
                   <Input
                     type="number"
                     value={form.price || ""}
@@ -581,11 +576,12 @@ const AdminInventory = () => {
                   <select
                     value={form.status}
                     onChange={(e) =>
-                      setField("status", e.target.value as "available" | "pending" | "sold")
+                      setField("status", e.target.value as "available" | "coming_soon" | "pending" | "sold")
                     }
                     className={`${selectClass} mt-1`}
                   >
                     <option value="available">Available</option>
+                    <option value="coming_soon">Coming Soon</option>
                     <option value="pending">Sale Pending</option>
                     <option value="sold">Sold</option>
                   </select>
@@ -672,13 +668,6 @@ const AdminInventory = () => {
                 <div className="col-span-2">
                   <Label>VIN (Vehicle Identification Number) *</Label>
                   <Input value={form.vin} onChange={(e) => setField("vin", e.target.value)} placeholder="1HGBH41JXMN109186" className="mt-1 font-mono" maxLength={17} />
-                </div>
-                <div className="col-span-2">
-                  <Label>Carfax Report Link (optional)</Label>
-                  <Input value={form.carfax_url} onChange={(e) => setField("carfax_url", e.target.value)} placeholder="https://www.carfax.com/..." className="mt-1" />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    When filled, the Carfax button on the vehicle page opens this link. When empty, it uses the VIN lookup as before.
-                  </p>
                 </div>
 
                 {/* Discount */}
@@ -803,10 +792,11 @@ const AdminInventory = () => {
                 <div className="flex items-center gap-3">
                   <select
                     value={bulkStatus}
-                    onChange={(e) => setBulkStatus(e.target.value as "available" | "pending")}
+                    onChange={(e) => setBulkStatus(e.target.value as "available" | "coming_soon" | "pending")}
                     className="h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   >
                     <option value="available">Set Available</option>
+                    <option value="coming_soon">Set Coming Soon</option>
                     <option value="pending">Set Sale Pending</option>
                   </select>
                   <button onClick={handleBulkStatus} disabled={bulkUpdating} className="btn-hero text-xs flex items-center gap-2 h-9 px-4">
@@ -871,7 +861,7 @@ const AdminInventory = () => {
                         </div>
                       </td>
                       <td className="p-4 text-foreground font-medium">
-                        ${v.price.toLocaleString()}
+                        {priceText(v.price)}
                       </td>
                       <td className="p-4 hidden md:table-cell">
                         <span
@@ -880,10 +870,12 @@ const AdminInventory = () => {
                               ? "bg-green-100 text-green-700"
                               : v.status === "sold"
                               ? "bg-blue-100 text-blue-700"
+                              : v.status === "coming_soon"
+                              ? "bg-orange-100 text-orange-800"
                               : "bg-amber-100 text-amber-700"
                           }`}
                         >
-                          {v.status === "available" ? "Available" : v.status === "sold" ? "Sold" : "Pending"}
+                          {statusLabel(v.status)}
                         </span>
                       </td>
                       <td className="p-4 text-muted-foreground hidden md:table-cell">
