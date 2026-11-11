@@ -55,4 +55,23 @@ export const PAGE_META: Record<string, PageMeta> = {
     title: "Used Cars Near Des Moines, IA | Iowa Trust Motors",
     description: "Used cars for Des Moines drivers, 15 minutes away in Johnston. Inspected vehicles, financing, same-day test drives.",
   },
+  // The remaining four pages below: the plan gave only the title tag (or, for Urbandale, not even
+  // that) and asked us to "write unique text" for the description — written to match the pattern
+  // of the pages above.
+  "/used-cars-under-10000": {
+    title: "Used Cars Under $10,000 Near Des Moines | Iowa Trust Motors",
+    description: "Affordable used cars under $10,000 in Johnston, IA. Inspected, clearly priced, financing available. See today's inventory.",
+  },
+  "/used-cars-west-des-moines": {
+    title: "Used Cars Near West Des Moines, IA | Iowa Trust Motors",
+    description: "Used cars for West Des Moines drivers. A quick trip across the metro to Johnston, IA for inspected vehicles, financing and same-day test drives.",
+  },
+  "/used-cars-waukee": {
+    title: "Used Cars Near Waukee, IA | Iowa Trust Motors",
+    description: "Used cars for Waukee drivers. Inspected vehicles, financing and same-day test drives at Iowa Trust Motors in Johnston, IA.",
+  },
+  "/used-cars-urbandale": {
+    title: "Used Cars Near Urbandale, IA | Iowa Trust Motors",
+    description: "Used cars for Urbandale drivers, just next door to Johnston, IA. Inspected vehicles, financing and same-day test drives at Iowa Trust Motors.",
+  },
 };

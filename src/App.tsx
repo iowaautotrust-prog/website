@@ -20,6 +20,10 @@ import Financing from "./pages/Financing";
 import UsedSuvs from "./pages/UsedSuvs";
 import RebuiltTitleCars from "./pages/RebuiltTitleCars";
 import UsedCarsDesMoines from "./pages/UsedCarsDesMoines";
+import UsedCarsUnder10000 from "./pages/UsedCarsUnder10000";
+import UsedCarsWestDesMoines from "./pages/UsedCarsWestDesMoines";
+import UsedCarsWaukee from "./pages/UsedCarsWaukee";
+import UsedCarsUrbandale from "./pages/UsedCarsUrbandale";
 import NotFound from "./pages/NotFound";
 import CookieBanner from "@/components/CookieBanner";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -103,6 +107,10 @@ const App = () => (
               <Route path="/used-suvs" element={<UsedSuvs />} />
               <Route path="/rebuilt-title-cars" element={<RebuiltTitleCars />} />
               <Route path="/used-cars-des-moines" element={<UsedCarsDesMoines />} />
+              <Route path="/used-cars-under-10000" element={<UsedCarsUnder10000 />} />
+              <Route path="/used-cars-west-des-moines" element={<UsedCarsWestDesMoines />} />
+              <Route path="/used-cars-waukee" element={<UsedCarsWaukee />} />
+              <Route path="/used-cars-urbandale" element={<UsedCarsUrbandale />} />
 
               {/* Auth */}
               <Route path="/login" element={<Login />} />

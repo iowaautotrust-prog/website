@@ -14,6 +14,7 @@ import {
   vehicleAlt,
   gallerySrcSet,
   driveWheelUrl,
+  categoryRedirectPath,
   hasPrice,
   priceText,
   statusLabel,
@@ -248,6 +249,20 @@ describe("schema.org drive type", () => {
   it("vehicle pages are og:type product", () => {
     const { html } = renderVehiclePage('<html><head><title>x</title></head><body><div id="root"></div></body></html>', rogue);
     expect(html).toContain('<meta property="og:type" content="product" />');
+  });
+});
+
+describe("categoryRedirectPath", () => {
+  it("prioritizes Rebuilt Title, then SUV, then Under $10K, then the general inventory page", () => {
+    expect(categoryRedirectPath({ title_status: "Rebuilt", type: "SUV", price: 5000 })).toBe("/rebuilt-title-cars");
+    expect(categoryRedirectPath({ title_status: "Clean", type: "SUV", price: 5000 })).toBe("/used-suvs");
+    expect(categoryRedirectPath({ title_status: "Clean", type: "Sedan", price: 5000 })).toBe("/used-cars-under-10000");
+    expect(categoryRedirectPath({ title_status: "Clean", type: "Sedan", price: 25000 })).toBe("/inventory");
+    expect(categoryRedirectPath({})).toBe("/inventory");
+  });
+  it("a Coming Soon car with no price yet (0) never matches Under $10K", () => {
+    expect(categoryRedirectPath({ type: "Sedan", price: 0 })).toBe("/inventory");
+    expect(categoryRedirectPath({ type: "Sedan", price: null })).toBe("/inventory");
   });
 });
 

@@ -52,3 +52,27 @@ export async function findVehicle(segment: string): Promise<SeoVehicle | null> {
   const rows = await rest<SeoVehicle[]>(q);
   return rows[0] ?? null;
 }
+
+/**
+ * A vehicle that no longer exists (deleted, not merely sold) has nothing to embed on a page, but
+ * may still have a tombstone row (see migrations/20261111_deleted_vehicle_tombstone.sql) recording
+ * its type/title_status/price — enough to redirect its old URL to a matching category page
+ * instead of a bare 404. Returns null if there is no tombstone (never existed, or not deleted this way).
+ */
+export async function findDeletedVehicle(
+  segment: string
+): Promise<{ type: string | null; title_status: string | null; price: number | null } | null> {
+  const parsed = parseVehicleParam(segment);
+  if (!parsed) return null;
+  const q =
+    parsed.kind === "uuid"
+      ? `deleted_vehicles?select=type,title_status,price&id=eq.${parsed.id}&limit=1`
+      : `deleted_vehicles?select=type,title_status,price&${shortIdFilter(parsed.prefix)}&limit=1`;
+  try {
+    const rows = await rest<{ type: string | null; title_status: string | null; price: number | null }[]>(q);
+    return rows[0] ?? null;
+  } catch {
+    // The migration may not have run yet on this environment: fail open to a normal 404, not an error.
+    return null;
+  }
+}

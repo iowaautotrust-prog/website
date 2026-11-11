@@ -26,7 +26,7 @@ import { SITE } from "@/lib/siteConfig";
 import {
   parseVehicleParam, shortId, vehiclePath, vehicleTitle, vehicleTitleTag, vehicleMetaDescription,
   vehicleJsonLd, vehicleAlt, vehicleImages, optimizeImage, normalizeFuel, gallerySrcSet, GALLERY_SIZES,
-  hasPrice, priceText,
+  hasPrice, priceText, categoryRedirectPath,
 } from "@/lib/vehicleSeo";
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
@@ -690,6 +690,22 @@ const VehicleDetail = () => {
             )}
           </motion.div>
         </div>
+      )}
+
+      {/* Explore more: a link to whichever category page best matches this car (SUV / rebuilt
+          title / under $10k) — skipped on /inventory itself, since that IS "more of everything". */}
+      {categoryRedirectPath(car) !== "/inventory" && (
+        <section className="section-padding pt-2 pb-8">
+          <Link
+            to={categoryRedirectPath(car)}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+          >
+            {categoryRedirectPath(car) === "/used-suvs" && "Browse More Used SUVs"}
+            {categoryRedirectPath(car) === "/rebuilt-title-cars" && "Browse More Rebuilt Title Cars"}
+            {categoryRedirectPath(car) === "/used-cars-under-10000" && "Browse More Cars Under $10,000"}
+            <ArrowUpRight className="w-4 h-4" />
+          </Link>
+        </section>
       )}
 
       {/* Similar Cars */}

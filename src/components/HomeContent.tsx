@@ -84,8 +84,12 @@ const HomeContent = () => (
           { to: "/inventory", label: "Browse All Inventory" },
           { to: "/used-suvs", label: "Used SUVs" },
           { to: "/financing", label: "Financing" },
+          { to: "/used-cars-under-10000", label: "Under $10,000" },
           { to: "/rebuilt-title-cars", label: "Rebuilt Title Cars" },
           { to: "/used-cars-des-moines", label: "Des Moines Buyers" },
+          { to: "/used-cars-west-des-moines", label: "West Des Moines Buyers" },
+          { to: "/used-cars-waukee", label: "Waukee Buyers" },
+          { to: "/used-cars-urbandale", label: "Urbandale Buyers" },
         ].map(({ to, label }) => (
           <Link
             key={to}
