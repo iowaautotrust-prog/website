@@ -12,8 +12,6 @@ import type { AuthUser, Profile } from "@/lib/types";
 
 export type { AuthUser as User };
 
-const ADMIN_EMAIL = "iowaautotrust@gmail.com";
-
 interface AuthContextValue {
   user: AuthUser | null;
   session: Session | null;
@@ -41,6 +39,10 @@ function humanizeAuthError(message: string): string {
   if (/password should contain at least one character of each/i.test(message)) {
     return "Password must include at least one lowercase letter, one uppercase letter, one number, and one special character (e.g. !@#$%).";
   }
+  // New accounts can be switched off in Supabase (Authentication -> Sign In / Providers). Say so plainly.
+  if (/signups? (are )?(not allowed|disabled)|signup_disabled|not allowed for this (instance|project)/i.test(message)) {
+    return "Creating new accounts is turned off right now. If you need an account, please call us at (515) 809-8051.";
+  }
   return message;
 }
 
@@ -51,7 +53,8 @@ function buildAuthUser(supabaseUser: SupabaseUser, profile: Profile | null): Aut
     name: profile?.name ?? supabaseUser.user_metadata?.full_name ?? supabaseUser.email ?? "",
     phone: profile?.phone ?? null,
     location: profile?.location ?? null,
-    isAdmin: profile?.is_admin === true || supabaseUser.email === ADMIN_EMAIL,
+    // Admin comes only from the profile (Admin -> Users). No email address gets admin by itself.
+    isAdmin: profile?.is_admin === true,
   };
 }
 
