@@ -16,6 +16,10 @@ import Compare from "./pages/Compare";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import Financing from "./pages/Financing";
+import UsedSuvs from "./pages/UsedSuvs";
+import RebuiltTitleCars from "./pages/RebuiltTitleCars";
+import UsedCarsDesMoines from "./pages/UsedCarsDesMoines";
 import NotFound from "./pages/NotFound";
 import CookieBanner from "@/components/CookieBanner";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -95,6 +99,10 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/financing" element={<Financing />} />
+              <Route path="/used-suvs" element={<UsedSuvs />} />
+              <Route path="/rebuilt-title-cars" element={<RebuiltTitleCars />} />
+              <Route path="/used-cars-des-moines" element={<UsedCarsDesMoines />} />
 
               {/* Auth */}
               <Route path="/login" element={<Login />} />

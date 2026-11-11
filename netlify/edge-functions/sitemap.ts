@@ -19,6 +19,11 @@ export default async function handler(): Promise<Response> {
     { loc: `${SITE.url}/`, lastmod: newest, priority: "1.0" },
     { loc: `${SITE.url}/inventory`, lastmod: newest, priority: "0.9" },
     { loc: `${SITE.url}/contact`, lastmod: null, priority: "0.6" },
+    // SEO plan (Nov 10, 2026) category/city landing pages.
+    { loc: `${SITE.url}/financing`, lastmod: null, priority: "0.7" },
+    { loc: `${SITE.url}/used-suvs`, lastmod: null, priority: "0.7" },
+    { loc: `${SITE.url}/rebuilt-title-cars`, lastmod: null, priority: "0.6" },
+    { loc: `${SITE.url}/used-cars-des-moines`, lastmod: null, priority: "0.6" },
     { loc: `${SITE.url}/compare`, lastmod: null, priority: "0.4" },
     { loc: `${SITE.url}/privacy`, lastmod: null, priority: "0.2" },
     { loc: `${SITE.url}/terms`, lastmod: null, priority: "0.2" },

@@ -1,7 +1,7 @@
 // Pure HTML helpers for the SEO edge function: no network and no Deno APIs, so they can be
 // unit-tested in Node. Imports are relative with explicit .ts extensions (Deno-compatible).
 
-import { SITE, dealerJsonLd, fullAddress } from "../../../src/lib/siteConfig.ts";
+import { SITE, dealerJsonLd, fullAddress, HOMEPAGE_FAQ, faqJsonLd } from "../../../src/lib/siteConfig.ts";
 import { PAGE_META } from "../../../src/lib/pageMeta.ts";
 import {
   GALLERY_SIZES,
@@ -258,7 +258,10 @@ export function renderStaticPage(indexHtml: string, path: string, vehicles: SeoV
     : path === "/inventory" ? inventoryContent(vehicles)
     : path === "/contact" ? contactContent()
     : simpleContent(path);
-  const html = injectBody(applyHead(indexHtml, { ...meta, canonical: path }), content);
+  const html = injectBody(
+    applyHead(indexHtml, { ...meta, canonical: path, jsonLd: path === "/" ? [faqJsonLd(HOMEPAGE_FAQ)] : undefined }),
+    content
+  );
   return { html, status: 200 };
 }
 

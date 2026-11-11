@@ -37,4 +37,22 @@ export const PAGE_META: Record<string, PageMeta> = {
     description:
       "The terms of service for using the Iowa Trust Motors website and buying a vehicle from us in Johnston, IA.",
   },
+  // The four title/description pairs below are the exact wording from the client's Local SEO Plan
+  // (Nov 10, 2026), section 3.2 — used verbatim, not paraphrased.
+  "/financing": {
+    title: "Used Car Financing in Johnston, IA | Iowa Trust Motors",
+    description: "Apply for used car financing in Johnston, IA. Fast approval through our lending partner. Call (515) 809-8051 or apply online.",
+  },
+  "/used-suvs": {
+    title: "Used SUVs for Sale in Johnston, IA | Iowa Trust Motors",
+    description: "Shop inspected used SUVs near Des Moines. AWD options, clear pricing and financing available at Iowa Trust Motors, Johnston IA.",
+  },
+  "/rebuilt-title-cars": {
+    title: "Rebuilt Title Cars for Sale in Iowa | Iowa Trust Motors",
+    description: "What a rebuilt title means, how we repair and inspect, and rebuilt-title cars for sale in Johnston, IA. Repair details available.",
+  },
+  "/used-cars-des-moines": {
+    title: "Used Cars Near Des Moines, IA | Iowa Trust Motors",
+    description: "Used cars for Des Moines drivers, 15 minutes away in Johnston. Inspected vehicles, financing, same-day test drives.",
+  },
 };

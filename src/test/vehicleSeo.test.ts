@@ -139,6 +139,16 @@ describe("structured data", () => {
       "https://yelp.to/2z_OPRyT7B",
     ]);
     expect(ld.geo).toEqual({ "@type": "GeoCoordinates", latitude: 41.65871668274264, longitude: -93.6841880730135 });
+    expect(ld.areaServed).toEqual([
+      { "@type": "City", name: "Johnston, IA" },
+      { "@type": "City", name: "Des Moines, IA" },
+      { "@type": "City", name: "Urbandale, IA" },
+      { "@type": "City", name: "West Des Moines, IA" },
+      { "@type": "City", name: "Waukee, IA" },
+      { "@type": "City", name: "Grimes, IA" },
+      { "@type": "City", name: "Ankeny, IA" },
+    ]);
+    expect(ld.hasMap).toBe("https://g.page/r/CWckIMJKiLqiEBM");
     expect(fullAddress()).toBe("5421 NW Beaver Dr Unit 2, Johnston, IA 50131");
   });
   it("footer links skip networks without a URL (Facebook is not ready yet)", () => {
