@@ -37,6 +37,7 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState({
     vehicleCount: 0,
     leadCount: 0,
+    newLeadCount: 0,
     transactionCount: 0,
     revenue: 0,
   });
@@ -62,6 +63,7 @@ const AdminDashboard = () => {
         { data: leads },
         { data: topVehicles },
         { data: statusData },
+        { count: newLeadCount },
       ] = await Promise.all([
         query(() => supabase.from("vehicles").select("*", { count: "exact", head: true })),
         query(() => supabase.from("leads").select("*", { count: "exact", head: true })),
@@ -70,6 +72,7 @@ const AdminDashboard = () => {
         query(() => supabase.from("leads").select("*").order("created_at", { ascending: false }).limit(5)),
         query(() => supabase.from("vehicles").select("name, view_count").order("view_count", { ascending: false }).limit(10)),
         query(() => supabase.from("vehicles").select("status")),
+        query(() => supabase.from("leads").select("*", { count: "exact", head: true }).eq("status", "new")),
       ]);
 
       const revenue = (transactions ?? []).reduce(
@@ -80,6 +83,7 @@ const AdminDashboard = () => {
       setStats({
         vehicleCount: vehicleCount ?? 0,
         leadCount: leadCount ?? 0,
+        newLeadCount: newLeadCount ?? 0,
         transactionCount: transactionCount ?? 0,
         revenue,
       });
@@ -93,10 +97,12 @@ const AdminDashboard = () => {
 
       // Status breakdown
       const available = (statusData ?? []).filter((v: { status: string }) => v.status === "available").length;
+      const comingSoon = (statusData ?? []).filter((v: { status: string }) => v.status === "coming_soon").length;
       const pending = (statusData ?? []).filter((v: { status: string }) => v.status === "pending").length;
       const sold = (statusData ?? []).filter((v: { status: string }) => v.status === "sold").length;
       setStatusBreakdown([
         { name: "Available", value: available, color: "text-green-600" },
+        { name: "Coming Soon", value: comingSoon, color: "text-orange-600" },
         { name: "Pending", value: pending, color: "text-amber-500" },
         { name: "Sold", value: sold, color: "text-blue-600" },
       ]);
@@ -144,6 +150,8 @@ const AdminDashboard = () => {
     {
       label: "Total Leads",
       value: stats.leadCount,
+      // Leads nobody has dealt with yet: the number the dealership should look at first.
+      sub: stats.newLeadCount > 0 ? `${stats.newLeadCount} new` : "No new leads",
       icon: MessageSquare,
       link: "/admin/leads",
     },
@@ -207,6 +215,9 @@ const AdminDashboard = () => {
                 <p className="text-3xl font-bold text-foreground mt-1">
                   {loading ? "—" : c.value}
                 </p>
+                {"sub" in c && c.sub && !loading && (
+                  <p className={`text-sm font-semibold mt-1 ${stats.newLeadCount > 0 ? "text-blue-700" : "text-muted-foreground"}`}>{c.sub}</p>
+                )}
                 <div className="flex items-center gap-1 mt-3 text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity">
                   View Details <ArrowRight className="w-3 h-3" />
                 </div>

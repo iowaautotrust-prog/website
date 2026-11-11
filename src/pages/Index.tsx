@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import BrandStory from "@/components/BrandStory";
 import DiscoveryQuiz from "@/components/DiscoveryQuiz";
+import GoogleReviews from "@/components/GoogleReviews";
 import FinalCTA from "@/components/FinalCTA";
 import Footer from "@/components/Footer";
 import { useSeo } from "@/hooks/useSeo";
@@ -15,6 +16,7 @@ const Index = () => {
       <HeroSection />
       <BrandStory />
       <DiscoveryQuiz />
+      <GoogleReviews />
       <FinalCTA />
       <Footer />
     </div>

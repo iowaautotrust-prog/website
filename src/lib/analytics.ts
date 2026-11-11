@@ -52,7 +52,14 @@ export const trackPageView = (path: string): void => {
   });
 };
 
-export type ClickEvent = "call_click" | "inquire_click" | "request_information_click" | "email_click" | "schedule_test_drive_click";
+export type ClickEvent =
+  | "call_click"
+  | "text_click"
+  | "inquire_click"
+  | "request_information_click"
+  | "email_click"
+  | "schedule_test_drive_click"
+  | "directions_click";
 
 export const trackEvent = (name: ClickEvent, params: Record<string, unknown> = {}): void => {
   if (!loaded || !window.gtag) return;

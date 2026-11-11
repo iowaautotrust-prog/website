@@ -5,6 +5,7 @@ import { useApp } from "@/contexts/AppContext";
 import { Input } from "@/components/ui/input";
 import { X, Check } from "lucide-react";
 import type { Vehicle } from "@/lib/types";
+import { useSpamGuard } from "@/hooks/useSpamGuard";
 
 interface Props {
   vehicle: Vehicle;
@@ -20,10 +21,12 @@ const InterestDialog = ({ vehicle, open, onClose }: Props) => {
   const [phone, setPhone] = useState(user?.phone || "");
   const [message, setMessage] = useState(`I'm interested in the ${vehicle.name}.`);
   const [submitted, setSubmitted] = useState(false);
+  const spam = useSpamGuard();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addLead({
+    // A bot gets the normal thank-you but nothing is saved.
+    if (!spam.looksLikeBot()) addLead({
       user_id: user?.id ?? null,
       name,
       email,
@@ -73,6 +76,7 @@ const InterestDialog = ({ vehicle, open, onClose }: Props) => {
                   <button onClick={onClose}><X className="w-5 h-5 text-muted-foreground" /></button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
+                  {spam.field}
                   <div>
                     <label className="text-sm font-medium text-foreground mb-1 block">Name</label>
                     <Input value={name} onChange={(e) => setName(e.target.value)} required />

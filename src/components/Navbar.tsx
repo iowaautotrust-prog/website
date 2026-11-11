@@ -2,7 +2,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
-import { User, LayoutDashboard, GitCompare, Phone, Menu, X, Wrench, BadgeDollarSign } from "lucide-react";
+import { User, LayoutDashboard, GitCompare, Phone, Menu, X, Wrench, BadgeDollarSign, MessageSquare } from "lucide-react";
+import { SITE } from "@/lib/siteConfig";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import FinancingLink from "@/components/FinancingLink";
@@ -225,6 +226,12 @@ const Navbar = () => {
                 className="py-3.5 text-sm font-medium text-primary flex items-center gap-2"
               >
                 <Phone className="w-4 h-4" /> (515) 809-8051
+              </a>
+              <a
+                href={SITE.smsTel}
+                className="py-3.5 text-sm font-medium text-primary flex items-center gap-2"
+              >
+                <MessageSquare className="w-4 h-4" /> Text Us
               </a>
             </div>
           </motion.div>
