@@ -298,7 +298,10 @@ const HeroSection = () => {
 
   return (
     <>
-      <section ref={ref} className="relative h-screen w-full overflow-hidden">
+      {/* min-h-[100svh], not h-screen (100vh): iOS Safari's address bar shows/hides as you scroll, which
+          changes 100vh mid-scroll and makes the whole page visibly jump. 100svh is the "smallest" viewport
+          height, so it never changes under the visitor, even though the bar does. */}
+      <section ref={ref} className="relative min-h-[100svh] w-full overflow-hidden">
         <motion.div className="absolute inset-0 z-0" style={{ y: imageY, scale: imageScale }}>
           <img src={heroCar} alt="Iowa Trust Motors" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-foreground/50" />
@@ -393,13 +396,13 @@ const HeroSection = () => {
                   href="tel:5158098051" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                   animate={{ boxShadow: ["0 0 0px hsl(var(--primary)/0)", "0 0 16px hsl(var(--primary)/0.4)", "0 0 0px hsl(var(--primary)/0)"] }}
                   transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-                  className="btn-hero-outline flex-1 sm:flex-none sm:w-auto border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-foreground [@media(max-height:700px)_and_(max-width:639px)]:py-3"
+                  className="btn-hero-outline flex-1 sm:flex-none sm:w-auto whitespace-nowrap text-center tracking-[0.04em] sm:tracking-[0.15em] px-4 sm:px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-foreground [@media(max-height:700px)_and_(max-width:639px)]:py-3"
                 >
                   Call Now
                 </motion.a>
                 <motion.a
                   href={SITE.smsTel} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                  className="sm:hidden btn-hero-outline flex-1 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-foreground [@media(max-height:700px)_and_(max-width:639px)]:py-3"
+                  className="sm:hidden btn-hero-outline flex-1 whitespace-nowrap text-center tracking-[0.04em] px-4 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground hover:text-foreground [@media(max-height:700px)_and_(max-width:639px)]:py-3"
                 >
                   Text Us
                 </motion.a>
