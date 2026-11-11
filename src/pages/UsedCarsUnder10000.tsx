@@ -15,19 +15,9 @@ const UsedCarsUnder10000 = () => (
     inventoryHeading="Under $10,000 Right Now"
   >
     <p className="text-body">
-      A tight budget doesn't have to mean a risky car. Every vehicle we price under $10,000 goes
-      through the same inspection as the rest of our inventory — nothing skipped because the price
-      tag is lower.
-    </p>
-    <p className="text-body">
-      Cars in this range are sometimes priced low because they carry a rebuilt title rather than
-      because something's wrong with them. We mark title status clearly on every listing, so you
-      know exactly why a car costs what it costs, not just that it's cheap.
-    </p>
-    <p className="text-body">
-      Financing is available even at this price point, and since most of our inventory moves
-      quickly, what's listed below is what we actually have on the lot today — not a stale catalog.
-      Call or text us before you drive out so we can confirm a car's still available.
+      Every car under $10,000 gets the same inspection as the rest of our inventory, and its title
+      status is shown on the listing so you know exactly what you're buying. Financing is
+      available — call or text (515) 809-8051 to confirm a car is still available.
     </p>
   </CategoryPage>
 );

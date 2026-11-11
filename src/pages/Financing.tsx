@@ -15,24 +15,9 @@ const Financing = () => (
     faq={faq}
   >
     <p className="text-body">
-      Buying a used car shouldn't mean a mountain of paperwork or a guessing game on your monthly
-      payment. At Iowa Trust Motors in Johnston, IA, we work with Marine Credit Union to get you a
-      financing decision quickly, so you know exactly where you stand before you fall in love with a
-      car.
-    </p>
-    <p className="text-body">
-      Click "Apply for Financing" below to submit your application online — it only takes a few
-      minutes. If you'd rather talk it through first, call or text us at (515) 809-8051 and we'll
-      walk you through what to expect.
-    </p>
-    <p className="text-body">
-      Financing is available on our entire inventory, including vehicles with a rebuilt title. We
-      list the price of every car clearly, with no hidden fees added at the finance desk — the price
-      you see on the listing is the price we start from.
-    </p>
-    <p className="text-body">
-      Whether you're buying your first car or replacing one that's finally given out, our team in
-      Johnston is here to make financing straightforward, not stressful.
+      We work with Marine Credit Union to get you a financing decision quickly. Apply online, or
+      call or text (515) 809-8051 and we'll walk you through it. Financing is available on our
+      entire inventory, including vehicles with a rebuilt title.
     </p>
     <FinancingLink className="btn-hero inline-flex items-center gap-2 mt-2">
       Apply for Financing
