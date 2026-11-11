@@ -26,6 +26,7 @@ const EXACT = new Set([
   "/admin/users",
   "/admin/discounts",
   "/admin/quiz",
+  "/admin/reviews",
   "/shop",
   "/shop/customers",
   "/shop/jobs",
