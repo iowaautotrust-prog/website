@@ -366,8 +366,12 @@ const VehicleDetail = () => {
 
       <div className="section-padding pb-8">
         <div className="flex flex-col lg:flex-row gap-8 md:gap-12 lg:gap-16">
-          {/* Gallery */}
-          <motion.div className="lg:w-3/5" initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}>
+          {/* Gallery. No opacity fade here on purpose: the main photo is the page's Largest
+              Contentful Paint element, and a browser doesn't count a 0-opacity element as painted
+              until the fade finishes — Framer Motion skips animating a property that isn't in
+              `initial`, so this keeps the slide-in feel but lets the photo register as painted as
+              soon as it decodes, which is what actually moved mobile LCP on the vehicle page. */}
+          <motion.div className="lg:w-3/5" initial={{ x: -30 }} animate={{ x: 0 }} transition={{ duration: 0.6 }}>
             <div
               className="rounded-2xl overflow-hidden aspect-[16/10] mb-4 cursor-zoom-in group relative"
               onClick={() => allImages.length > 0 && setLightboxOpen(true)}
