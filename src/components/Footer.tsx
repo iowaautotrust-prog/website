@@ -11,7 +11,6 @@ const QUICK_LINKS: { to: string; label: string; financing?: boolean }[] = [
   { to: "", label: "Apply for Financing", financing: true },
   { to: "/compare", label: "Compare Vehicles" },
   ...ABOUT_LINKS,
-  { to: "/faq", label: "FAQ" },
   { to: "/contact", label: "Contact Us" },
   { to: "/login", label: "Sign In" },
 ];

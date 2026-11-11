@@ -82,16 +82,32 @@ serve(async (req) => {
 
     // ── list ─────────────────────────────────────────────────────────────────────────────────────
     if (action === "list") {
-      const users: Array<Record<string, unknown>> = [];
-      for (let page = 1; page <= 10; page++) {
-        const { data, error } = await db.auth.admin.listUsers({ page, perPage: 1000 });
-        if (error) throw new Refuse(error.message, 500);
-        users.push(...(data?.users ?? []));
-        if (!data || data.users.length < 1000) break;
-      }
-      const { data: profiles } = await db.from("profiles").select("id,name,phone,is_admin,is_manager,created_at");
-      const { data: favs } = await db.from("favorites").select("user_id");
-      const { data: leads } = await db.from("leads").select("user_id");
+      // Everything below is independent, so it all runs at once instead of one round trip after another.
+      const fetchAllUsers = async (): Promise<Array<Record<string, unknown>>> => {
+        const perPage = 1000;
+        const first = await db.auth.admin.listUsers({ page: 1, perPage });
+        if (first.error) throw new Refuse(first.error.message, 500);
+        const users: Array<Record<string, unknown>> = [...(first.data?.users ?? [])];
+        let lastPage = Math.min((first.data as { lastPage?: number } | null)?.lastPage ?? 0, 10);
+        // No page info but a full first page: assume more exist (pages past the end just come back empty).
+        if (!lastPage && users.length >= perPage) lastPage = 10;
+        if (lastPage > 1) {
+          const rest = await Promise.all(
+            Array.from({ length: lastPage - 1 }, (_, i) => db.auth.admin.listUsers({ page: i + 2, perPage }))
+          );
+          for (const r of rest) {
+            if (r.error) throw new Refuse(r.error.message, 500);
+            users.push(...(r.data?.users ?? []));
+          }
+        }
+        return users;
+      };
+      const [users, { data: profiles }, { data: favs }, { data: leads }] = await Promise.all([
+        fetchAllUsers(),
+        db.from("profiles").select("id,name,phone,is_admin,is_manager,created_at"),
+        db.from("favorites").select("user_id").not("user_id", "is", null),
+        db.from("leads").select("user_id").not("user_id", "is", null),
+      ]);
       const byProfile = new Map((profiles ?? []).map((p: { id: string }) => [p.id, p]));
       const count = (rows: { user_id: string | null }[] | null) => {
         const m = new Map<string, number>();
@@ -101,7 +117,7 @@ serve(async (req) => {
       const favCount = count(favs);
       const leadCount = count(leads);
       const now = Date.now();
-      const out = users.map((u: any) => {
+      const out = (users as Array<Record<string, unknown>>).map((u: any) => {
         const p: any = byProfile.get(u.id) ?? {};
         return {
           id: u.id,

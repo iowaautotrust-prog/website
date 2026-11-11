@@ -59,6 +59,7 @@ export const ABOUT_LINKS: { to: string; label: string }[] = [
   { to: "/about", label: "About Iowa Trust Motors" },
   { to: "/how-we-work", label: "How We Work" },
   { to: "/areas-we-serve", label: "Areas We Serve" },
+  { to: "/faq", label: "FAQ" },
 ];
 
 /** Category and city pages, for the footer "Browse By" column. */

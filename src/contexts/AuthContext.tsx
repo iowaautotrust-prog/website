@@ -78,12 +78,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return buildAuthUser(supabaseUser, profile as Profile | null);
   }, []);
 
-  // supabase.auth.getSession()/onAuthStateChange can hang indefinitely under
-  // some conditions (observed: gotrue-js's navigator.locks-based session
-  // lock not releasing on a fresh page load shortly after signing in). With
-  // no fallback, `loading` would never flip to false and the whole app gets
-  // stuck on a spinner forever. These race against a timeout so it always
-  // resolves one way or another.
+  // Safety net: if getSession()/the profile query ever hangs, race it against a
+  // timeout so `loading` still flips to false instead of the app sitting on a
+  // spinner forever. (The hang we actually hit — awaiting a Supabase call inside
+  // the onAuthStateChange callback — is fixed below; this stays as a backstop.)
   const AUTH_TIMEOUT_MS = 8000;
   const getSessionSafe = useCallback((): Promise<Session | null> => {
     return Promise.race([
@@ -113,15 +111,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    // This callback must not await a Supabase call: auth-js keeps its internal lock while callbacks run, and
+    // the profile query needs that same lock, so awaiting here froze every page load for the full 8s timeout.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+      // The getSession() path above already loads the profile for the session we start with.
+      if (event === "INITIAL_SESSION") return;
       if (session?.user) {
-        const authUser = await fetchProfileSafe(session.user);
-        setUser(authUser);
+        const supabaseUser = session.user;
+        setTimeout(() => {
+          void fetchProfileSafe(supabaseUser).then((authUser) => {
+            setUser(authUser);
+            setLoading(false);
+          });
+        }, 0);
       } else {
         setUser(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
