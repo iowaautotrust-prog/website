@@ -1,0 +1,18 @@
+# Iowa Trust Motors
+
+> Used car dealership in Johnston, Iowa. Inspected pre-owned cars, trucks and SUVs with transparent pricing and online financing. Vehicles are sold AS-IS with no dealer warranty.
+
+## Business details
+
+- Name: Iowa Trust Motors LLC
+- Address: 5421 NW Beaver Dr Unit 2, Johnston, IA 50131
+- Phone: (515) 809-8051
+- Email: sales@iowatrustmotors.com
+- Business hours: Monday to Saturday, 9am to 5pm
+
+## Pages
+
+- [Current inventory](https://iowatrustmotors.com/inventory): every vehicle for sale, with price, mileage, VIN, photos and features
+- [Contact and directions](https://iowatrustmotors.com/contact): phone, email, map and hours
+- [Compare vehicles](https://iowatrustmotors.com/compare): side-by-side comparison of up to three cars
+- [Sitemap](https://iowatrustmotors.com/sitemap.xml): all pages and available vehicles

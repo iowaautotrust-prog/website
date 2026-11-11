@@ -20,6 +20,7 @@ import NotFound from "./pages/NotFound";
 import CookieBanner from "@/components/CookieBanner";
 import ScrollToTop from "@/components/ScrollToTop";
 import RouteAnalytics from "@/components/RouteAnalytics";
+import RobotsGuard from "@/components/RobotsGuard";
 
 // Everything below is loaded on demand so the public pages ship a much smaller JS bundle.
 // Auth
@@ -82,6 +83,7 @@ const App = () => (
           <BrowserRouter>
             <ScrollToTop />
             <RouteAnalytics />
+            <RobotsGuard />
             <Suspense fallback={<PageLoader />}>
             <Routes>
               {/* Public */}
