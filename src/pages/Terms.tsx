@@ -122,7 +122,7 @@ export default function Terms() {
                   Notify us immediately at{" "}
                   <a
                     href="mailto:sales@iowatrustmotors.com"
-                    className="text-primary hover:underline"
+                    className="text-primary underline underline-offset-2 hover:no-underline"
                   >
                     sales@iowatrustmotors.com
                   </a>{" "}
@@ -299,7 +299,7 @@ export default function Terms() {
                 <br />
                 <a
                   href="mailto:sales@iowatrustmotors.com"
-                  className="text-primary hover:underline"
+                  className="text-primary underline underline-offset-2 hover:no-underline"
                 >
                   sales@iowatrustmotors.com
                 </a>

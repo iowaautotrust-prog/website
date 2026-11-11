@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Plus, Pencil, Trash2, Tag, Loader2 } from "lucide-react";
@@ -59,7 +59,7 @@ export default function AdminCategories() {
     const { data: counts } = await supabase
       .from("vehicles")
       .select("category_id")
-      .in("status", ["available", "pending"]);
+      .in("status", ["available", "coming_soon", "pending"]);
     const map: Record<string, number> = {};
     counts?.forEach((v) => {
       if (v.category_id) {
@@ -277,7 +277,7 @@ export default function AdminCategories() {
                 disabled={saving}
                 className="flex-1 btn-hero"
               >
-                {saving ? "Saving…" : editing ? "Update" : "Create"}
+                {saving ? "Savingâ€¦" : editing ? "Update" : "Create"}
               </Button>
             </div>
           </div>

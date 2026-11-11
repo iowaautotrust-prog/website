@@ -69,7 +69,7 @@ export default function Privacy() {
                 Email:{" "}
                 <a
                   href="mailto:sales@iowatrustmotors.com"
-                  className="text-primary hover:underline"
+                  className="text-primary underline underline-offset-2 hover:no-underline"
                 >
                   sales@iowatrustmotors.com
                 </a>
@@ -202,7 +202,7 @@ export default function Privacy() {
                 To exercise any of the above rights, contact us at{" "}
                 <a
                   href="mailto:sales@iowatrustmotors.com"
-                  className="text-primary hover:underline"
+                  className="text-primary underline underline-offset-2 hover:no-underline"
                 >
                   sales@iowatrustmotors.com
                 </a>{" "}
@@ -301,7 +301,7 @@ export default function Privacy() {
                 <br />
                 <a
                   href="mailto:sales@iowatrustmotors.com"
-                  className="text-primary hover:underline"
+                  className="text-primary underline underline-offset-2 hover:no-underline"
                 >
                   sales@iowatrustmotors.com
                 </a>

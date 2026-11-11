@@ -21,11 +21,11 @@ import Navbar from "@/components/Navbar";
 import CompareTray from "@/components/CompareTray";
 import { useSeo } from "@/hooks/useSeo";
 import { PAGE_META } from "@/lib/pageMeta";
-import { FUEL_TYPES, normalizeFuel, optimizeImage, vehicleAlt, vehiclePath } from "@/lib/vehicleSeo";
+import { FUEL_TYPES, normalizeFuel, optimizeImage, vehicleAlt, vehiclePath, statusRank, priceText } from "@/lib/vehicleSeo";
+import TitleStatusBadge from "@/components/TitleStatusBadge";
 
 const fuels = ["All", ...FUEL_TYPES];
 const transmissions = ["All", "Automatic", "Manual", "CVT", "Single-Speed"];
-const statusRank = (s: Vehicle["status"]) => (s === "sold" ? 2 : s === "pending" ? 1 : 0);
 
 const Inventory = () => {
   useSeo({ ...PAGE_META["/inventory"], canonical: "/inventory" });
@@ -94,7 +94,8 @@ const Inventory = () => {
       if (transFilter !== "All" && v.transmission !== transFilter) return false;
       if (makeFilter !== "All" && v.make !== makeFilter) return false;
       if (categoryFilter !== "All" && v.category_id !== categoryFilter) return false;
-      if (v.price < priceRange[0] || v.price > priceRange[1]) return false;
+      // A car without a price yet ("Call for Price") stays visible whatever the price slider says.
+      if (v.price > 0 && (v.price < priceRange[0] || v.price > priceRange[1])) return false;
       if (v.mileage > mileageMax) return false;
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
@@ -107,7 +108,7 @@ const Inventory = () => {
       }
       return true;
     })
-      // Available first, then sale pending, then sold (the sort is stable: newest stays first within each group).
+      // Available first, then coming soon, then sale pending, then sold (the sort is stable: newest stays first within each group).
       .sort((a, b) => statusRank(a.status) - statusRank(b.status));
   }, [
     vehicles,
@@ -408,6 +409,11 @@ const Inventory = () => {
                           Sale Pending
                         </span>
                       )}
+                      {car.status === "coming_soon" && (
+                        <span className="absolute top-3 left-3 z-10 bg-orange-600 text-white text-sm font-extrabold uppercase tracking-wide px-4 py-1.5 rounded-full shadow-lg ring-2 ring-white/40">
+                          Coming Soon
+                        </span>
+                      )}
                       {car.status === "sold" && (
                         <span className="absolute top-3 left-3 z-10 bg-red-600 text-white text-sm font-extrabold uppercase tracking-wide px-4 py-1.5 rounded-full shadow-lg ring-2 ring-white/40">
                           Sold
@@ -478,9 +484,10 @@ const Inventory = () => {
                             {car.year} · {car.type} · {normalizeFuel(car.fuel)} ·{" "}
                             {car.transmission}
                           </p>
-                          <h3 className="text-xl md:text-2xl font-bold text-foreground">
+                          <h2 className="text-xl md:text-2xl font-bold text-foreground">
                             {car.name}
-                          </h3>
+                          </h2>
+                          {car.title_status && <TitleStatusBadge value={car.title_status} className="mt-2" />}
                           <p className="text-body line-clamp-2 mt-2">
                             {car.description}
                           </p>
@@ -488,7 +495,7 @@ const Inventory = () => {
                         <div className="flex items-end justify-between mt-6">
                           <div>
                             <p className="text-2xl font-bold text-primary">
-                              ${car.price.toLocaleString()}
+                              {priceText(car.price)}
                             </p>
                             <p className="text-sm text-muted-foreground">
                               {car.mileage.toLocaleString()} miles

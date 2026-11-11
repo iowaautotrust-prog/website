@@ -13,10 +13,20 @@ import {
   currentPrice,
   vehicleAlt,
   gallerySrcSet,
+  driveWheelUrl,
+  hasPrice,
+  priceText,
+  statusLabel,
+  statusRank,
   type SeoVehicle,
 } from "@/lib/vehicleSeo";
 import { dealerJsonLd, fullAddress, socialLinks } from "@/lib/siteConfig";
-import { renderVehiclePage } from "../../netlify/edge-functions/_lib/html.ts";
+import {
+  renderVehiclePage,
+  renderPageNotFound,
+  inventoryContent,
+  homeContent,
+} from "../../netlify/edge-functions/_lib/html.ts";
 import { matchesParam } from "@/lib/vehicleBootstrap";
 
 const rogue: SeoVehicle = {
@@ -170,6 +180,75 @@ describe("vehicle bootstrap matching", () => {
   });
 });
 
+describe("Coming Soon status and optional price", () => {
+  const soon: SeoVehicle = { ...rogue, status: "coming_soon", price: 0, mileage: 41000 };
+  it("sorts available, then coming soon, then sale pending, then sold", () => {
+    const order = ["sold", "pending", "coming_soon", "available"].sort((a, b) => statusRank(a) - statusRank(b));
+    expect(order).toEqual(["available", "coming_soon", "pending", "sold"]);
+    expect(statusLabel("coming_soon")).toBe("Coming Soon");
+  });
+  it("shows Call for Price when there is no price", () => {
+    expect(hasPrice(soon)).toBe(false);
+    expect(priceText(0)).toBe("Call for Price");
+    expect(priceText(null)).toBe("Call for Price");
+    expect(priceText(12200)).toBe("$12,200");
+  });
+  it("uses the PreOrder availability and leaves the price out of the Offer", () => {
+    expect(availabilityUrl("coming_soon")).toBe("https://schema.org/PreOrder");
+    const offer = (vehicleJsonLd(soon) as any).offers;
+    expect(offer.availability).toBe("https://schema.org/PreOrder");
+    expect("price" in offer).toBe(false);
+  });
+  it("meta description says coming soon and Call for price", () => {
+    expect(vehicleMetaDescription(soon)).toBe(
+      "2017 Nissan Rogue SV AWD - Call for price - 41,000 miles. Coming soon, request info to be notified. Iowa Trust Motors, Johnston, IA."
+    );
+  });
+  it("is NOT hidden from search: only sold cars are noindex", () => {
+    const { html } = renderVehiclePage('<html><head><title>x</title></head><body><div id="root"></div></body></html>', soon);
+    expect(html).not.toContain('content="noindex');
+    expect(html).toContain("Call for Price");
+    expect(html).toContain("Coming Soon");
+  });
+  it("the server-rendered inventory lists coming soon after available and before sold", () => {
+    const list = [
+      { ...rogue, id: "11111111-aaaa-bbbb-cccc-000000000001", status: "sold", name: "S" },
+      { ...rogue, id: "22222222-aaaa-bbbb-cccc-000000000002", status: "coming_soon", price: 0, name: "C" },
+      { ...rogue, id: "33333333-aaaa-bbbb-cccc-000000000003", status: "available", name: "A" },
+    ] as SeoVehicle[];
+    const html = inventoryContent(list);
+    const pos = (id: string) => html.indexOf(id.slice(0, 8));
+    expect(pos(list[2].id)).toBeLessThan(pos(list[1].id));
+    expect(pos(list[1].id)).toBeLessThan(pos(list[0].id));
+    expect(homeContent(list)).not.toContain(list[0].id.slice(0, 8)); // sold never on the home page
+  });
+});
+
+describe("schema.org drive type", () => {
+  it("maps AWD / FWD / RWD / 4WD to schema.org URLs and drops unknown values", () => {
+    expect(driveWheelUrl("AWD")).toBe("https://schema.org/AllWheelDriveConfiguration");
+    expect(driveWheelUrl("FWD")).toBe("https://schema.org/FrontWheelDriveConfiguration");
+    expect(driveWheelUrl("RWD")).toBe("https://schema.org/RearWheelDriveConfiguration");
+    expect(driveWheelUrl("4WD")).toBe("https://schema.org/FourWheelDriveConfiguration");
+    expect(driveWheelUrl("4x4")).toBe("https://schema.org/FourWheelDriveConfiguration");
+    expect(driveWheelUrl("Hovercraft")).toBeUndefined();
+    expect(driveWheelUrl(null)).toBeUndefined();
+    expect((vehicleJsonLd(rogue) as any).driveWheelConfiguration).toBe("https://schema.org/AllWheelDriveConfiguration");
+  });
+  it("vehicle pages are og:type product", () => {
+    const { html } = renderVehiclePage('<html><head><title>x</title></head><body><div id="root"></div></body></html>', rogue);
+    expect(html).toContain('<meta property="og:type" content="product" />');
+  });
+});
+
+describe("page not found", () => {
+  it("is a 404, noindex, with a real heading", () => {
+    const page = renderPageNotFound('<html><head><title>x</title></head><body><div id="root"></div></body></html>');
+    expect(page.status).toBe(404);
+    expect(page.html).toContain('content="noindex, follow"');
+    expect(page.html).toContain("<h1>Page not found</h1>");
+  });
+});
 describe("misc", () => {
   it("Petrol -> Gasoline", () => {
     expect(normalizeFuel("Petrol")).toBe("Gasoline");

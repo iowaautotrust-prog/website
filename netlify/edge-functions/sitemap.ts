@@ -1,5 +1,5 @@
 // Netlify Edge Function: /sitemap.xml, generated live from the inventory.
-// Lists the public pages plus every available / sale-pending vehicle (sold ones drop out
+// Lists the public pages plus every available, coming-soon and sale-pending vehicle (sold ones drop out
 // automatically), with photos for Google Image search.
 
 import { listVehicles } from "./_lib/data.ts";

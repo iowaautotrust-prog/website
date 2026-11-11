@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+﻿import { useState, useRef } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { normalizeFuel } from "@/lib/vehicleSeo";
+import { normalizeFuel, priceText, statusLabel } from "@/lib/vehicleSeo";
 import * as XLSX from "xlsx";
 
 // CSV template columns
@@ -56,7 +56,7 @@ interface ParsedVehicle {
   transmission: string;
   description: string;
   features: string[];
-  status: "available" | "pending" | "sold";
+  status: "available" | "coming_soon" | "pending" | "sold";
   vin: string;
   trim: string | null;
   drivetrain: string | null;
@@ -111,7 +111,7 @@ const parseRow = (row: Record<string, unknown>): ParsedVehicle | null => {
   const make = String(row.make ?? "").trim();
   if (!name || !make) return null;
 
-  // VIN is required for every vehicle (buyers ask for it; it drives the Carfax link).
+  // VIN is required for every vehicle (buyers ask for it).
   const vin = String(row.vin ?? "").trim().toUpperCase();
   if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) return null;
 
@@ -123,9 +123,9 @@ const parseRow = (row: Record<string, unknown>): ParsedVehicle | null => {
     .map((f) => f.trim())
     .filter(Boolean);
 
-  const rawStatus = String(row.status ?? "available").toLowerCase().trim();
-  const status: "available" | "pending" | "sold" =
-    rawStatus === "pending" ? "pending" : rawStatus === "sold" ? "sold" : "available";
+  const rawStatus = String(row.status ?? "available").toLowerCase().trim().replace(/[\s-]+/g, "_");
+  const status: "available" | "coming_soon" | "pending" | "sold" =
+    rawStatus === "pending" ? "pending" : rawStatus === "sold" ? "sold" : rawStatus === "coming_soon" ? "coming_soon" : "available";
 
   return {
     name,
@@ -228,7 +228,7 @@ export default function AdminImport() {
       const { error } = await supabase.from("vehicles").insert(chunk);
       if (error) {
         failed += chunk.length;
-        errors.push(`Rows ${i + 1}–${i + chunk.length}: ${error.message}`);
+        errors.push(`Rows ${i + 1}â€“${i + chunk.length}: ${error.message}`);
       } else {
         success += chunk.length;
       }
@@ -313,7 +313,7 @@ export default function AdminImport() {
               {fileName ? fileName : "Drop your file here"}
             </p>
             <p className="text-sm text-muted-foreground">
-              or click to browse — .xlsx, .xls, .csv supported
+              or click to browse â€” .xlsx, .xls, .csv supported
             </p>
             <input
               ref={fileInputRef}
@@ -350,7 +350,7 @@ export default function AdminImport() {
             >
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <p className="font-semibold">
-                  Preview — {parsed.length} vehicle
+                  Preview â€” {parsed.length} vehicle
                   {parsed.length !== 1 ? "s" : ""} ready to import
                 </p>
                 <Button
@@ -359,7 +359,7 @@ export default function AdminImport() {
                   className="btn-hero text-xs flex items-center gap-2"
                 >
                   {importing && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {importing ? "Importing…" : `Import ${parsed.length} Vehicles`}
+                  {importing ? "Importingâ€¦" : `Import ${parsed.length} Vehicles`}
                 </Button>
               </div>
               <div className="rounded-xl border border-border overflow-auto">
@@ -384,7 +384,7 @@ export default function AdminImport() {
                         <td className="p-3 text-muted-foreground">{v.make}</td>
                         <td className="p-3 text-muted-foreground hidden sm:table-cell">{v.year}</td>
                         <td className="p-3 text-foreground">
-                          ${v.price.toLocaleString()}
+                          {priceText(v.price)}
                         </td>
                         <td className="p-3 text-muted-foreground hidden sm:table-cell">
                           {v.mileage.toLocaleString()} mi
@@ -396,10 +396,12 @@ export default function AdminImport() {
                                 ? "bg-green-100 text-green-700"
                                 : v.status === "sold"
                                 ? "bg-slate-200 text-slate-700"
+                                : v.status === "coming_soon"
+                                ? "bg-orange-100 text-orange-800"
                                 : "bg-amber-100 text-amber-700"
                             }`}
                           >
-                            {v.status}
+                            {statusLabel(v.status)}
                           </span>
                         </td>
                       </tr>

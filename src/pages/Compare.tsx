@@ -9,10 +9,10 @@ import Navbar from "@/components/Navbar";
 import { useMemo, useState, useEffect } from "react";
 import { useSeo } from "@/hooks/useSeo";
 import { PAGE_META } from "@/lib/pageMeta";
-import { normalizeFuel, optimizeImage, vehicleAlt, vehiclePath } from "@/lib/vehicleSeo";
+import { normalizeFuel, optimizeImage, vehicleAlt, vehiclePath, priceText, statusLabel } from "@/lib/vehicleSeo";
 
 const specRows = [
-  { label: "Price", key: "price", format: (v: Vehicle) => `$${v.price.toLocaleString()}` },
+  { label: "Price", key: "price", format: (v: Vehicle) => priceText(v.price) },
   { label: "Year", key: "year", format: (v: Vehicle) => String(v.year) },
   { label: "Mileage", key: "mileage", format: (v: Vehicle) => `${v.mileage.toLocaleString()} mi` },
   { label: "Type", key: "type", format: (v: Vehicle) => v.type },
@@ -20,7 +20,7 @@ const specRows = [
   { label: "Fuel", key: "fuel", format: (v: Vehicle) => normalizeFuel(v.fuel) },
   { label: "Transmission", key: "transmission", format: (v: Vehicle) => v.transmission ?? "—" },
   { label: "Seats", key: "seats", format: (v: Vehicle) => String(v.seats ?? "—") },
-  { label: "Status", key: "status", format: (v: Vehicle) => v.status === "available" ? "Available" : v.status === "sold" ? "Sold" : "Sale Pending" },
+  { label: "Status", key: "status", format: (v: Vehicle) => statusLabel(v.status) },
 ];
 
 const Compare = () => {
@@ -66,7 +66,7 @@ const Compare = () => {
   const canAddMore = compareList.length < 3;
 
   // Find the lowest price among compared cars
-  const lowestPrice = cars.length > 1 ? Math.min(...cars.map((c) => c.price)) : null;
+  const lowestPrice = cars.filter((c) => c.price > 0).length > 1 ? Math.min(...cars.filter((c) => c.price > 0).map((c) => c.price)) : null;
 
   return (
     <div className="bg-background min-h-screen">
@@ -94,6 +94,7 @@ const Compare = () => {
             )}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
               <select
+                aria-label="Add a vehicle to compare"
                 value={addId}
                 onChange={(e) => setAddId(e.target.value)}
                 className="flex h-10 w-full sm:w-72 rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -104,7 +105,7 @@ const Compare = () => {
                 </option>
                 {availableToAdd.map((v) => (
                   <option key={v.id} value={v.id}>
-                    {v.name} — ${v.price.toLocaleString()}
+                    {v.name} — {priceText(v.price)}
                   </option>
                 ))}
               </select>
@@ -196,7 +197,7 @@ const Compare = () => {
                         : "text-primary"
                     }`}
                   >
-                    ${car.price.toLocaleString()}
+                    {priceText(car.price)}
                     {lowestPrice !== null && car.price === lowestPrice && cars.length > 1 && (
                       <span className="text-xs ml-1 font-normal inline-flex items-center gap-0.5 text-green-600">
                         <TrendingDown className="w-3 h-3" /> Best price
