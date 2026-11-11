@@ -17,14 +17,16 @@ interface AuthContextValue {
   session: Session | null;
   loading: boolean;
   // legacy aliases used by existing components
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signup: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  // captchaToken is optional everywhere: when Turnstile has no site key configured, callers pass
+  // undefined and Supabase (which has no secret key saved either in that case) doesn't ask for one.
+  login: (email: string, password: string, captchaToken?: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (name: string, email: string, password: string, captchaToken?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
-  signUp: (email: string, password: string, name: string) => Promise<{ error: string | null }>;
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, name: string, captchaToken?: string) => Promise<{ error: string | null }>;
+  signIn: (email: string, password: string, captchaToken?: string) => Promise<{ error: string | null }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
-  forgotPassword: (email: string) => Promise<{ error: string | null }>;
+  forgotPassword: (email: string, captchaToken?: string) => Promise<{ error: string | null }>;
   updatePassword: (newPassword: string) => Promise<{ error: string | null }>;
   updateProfile: (updates: Partial<Pick<Profile, "name" | "phone" | "location">>) => Promise<{ error: string | null }>;
 }
@@ -42,6 +44,10 @@ function humanizeAuthError(message: string): string {
   // New accounts can be switched off in Supabase (Authentication -> Sign In / Providers). Say so plainly.
   if (/signups? (are )?(not allowed|disabled)|signup_disabled|not allowed for this (instance|project)/i.test(message)) {
     return "Creating new accounts is turned off right now. If you need an account, please call us at (515) 809-8051.";
+  }
+  // Supabase's own wording for a missing/expired/failed Turnstile token.
+  if (/captcha/i.test(message)) {
+    return "Please complete the security check and try again.";
   }
   return message;
 }
@@ -121,13 +127,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, [getSessionSafe, fetchProfileSafe]);
 
-  const signUp = async (email: string, password: string, name: string): Promise<{ error: string | null }> => {
+  const signUp = async (
+    email: string,
+    password: string,
+    name: string,
+    captchaToken?: string
+  ): Promise<{ error: string | null }> => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { full_name: name },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
+        captchaToken,
       },
     });
     if (error) return { error: humanizeAuthError(error.message) };
@@ -140,9 +152,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   };
 
-  const signIn = async (email: string, password: string): Promise<{ error: string | null }> => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { error: error.message };
+  const signIn = async (
+    email: string,
+    password: string,
+    captchaToken?: string
+  ): Promise<{ error: string | null }> => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password, options: { captchaToken } });
+    if (error) return { error: humanizeAuthError(error.message) };
     return { error: null };
   };
 
@@ -161,11 +177,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null);
   };
 
-  const forgotPassword = async (email: string): Promise<{ error: string | null }> => {
+  const forgotPassword = async (email: string, captchaToken?: string): Promise<{ error: string | null }> => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/callback?type=recovery`,
+      captchaToken,
     });
-    if (error) return { error: error.message };
+    if (error) return { error: humanizeAuthError(error.message) };
     return { error: null };
   };
 
@@ -190,13 +207,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Legacy aliases for existing components that call login/signup/logout
-  const login = async (email: string, password: string) => {
-    const { error } = await signIn(email, password);
+  const login = async (email: string, password: string, captchaToken?: string) => {
+    const { error } = await signIn(email, password, captchaToken);
     return error ? { success: false, error } : { success: true };
   };
 
-  const signup = async (name: string, email: string, password: string) => {
-    const { error } = await signUp(email, password, name);
+  const signup = async (name: string, email: string, password: string, captchaToken?: string) => {
+    const { error } = await signUp(email, password, name, captchaToken);
     return error ? { success: false, error } : { success: true };
   };
 

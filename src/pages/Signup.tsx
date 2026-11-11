@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Mail, Lock, User, Check, X, CheckCircle2 } from "lucide-react";
+import Turnstile, { type TurnstileHandle } from "@/components/Turnstile";
+import { TURNSTILE_SITE_KEY } from "@/lib/turnstile";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
@@ -49,6 +51,8 @@ const Signup = () => {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [checkEmail, setCheckEmail] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileHandle>(null);
   const { signup, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const requestIdRef = useRef(0);
@@ -88,7 +92,7 @@ const Signup = () => {
       }
     }, 15000);
 
-    const result = await signup(name, email, password);
+    const result = await signup(name, email, password, captchaToken ?? undefined);
     clearTimeout(timeout);
     if (requestIdRef.current !== requestId) return;
 
@@ -98,6 +102,7 @@ const Signup = () => {
       setTimeout(() => navigate("/"), 1500);
     } else {
       setError(result.error || "Signup failed. Please try again.");
+      turnstileRef.current?.reset(); // a token is single-use; get a fresh one for the retry
     }
   };
 
@@ -312,7 +317,9 @@ const Signup = () => {
             )}
           </div>
 
-          <Button type="submit" disabled={loading} className="btn-hero w-full">
+          <Turnstile ref={turnstileRef} siteKey={TURNSTILE_SITE_KEY} onVerify={setCaptchaToken} className="flex justify-center" />
+
+          <Button type="submit" disabled={loading || (!!TURNSTILE_SITE_KEY && !captchaToken)} className="btn-hero w-full">
             {loading ? "Creating Account…" : "Create Account"}
           </Button>
         </form>

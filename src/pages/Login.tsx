@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Mail, Lock, CheckCircle2 } from "lucide-react";
+import Turnstile, { type TurnstileHandle } from "@/components/Turnstile";
+import { TURNSTILE_SITE_KEY } from "@/lib/turnstile";
 
 // Google icon SVG
 const GoogleIcon = () => (
@@ -36,6 +38,8 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileHandle>(null);
   const { login, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
   const requestIdRef = useRef(0);
@@ -59,7 +63,7 @@ const Login = () => {
       }
     }, 15000);
 
-    const result = await login(email, password);
+    const result = await login(email, password, captchaToken ?? undefined);
     clearTimeout(timeout);
     if (requestIdRef.current !== requestId) return;
 
@@ -69,6 +73,7 @@ const Login = () => {
       setTimeout(() => navigate("/"), 1500);
     } else {
       setError(result.error || "Invalid email or password");
+      turnstileRef.current?.reset(); // a token is single-use; get a fresh one for the retry
     }
   };
 
@@ -185,9 +190,10 @@ const Login = () => {
               />
             </div>
           </div>
+          <Turnstile ref={turnstileRef} siteKey={TURNSTILE_SITE_KEY} onVerify={setCaptchaToken} className="flex justify-center" />
           <Button
             type="submit"
-            disabled={loading}
+            disabled={loading || (!!TURNSTILE_SITE_KEY && !captchaToken)}
             className="btn-hero w-full"
           >
             {loading ? "Signing In…" : "Sign In"}
