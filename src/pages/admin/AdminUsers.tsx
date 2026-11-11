@@ -14,7 +14,6 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
-import { useApp } from "@/contexts/AppContext";
 import { supabase } from "@/lib/supabase";
 import { functionError } from "@/lib/functionError";
 import type { Profile } from "@/lib/types";
@@ -64,7 +63,6 @@ const fmtDate = (s: string | null) => (s ? new Date(s).toLocaleDateString() : "N
 
 export default function AdminUsers() {
   const { user, loading: authLoading } = useAuth();
-  const { isDemoModeReady } = useApp();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [serviceReady, setServiceReady] = useState(true);
@@ -115,10 +113,10 @@ export default function AdminUsers() {
   };
 
   useEffect(() => {
-    if (!isDemoModeReady || !user?.isAdmin) return;
+    if (!user?.isAdmin) return;
     void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDemoModeReady, user?.isAdmin]);
+  }, [user?.isAdmin]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -297,7 +295,9 @@ export default function AdminUsers() {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
+          <div className="flex items-center justify-center gap-3 py-20 text-sm text-muted-foreground">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" /> Loading users…
+          </div>
         ) : (
           <>
             {/* Desktop table */}

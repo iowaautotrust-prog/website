@@ -16,6 +16,18 @@ import Compare from "./pages/Compare";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import Financing from "./pages/Financing";
+import UsedSuvs from "./pages/UsedSuvs";
+import RebuiltTitleCars from "./pages/RebuiltTitleCars";
+import UsedCarsDesMoines from "./pages/UsedCarsDesMoines";
+import UsedCarsUnder10000 from "./pages/UsedCarsUnder10000";
+import UsedCarsWestDesMoines from "./pages/UsedCarsWestDesMoines";
+import UsedCarsWaukee from "./pages/UsedCarsWaukee";
+import UsedCarsUrbandale from "./pages/UsedCarsUrbandale";
+import About from "./pages/About";
+import HowWeWork from "./pages/HowWeWork";
+import AreasWeServe from "./pages/AreasWeServe";
+import Faq from "./pages/Faq";
 import NotFound from "./pages/NotFound";
 import CookieBanner from "@/components/CookieBanner";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -95,6 +107,18 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/financing" element={<Financing />} />
+              <Route path="/used-suvs" element={<UsedSuvs />} />
+              <Route path="/rebuilt-title-cars" element={<RebuiltTitleCars />} />
+              <Route path="/used-cars-des-moines" element={<UsedCarsDesMoines />} />
+              <Route path="/used-cars-under-10000" element={<UsedCarsUnder10000 />} />
+              <Route path="/used-cars-west-des-moines" element={<UsedCarsWestDesMoines />} />
+              <Route path="/used-cars-waukee" element={<UsedCarsWaukee />} />
+              <Route path="/used-cars-urbandale" element={<UsedCarsUrbandale />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/how-we-work" element={<HowWeWork />} />
+              <Route path="/areas-we-serve" element={<AreasWeServe />} />
+              <Route path="/faq" element={<Faq />} />
 
               {/* Auth */}
               <Route path="/login" element={<Login />} />

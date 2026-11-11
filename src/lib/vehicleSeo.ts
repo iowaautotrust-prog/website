@@ -152,6 +152,20 @@ export const vehicleMetaDescription = (v: SeoVehicle): string => {
   return text.length <= 160 ? text : `${head}. ${where}`;
 };
 
+/**
+ * Which category/city landing page a vehicle (or a just-deleted one, from its last known
+ * type/title_status/price) is most relevant to. Used both for "Explore More" links on a live
+ * vehicle page and for 301-redirecting a deleted vehicle's old URL somewhere useful instead of
+ * a bare 404. Priority: Rebuilt Title (most specific, a real trust-building page) > SUV (the
+ * biggest slice of inventory) > Under $10K > the general inventory page.
+ */
+export const categoryRedirectPath = (v: { type?: string | null; title_status?: string | null; price?: number | null }): string => {
+  if ((v.title_status ?? "").toLowerCase() === "rebuilt") return "/rebuilt-title-cars";
+  if ((v.type ?? "") === "SUV") return "/used-suvs";
+  if (typeof v.price === "number" && v.price > 0 && v.price < 10000) return "/used-cars-under-10000";
+  return "/inventory";
+};
+
 export const availabilityUrl = (status?: string | null): string => {
   if (status === "sold") return "https://schema.org/SoldOut";
   if (status === "pending") return "https://schema.org/LimitedAvailability";

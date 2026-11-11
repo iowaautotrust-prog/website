@@ -10,10 +10,10 @@
 //
 // If anything fails (e.g. Supabase unreachable) the untouched index.html is returned.
 
-import { findVehicle, listVehicles } from "./_lib/data.ts";
+import { findDeletedVehicle, findVehicle, listVehicles } from "./_lib/data.ts";
 import { renderNotFound, renderStaticPage, renderVehiclePage, type Page } from "./_lib/html.ts";
 import { normalizePath } from "./_lib/routes.ts";
-import { vehiclePath } from "../../src/lib/vehicleSeo.ts";
+import { categoryRedirectPath, vehiclePath } from "../../src/lib/vehicleSeo.ts";
 
 type Ctx = { next: () => Promise<Response> };
 
@@ -41,6 +41,12 @@ export default async function handler(request: Request, context: Ctx): Promise<R
       const segment = decodeURIComponent(path.slice("/vehicle/".length));
       const vehicle = await findVehicle(segment);
       if (!vehicle) {
+        // Deleted (not merely sold), but it left a tombstone: send old links/bookmarks somewhere
+        // useful instead of a dead end (Local SEO Plan, Nov 10 2026, section 3.4).
+        const deleted = await findDeletedVehicle(segment);
+        if (deleted) {
+          return Response.redirect(`${url.origin}${categoryRedirectPath(deleted)}`, 301);
+        }
         page = renderNotFound(indexHtml);
       } else {
         const canonicalPath = vehiclePath(vehicle);

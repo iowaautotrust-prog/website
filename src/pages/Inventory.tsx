@@ -414,8 +414,11 @@ const Inventory = () => {
                           Coming Soon
                         </span>
                       )}
+                      {/* Sold is deliberately bigger than Sale Pending / Coming Soon (client request,
+                          Nov 11 2026) — it must stay the most prominent of the three. Don't "tidy" this
+                          to match their size again. */}
                       {car.status === "sold" && (
-                        <span className="absolute top-3 left-3 z-10 bg-red-600 text-white text-sm font-extrabold uppercase tracking-wide px-4 py-1.5 rounded-full shadow-lg ring-2 ring-white/40">
+                        <span className="absolute top-3 left-3 z-10 bg-red-600 text-white text-lg font-extrabold uppercase tracking-wide px-6 py-2.5 rounded-full shadow-lg ring-2 ring-white/40">
                           Sold
                         </span>
                       )}

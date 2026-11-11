@@ -26,7 +26,7 @@ import { SITE } from "@/lib/siteConfig";
 import {
   parseVehicleParam, shortId, vehiclePath, vehicleTitle, vehicleTitleTag, vehicleMetaDescription,
   vehicleJsonLd, vehicleAlt, vehicleImages, optimizeImage, normalizeFuel, gallerySrcSet, GALLERY_SIZES,
-  hasPrice, priceText,
+  hasPrice, priceText, categoryRedirectPath,
 } from "@/lib/vehicleSeo";
 
 // ─── Lightbox ─────────────────────────────────────────────────────────────────
@@ -389,8 +389,11 @@ const VehicleDetail = () => {
                       Coming Soon
                     </span>
                   )}
+                  {/* Sold is deliberately bigger than Sale Pending / Coming Soon (client request,
+                      Nov 11 2026) — it must stay the most prominent of the three. Don't "tidy" this
+                      to match their size again. */}
                   {car.status === "sold" && (
-                    <span className="absolute top-4 left-4 z-10 bg-red-600 text-white text-base font-extrabold uppercase tracking-wide px-5 py-2 rounded-full shadow-lg ring-2 ring-white/40">
+                    <span className="absolute top-4 left-4 z-10 bg-red-600 text-white text-xl font-extrabold uppercase tracking-wide px-7 py-3 rounded-full shadow-lg ring-2 ring-white/40">
                       Sold
                     </span>
                   )}
@@ -687,6 +690,22 @@ const VehicleDetail = () => {
             )}
           </motion.div>
         </div>
+      )}
+
+      {/* Explore more: a link to whichever category page best matches this car (SUV / rebuilt
+          title / under $10k) — skipped on /inventory itself, since that IS "more of everything". */}
+      {categoryRedirectPath(car) !== "/inventory" && (
+        <section className="section-padding pt-2 pb-8">
+          <Link
+            to={categoryRedirectPath(car)}
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+          >
+            {categoryRedirectPath(car) === "/used-suvs" && "Browse More Used SUVs"}
+            {categoryRedirectPath(car) === "/rebuilt-title-cars" && "Browse More Rebuilt Title Cars"}
+            {categoryRedirectPath(car) === "/used-cars-under-10000" && "Browse More Cars Under $10,000"}
+            <ArrowUpRight className="w-4 h-4" />
+          </Link>
+        </section>
       )}
 
       {/* Similar Cars */}

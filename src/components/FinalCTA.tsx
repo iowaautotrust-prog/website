@@ -52,6 +52,20 @@ const FinalCTA = () => {
           </FinancingLink>
         </motion.div>
       </div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.5, delay: 0.4 }}
+        className="max-w-4xl mx-auto text-center mt-20 pt-12 border-t border-border"
+      >
+        <Link to="/faq" className="group inline-flex flex-col items-center gap-2">
+          <div className="flex items-center gap-2">
+            <h2 className="heading-section group-hover:text-primary transition-colors">FAQ</h2>
+            <ArrowUpRight className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+          </div>
+          <p className="text-sm text-muted-foreground">Financing, rebuilt titles, repairs and test drives</p>
+        </Link>
+      </motion.div>
     </section>
   );
 };

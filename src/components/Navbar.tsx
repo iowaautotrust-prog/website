@@ -2,9 +2,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useApp } from "@/contexts/AppContext";
-import { User, LayoutDashboard, GitCompare, Phone, Menu, X, Wrench, BadgeDollarSign, MessageSquare } from "lucide-react";
+import { User, LayoutDashboard, GitCompare, Phone, Menu, X, Wrench, BadgeDollarSign, MessageSquare, ChevronDown } from "lucide-react";
 import { SITE } from "@/lib/siteConfig";
-import { useState, useEffect } from "react";
+import { ABOUT_LINKS } from "@/lib/pageContent";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import FinancingLink from "@/components/FinancingLink";
 
@@ -15,6 +16,21 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [newLeads, setNewLeads] = useState(0);
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const aboutRef = useRef<HTMLDivElement>(null);
+  const aboutInput = useRef("");
+
+  useEffect(() => setAboutOpen(false), [location.pathname]);
+
+  // A tap outside the About menu closes it (touch screens have no mouse-leave).
+  useEffect(() => {
+    if (!aboutOpen) return;
+    const onDown = (e: PointerEvent) => {
+      if (!aboutRef.current?.contains(e.target as Node)) setAboutOpen(false);
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [aboutOpen]);
 
   // Fetch new leads count for admin badge
   useEffect(() => {
@@ -94,6 +110,48 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center gap-5 xl:gap-7">
             <Link to="/" className={linkClass}>Home</Link>
             <Link to="/inventory" className={linkClass}>Inventory</Link>
+            <div
+              ref={aboutRef}
+              className="relative"
+              onPointerEnter={(e) => e.pointerType === "mouse" && setAboutOpen(true)}
+              onPointerLeave={(e) => e.pointerType === "mouse" && setAboutOpen(false)}
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setAboutOpen(false);
+              }}
+              onKeyDown={(e) => e.key === "Escape" && setAboutOpen(false)}
+            >
+              <button
+                type="button"
+                aria-expanded={aboutOpen}
+                aria-haspopup="true"
+                onPointerDown={(e) => { aboutInput.current = e.pointerType; }}
+                onKeyDown={() => { aboutInput.current = "key"; }}
+                // With a mouse, hovering already opened the menu, so a click must not toggle it shut again.
+                onClick={() => setAboutOpen((o) => (aboutInput.current === "mouse" ? true : !o))}
+                className={`${linkClass} flex items-center gap-1`}
+              >
+                About
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${aboutOpen ? "rotate-180" : ""}`} />
+              </button>
+              {/* Always in the page so the links are there for crawlers; only hidden visually while closed. */}
+              <div
+                className={`absolute left-1/2 -translate-x-1/2 top-full pt-3 transition-opacity duration-150 ${
+                  aboutOpen ? "opacity-100 visible" : "opacity-0 invisible"
+                }`}
+              >
+                <div className="w-56 rounded-lg border border-border bg-background shadow-lg py-2">
+                  {ABOUT_LINKS.map(({ to, label }) => (
+                    <Link
+                      key={to}
+                      to={to}
+                      className="block px-4 py-2.5 text-sm font-medium text-foreground hover:bg-secondary hover:text-primary transition-colors"
+                    >
+                      {label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
             {/* Service link — hidden until shop goes live
             <Link to="/service" className={`${linkClass} flex items-center gap-1`}>
               <Wrench className="w-3.5 h-3.5" />
@@ -200,6 +258,7 @@ const Navbar = () => {
               {[
                 { to: "/", label: "Home" },
                 { to: "/inventory", label: "Inventory" },
+                ...ABOUT_LINKS,
                 { to: "/contact", label: "Contact" },
                 { to: "/compare", label: compareList.length > 0 ? `Compare (${compareList.length})` : "Compare" },
                 // { to: "/service", label: "Service" }, // hidden until shop goes live
