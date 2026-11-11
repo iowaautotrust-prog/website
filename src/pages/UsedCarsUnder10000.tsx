@@ -8,6 +8,7 @@ const UsedCarsUnder10000 = () => (
     title="Used Cars Under $10,000 Near Des Moines | Iowa Trust Motors"
     description="Affordable used cars under $10,000 in Johnston, IA. Inspected, clearly priced, financing available. See today's inventory."
     canonical="/used-cars-under-10000"
+    compact
     heading="Used Cars Under $10,000 Near Des Moines"
     filter={(v) => typeof v.price === "number" && v.price > 0 && v.price < 10000}
     emptyMessage="Nothing under $10,000 is in stock this week — browse our full inventory to see today's prices."

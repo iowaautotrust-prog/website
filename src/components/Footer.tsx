@@ -18,9 +18,9 @@ const QUICK_LINKS: { to: string; label: string; financing?: boolean }[] = [
 const Footer = () => (
   <footer className="bg-foreground text-background">
     <div className="section-padding py-16">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10 md:gap-12">
         {/* Brand */}
-        <div>
+        <div className="col-span-2 lg:col-span-1">
           <p className="text-xl font-bold tracking-tight mb-1">IOWA TRUST MOTORS</p>
           <p className="text-xs tracking-[0.2em] text-background/65 uppercase mb-4">
             Premium Pre-Owned Vehicles
@@ -73,7 +73,7 @@ const Footer = () => (
         </div>
 
         {/* Contact */}
-        <div>
+        <div className="col-span-2 lg:col-span-1">
           <p className="text-xs font-semibold tracking-[0.15em] uppercase text-background/65 mb-5">
             Contact Us
           </p>

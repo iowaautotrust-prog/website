@@ -8,6 +8,7 @@ const UsedSuvs = () => (
     title="Used SUVs for Sale in Johnston, IA | Iowa Trust Motors"
     description="Shop inspected used SUVs near Des Moines. AWD options, clear pricing and financing available at Iowa Trust Motors, Johnston IA."
     canonical="/used-suvs"
+    compact
     heading="Used SUVs for Sale in Johnston, IA"
     filter={(v) => v.type === "SUV"}
     emptyMessage="We're between SUVs in stock right now — check back soon, or browse our full inventory for what's available today."

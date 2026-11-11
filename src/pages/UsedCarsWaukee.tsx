@@ -5,6 +5,7 @@ const UsedCarsWaukee = () => (
     title="Used Cars Near Waukee, IA | Iowa Trust Motors"
     description="Used cars for Waukee drivers. Inspected vehicles, financing and same-day test drives at Iowa Trust Motors in Johnston, IA."
     canonical="/used-cars-waukee"
+    compact
     heading="Used Cars Near Waukee, IA"
     filter={(v) => v.status !== "sold"}
     emptyMessage="Check back soon — or browse our full inventory for what's available today."

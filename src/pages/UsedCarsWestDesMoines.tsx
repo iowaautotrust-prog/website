@@ -5,6 +5,7 @@ const UsedCarsWestDesMoines = () => (
     title="Used Cars Near West Des Moines, IA | Iowa Trust Motors"
     description="Used cars for West Des Moines drivers. A quick trip across the metro to Johnston, IA for inspected vehicles, financing and same-day test drives."
     canonical="/used-cars-west-des-moines"
+    compact
     heading="Used Cars Near West Des Moines, IA"
     filter={(v) => v.status !== "sold"}
     emptyMessage="Check back soon — or browse our full inventory for what's available today."
