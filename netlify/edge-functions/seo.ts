@@ -14,11 +14,19 @@ import { findDeletedVehicle, findVehicle, listVehicles } from "./_lib/data.ts";
 import { renderNotFound, renderStaticPage, renderVehiclePage, type Page } from "./_lib/html.ts";
 import { normalizePath } from "./_lib/routes.ts";
 import { categoryRedirectPath, vehiclePath } from "../../src/lib/vehicleSeo.ts";
+import { CATEGORY_FILTERS } from "../../src/lib/categoryFilters.ts";
 
 type Ctx = { next: () => Promise<Response> };
 
+// Netlify only runs this function for the paths listed here, so every page that needs server-rendered
+// HTML must be in this list. src/test/seoPages.test.ts fails if one of the SEO pages is missing from it.
 export const config = {
-  path: ["/", "/inventory", "/vehicle/*", "/contact", "/compare", "/privacy", "/terms"],
+  path: [
+    "/", "/inventory", "/vehicle/*", "/contact", "/compare", "/privacy", "/terms",
+    "/financing", "/used-suvs", "/used-cars-under-10000", "/rebuilt-title-cars",
+    "/used-cars-des-moines", "/used-cars-west-des-moines", "/used-cars-waukee", "/used-cars-urbandale",
+    "/about", "/how-we-work", "/areas-we-serve", "/faq",
+  ],
 };
 
 const normalize = normalizePath;
@@ -57,7 +65,7 @@ export default async function handler(request: Request, context: Ctx): Promise<R
         page = renderVehiclePage(indexHtml, vehicle);
       }
     } else {
-      const needsInventory = path === "/" || path === "/inventory";
+      const needsInventory = path === "/" || path === "/inventory" || path in CATEGORY_FILTERS;
       const vehicles = needsInventory ? await listVehicles() : [];
       page = renderStaticPage(indexHtml, path, vehicles);
     }

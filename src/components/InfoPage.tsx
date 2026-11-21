@@ -1,20 +1,20 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import type { ReactNode } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SeoText from "@/components/SeoText";
 import { useSeo } from "@/hooks/useSeo";
 import { PAGE_META } from "@/lib/pageMeta";
+import { SEO_PAGES } from "@/lib/seoPages";
 
 interface Props {
   path: string;
-  heading: string;
-  children: ReactNode;
   jsonLd?: Record<string, unknown> | null;
 }
 
-// Shared shell for the plain content pages (About, How We Work, Areas We Serve, FAQ).
-const InfoPage = ({ path, heading, children, jsonLd }: Props) => {
+// Shared page for the text-only pages (About, How We Work, Areas We Serve, FAQ): the client's text from seoPages.ts.
+const InfoPage = ({ path, jsonLd }: Props) => {
+  const page = SEO_PAGES[path];
   useSeo({ ...PAGE_META[path], canonical: path, jsonLd });
 
   return (
@@ -23,8 +23,8 @@ const InfoPage = ({ path, heading, children, jsonLd }: Props) => {
       <main className="pt-28 pb-16">
         <div className="section-padding">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-3xl">
-            <h1 className="heading-section mb-6">{heading}</h1>
-            <div className="space-y-4">{children}</div>
+            <h1 className="heading-section mb-6">{page.h1}</h1>
+            <SeoText blocks={page.blocks} />
             <div className="flex flex-wrap gap-3 mt-10">
               <Link to="/inventory" className="btn-hero">Browse Inventory</Link>
               <Link to="/contact" className="btn-hero-outline">Contact Us</Link>
