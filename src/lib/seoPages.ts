@@ -65,7 +65,7 @@ export const SEO_PAGES: Record<string, SeoPageData> = {
     blocks: [
       p("Iowa winters, gravel roads, school runs, and weekend trips to the lake — an SUV handles all of it. At Iowa Trust Motors in Johnston, SUVs and crossovers make up most of our inventory, and many of them come with all-wheel drive."),
       h2("SUVs built for Iowa driving"),
-      p("We focus on practical, reliable SUVs that make great daily drivers. Our inventory often includes models such as the Ford Escape, Chevrolet Equinox, Nissan Rogue, Nissan Rogue Sport, and Buick Encore. Inventory changes often, so check the listings above for what is available today."),
+      p("We focus on practical, reliable SUVs that make great daily drivers. Our inventory often includes models such as the Ford Escape, Chevrolet Equinox, Nissan Rogue, Nissan Rogue Sport, and Buick Encore. Inventory changes often, so check the listings below for what is available today."),
       h2("What you can expect from every SUV we sell"),
       ul(
         "Real photos of the actual vehicle, inside and out",
@@ -161,7 +161,7 @@ export const SEO_PAGES: Record<string, SeoPageData> = {
       h2("Why Des Moines drivers shop with us"),
       p("Big dealerships can feel rushed and confusing. We keep it simple. Every vehicle is listed online with real photos, the mileage, the VIN, the title status, and the price, so you can compare from home before you visit. When you are ready, call or text us and we will have the car ready for a test drive, often the same day."),
       h2("What we sell"),
-      p("Most of our inventory is SUVs and crossovers, many with all-wheel drive for Iowa winters, plus a selection of sedans. Popular models include the Ford Escape, Chevrolet Equinox, Nissan Rogue, and Buick Encore. Inventory changes often, so check the listings above for today's vehicles."),
+      p("Most of our inventory is SUVs and crossovers, many with all-wheel drive for Iowa winters, plus a selection of sedans. Popular models include the Ford Escape, Chevrolet Equinox, Nissan Rogue, and Buick Encore. Inventory changes often, so check the listings below for today's vehicles."),
       h2("Honest about every car"),
       p("Many of our vehicles carry a rebuilt title. These cars were professionally repaired and passed the Iowa state inspection before being titled again. Rebuilt-title vehicles usually cost less than similar clean-title cars, which helps Des Moines buyers get more car for their budget. We always disclose the title status and the repairs, and repair photos are available on request."),
       h2("Financing and easy paperwork"),
@@ -184,7 +184,7 @@ export const SEO_PAGES: Record<string, SeoPageData> = {
       h2("A smaller dealership with a personal touch"),
       p("When you call us, you talk to the people who know the cars. We can tell you how a vehicle drives, what repairs were done, and whether it fits your needs. There is no pressure and no runaround — just straight answers."),
       h2("Cars that fit West Des Moines life"),
-      p("Whether you commute to work, drive the kids to school, or head out of town on weekends, we focus on dependable vehicles for everyday life. Most of our inventory is SUVs and crossovers, many with all-wheel drive, along with fuel-efficient sedans. Check the listings above for the vehicles available today."),
+      p("Whether you commute to work, drive the kids to school, or head out of town on weekends, we focus on dependable vehicles for everyday life. Most of our inventory is SUVs and crossovers, many with all-wheel drive, along with fuel-efficient sedans. Check the listings below for the vehicles available today."),
       h2("Everything you need to know, online"),
       ul(
         "Real photos of the actual vehicle",
@@ -210,7 +210,7 @@ export const SEO_PAGES: Record<string, SeoPageData> = {
     blocks: [
       p("Waukee is one of the fastest-growing communities in central Iowa, and growing families need dependable vehicles. Iowa Trust Motors in Johnston is a short drive from Waukee and offers used SUVs and cars at fair, clearly listed prices."),
       h2("Vehicles for growing families"),
-      p("Many Waukee households need room for kids, sports gear, and groceries, plus traction for winter roads. That is why most of our inventory is SUVs and crossovers, many with all-wheel drive. Models such as the Chevrolet Equinox, Ford Escape, and Nissan Rogue offer good cargo space, comfortable seating, and modern safety features. Check the listings above for the vehicles available today."),
+      p("Many Waukee households need room for kids, sports gear, and groceries, plus traction for winter roads. That is why most of our inventory is SUVs and crossovers, many with all-wheel drive. Models such as the Chevrolet Equinox, Ford Escape, and Nissan Rogue offer good cargo space, comfortable seating, and modern safety features. Check the listings below for the vehicles available today."),
       h2("Shop from home first"),
       p("We list every vehicle online with real photos, the mileage, the VIN, the title status, and the price. You can narrow down your choices from home, compare vehicles side by side with our Compare tool, and only make the trip when you are ready to test drive."),
       h2("Clear about rebuilt titles"),
@@ -233,7 +233,7 @@ export const SEO_PAGES: Record<string, SeoPageData> = {
       h2("Close to home"),
       p("Because we are so close to Urbandale, it is easy to stop by on your lunch break or after work to see a car in person. Call or text us first and we will have the vehicle ready for a test drive, often the same day."),
       h2("What you will find on our lot"),
-      p("Our inventory is mostly SUVs and crossovers — many with all-wheel drive for Iowa weather — plus some sedans for commuters who want better fuel economy. Inventory changes often, so check the listings above for what is available today."),
+      p("Our inventory is mostly SUVs and crossovers — many with all-wheel drive for Iowa weather — plus some sedans for commuters who want better fuel economy. Inventory changes often, so check the listings below for what is available today."),
       h2("Transparent listings"),
       ul(
         "Real photos of the actual car, not stock images",

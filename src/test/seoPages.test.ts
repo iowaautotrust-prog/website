@@ -109,4 +109,11 @@ describe("the 12 SEO pages", () => {
     // this guards against whole pages being pasted twice by mistake, not against those.
     expect(dupes.length).toBeLessThan(8);
   });
-});
+  it("matches the Nov 24 text: it says the listings are below, and the page really puts the cars after the text", () => {
+    for (const p of EXPECTED) expect(blocksText(SEO_PAGES[p].blocks)).not.toMatch(/listings above/);
+    const saysBelow = EXPECTED.filter((p) => /listings below/.test(blocksText(SEO_PAGES[p].blocks)));
+    expect(saysBelow.sort()).toEqual(["/used-cars-des-moines", "/used-cars-urbandale", "/used-cars-waukee", "/used-cars-west-des-moines", "/used-suvs"]);
+    for (const p of saysBelow) expect(SEO_PAGES[p].inventory).toBeDefined();
+    const html = renderStaticPage(INDEX_HTML, "/used-suvs", [car({ make: "Alpha" }) as never])!.html;
+    expect(html.indexOf("<h2>Visit our Johnston lot</h2>")).toBeLessThan(html.indexOf("Alpha"));
+  });});
