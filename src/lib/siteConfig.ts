@@ -107,48 +107,55 @@ export const dealerJsonLd = (): Record<string, unknown> => {
   return ld;
 };
 
-/** One Q/A entry. Shared by the homepage FAQ section and its FAQPage JSON-LD, so they never drift. */
+/** One Q/A entry. Shared by the /faq page, its FAQPage JSON-LD and the server-rendered HTML, so they never drift. */
 export interface FaqItem {
   q: string;
   a: string;
 }
 
-// Exact wording the client supplied (homepage content doc, Nov 11 2026) — do not paraphrase.
-export const HOMEPAGE_FAQ: FaqItem[] = [
+// The client's wording (ITM_website_request_nov21, Nov 21 2026), used as written.
+export const FAQ_ITEMS: FaqItem[] = [
   {
     q: "Do you offer financing?",
-    a: "Yes. You can apply online through our lending partner, Marine Credit Union, using the \"Apply for Financing\" button on our website, or call us at (515) 809-8051 and we'll help you get started.",
+    a: 'Yes. You can apply online through our lending partner, Marine Credit Union, using the "Apply for Financing" button on our website. The application takes a few minutes. Approval and terms depend on the lender\'s review of your credit and income. Financing is available with approved credit. If you have questions, call us at (515) 809-8051.',
   },
   {
-    q: "What does \"Rebuilt Title\" mean?",
-    a: "A rebuilt title means the vehicle was previously damaged and declared a salvage vehicle, then repaired and passed the Iowa state inspection before being retitled. It is legal to drive, register and insure in Iowa. We clearly mark the title status on every vehicle.",
+    q: 'What does "Rebuilt Title" mean?',
+    a: "A rebuilt title means the vehicle was declared a total loss by an insurance company in the past, was then repaired, and passed the Iowa state inspection before being titled again. Rebuilt-title vehicles usually cost less than similar clean-title vehicles.",
   },
   {
     q: "Can I see what repairs were done?",
-    a: "Yes. We list the main repairs in each vehicle's description, and we're happy to share repair details and photos — just ask.",
+    a: "Yes. We document the repairs on our vehicles, and repair details and photos are available on request. Just ask when you call or visit.",
   },
   {
     q: "Do your vehicles come with a warranty?",
-    a: "Our vehicles are sold as-is with no dealer warranty. We encourage you to test drive the car and ask us any questions before you buy.",
+    a: "No. Our vehicles are sold AS-IS with no dealer warranty, and the factory warranty may not apply on rebuilt-title vehicles. That is why we share the title status, repairs, and real photos before you buy, and why we encourage you to take a test drive.",
   },
   {
     q: "Can I insure a rebuilt-title car?",
-    a: "Many insurance companies insure rebuilt-title vehicles. We recommend checking with your insurance agent before you buy.",
+    a: "Most insurance companies insure rebuilt-title vehicles, but coverage options can vary by company. We recommend calling your insurance agent with the VIN before you buy. The VIN is listed on every vehicle page.",
   },
   {
     q: "Can I test drive a car?",
-    a: "Yes — same-day test drives are available. Call or text (515) 809-8051 to make sure the car is ready when you arrive.",
+    a: "Yes. Call or text (515) 809-8051 to confirm the car is available and set a time. In most cases we can arrange a test drive the same day. Please bring your driver's license.",
   },
   {
-    q: "What does \"Coming Soon\" mean?",
-    a: "These vehicles are being prepared and will be available shortly. Click \"Notify Me / Request Info\" on the vehicle page and we'll contact you as soon as it's ready.",
+    q: "Do you accept trade-ins?",
+    a: "Ask us about your trade-in when you call. Bring your vehicle's title and any payoff information so we can talk through it.",
+  },
+  {
+    q: 'What does "Coming Soon" mean?',
+    a: 'A "Coming Soon" vehicle is in our inventory but is still being prepared — repairs, inspection, or photos may not be finished yet. You can use the "Notify Me" button on the vehicle page or call us to be the first to know when it is ready.',
+  },
+  {
+    q: "What do I need to bring to buy a car?",
+    a: "A valid driver's license, proof of insurance, and your payment or financing approval. If you are trading in a vehicle, bring its title.",
   },
   {
     q: "Where are you located and what are your hours?",
-    a: "5421 NW Beaver Dr, Unit 2, Johnston, IA 50131. Monday–Saturday, 9:00 AM – 5:00 PM.",
+    a: "Iowa Trust Motors is at 5421 NW Beaver Dr Unit 2, Johnston, IA 50131. We are open Monday to Saturday, 9am to 5pm, and closed on Sunday. You can also reach us at sales@iowatrustmotors.com.",
   },
 ];
-
 export const faqJsonLd = (items: FaqItem[]): Record<string, unknown> => ({
   "@context": "https://schema.org",
   "@type": "FAQPage",
